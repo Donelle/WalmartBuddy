@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Walmart Buddy</string>
+
+    <!-- ERROR TAGS -->
+    <string name="error_server_connection_failed">An occurred connecting to the server. Please resubmit your request again.</string>
+    <string name="error_fatal_error">An unexpected has occurred. To further assist in solving this issue please report problem to http://cannypa.com/issues</string>
+    <string name="error_unknown_error">An unexpected error occurred processing your request. Please resubmit your request again.</string>
+    <string name="error_photo_process_failed">Failed to save snaphsot :-(</string>
+    <string name="error_camera_unavailable">Walmart Buddy is unable to access your camera please make sure its not being used in another application</string>
+    <string name="error_create_photos_directory">Unable to create the pictures directory</string>
+    <string name="error_processing_request">An error occurred processing this request</string>
+</resources>
