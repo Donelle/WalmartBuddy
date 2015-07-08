@@ -2,9 +2,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".ShoppingListActivity">
+    tools:context=".ShoppingListActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_10dp"
+        android:layout_marginLeft="@dimen/padding_10dp"
+        android:id="@+id/shopping_list_cart_name"
+        android:layout_alignParentStart="true"
+        android:text=""
+        android:textSize="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_10dp"
+        android:layout_marginRight="@dimen/padding_10dp"
+        android:id="@+id/shopping_list_total"
+        android:layout_alignParentEnd="true"
+        android:text=""
+        android:textSize="28dp"
+        android:textColor="@color/md_green_600"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:id="@+id/finance_divider"
+        android:layout_below="@+id/shopping_list_total" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/shopping_list_cart"
+        android:layout_below="@+id/finance_divider"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical" />
 
 </RelativeLayout>

@@ -1,0 +1,97 @@
+<!--
+/*
+ * Copyright (C) 2015 Donelle Sanders Jr
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.donellsandersjr.walmartbuddy.activities.ScanActivity">
+
+    <FrameLayout
+        android:id="@+id/scanner_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:keepScreenOn="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:fitsSystemWindows="true"
+        style="?metaButtonBarStyle">
+
+        <IconButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/scanner_close_button"
+            android:text="{fa-close} Close "
+            android:textSize="17sp"
+            android:background="@android:color/transparent"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/scanner_scan_container"
+        android:layout_alignParentBottom="true"
+        android:padding="@dimen/padding_10dp"
+        android:visibility="invisible">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:id="@+id/scanner_scan_pic"
+            android:layout_alignParentStart="true"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/scanner_scan_title"
+            android:layout_marginLeft="@dimen/padding_5dp"
+            android:layout_toEndOf="@+id/scanner_scan_pic"
+            android:layout_alignTop="@+id/scanner_scan_pic"
+            android:textSize="18sp"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/scanner_scan_price"
+            android:layout_marginLeft="@dimen/padding_5dp"
+            android:layout_below="@+id/scanner_scan_title"
+            android:layout_toEndOf="@+id/scanner_scan_pic"
+            android:layout_marginTop="@dimen/padding_10dp"
+            android:textSize="16sp"
+            android:textColor="@android:color/white" />
+
+        <IconButton
+            android:id="@+id/scanner_add_to_cart_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_10dp"
+            android:layout_below="@+id/scanner_scan_pic"
+            android:text="{fa-cart-plus} Add to Cart"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"
+            android:background="@color/md_orange_900"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

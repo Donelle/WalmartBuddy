@@ -22,7 +22,7 @@ import android.os.Parcel;
 import com.donellsandersjr.walmartbuddy.App;
 
 public abstract class WBParcelable implements android.os.Parcelable {
-    private static final String TAG = "com.donellesandersjr.walmartbuddy.Parcelable";
+    private static final String TAG = "com.donellesandersjr.walmartbuddy.api.Parcelable";
     private static final String CLASSNAME = "className";
 
     protected void onRestoreState(Bundle state) { /*NO OP*/ }

@@ -18,6 +18,7 @@ package com.donellsandersjr.walmartbuddy.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
 import android.view.WindowManager;
 
 public class BaseActivity extends AppCompatActivity {
@@ -26,5 +27,14 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+    }
+
+    protected float getDPUnits (int unit) {
+        return Float.valueOf(
+                TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        unit,
+                        getResources().getDisplayMetrics())
+        );
     }
 }

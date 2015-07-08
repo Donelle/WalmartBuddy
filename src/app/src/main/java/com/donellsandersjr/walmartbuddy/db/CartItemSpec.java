@@ -32,6 +32,7 @@ class CartItemSpec extends BaseSpec {
     public String name;
     public double price;
     public String thumbnailUrl;
+    public int quantity;
     public int productId;
     public int categoryId;
     public long createDate;
@@ -43,6 +44,7 @@ class CartItemSpec extends BaseSpec {
         model.setStringValue(CartItemModel.KEY_NAME, cartItemDb.getName());
         model.setDoubleValue(CartItemModel.KEY_PRICE, cartItemDb.getPrice());
         model.setStringValue(CartItemModel.KEY_IMAGE_URL, cartItemDb.getThumbnailUrl());
+        model.setIntValue(CartItemModel.KEY_QUANTITY, cartItemDb.getQuantity());
 
         int id = cartItemDb.getProductId();
         if (id > 0) {
@@ -65,6 +67,7 @@ class CartItemSpec extends BaseSpec {
         cartItemDb.setName(model.getStringValue(CartItemModel.KEY_NAME));
         cartItemDb.setPrice(model.getDoubleValue(CartItemModel.KEY_PRICE));
         cartItemDb.setThumbnailUrl(model.getStringValue(CartItemModel.KEY_IMAGE_URL));
+        cartItemDb.setQuantity (model.getIntValue(CartItemModel.KEY_QUANTITY));
 
         ProductModel productModel = model.getProduct();
         if (productModel != null)

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ref: https://github.com/wada811/Android-Material-Design-Colors -->
+    <!-- orange -->
+    <color name="md_orange_50">#fff3e0</color>
+    <color name="md_orange_100">#ffe0b2</color>
+    <color name="md_orange_200">#ffcc80</color>
+    <color name="md_orange_300">#ffb74d</color>
+    <color name="md_orange_400">#ffa726</color>
+    <color name="md_orange_500">#ff9800</color>
+    <color name="md_orange_600">#fb8c00</color>
+    <color name="md_orange_700">#f57c00</color>
+    <color name="md_orange_800">#ef6c00</color>
+    <color name="md_orange_900">#e65100</color>
+    <color name="md_orange_a100">#ffd180</color>
+    <color name="md_orange_a200">#ffab40</color>
+    <color name="md_orange_a400">#ff9100</color>
+    <color name="md_orange_a700">#ff6d00</color>
+
+    <!-- green -->
+    <color name="md_green_50">#d0f8ce</color>
+    <color name="md_green_100">#a3e9a4</color>
+    <color name="md_green_200">#72d572</color>
+    <color name="md_green_300">#42bd41</color>
+    <color name="md_green_400">#2baf2b</color>
+    <color name="md_green_500">#259b24</color>
+    <color name="md_green_600">#0a8f08</color>
+    <color name="md_green_700">#0a7e07</color>
+    <color name="md_green_800">#056f00</color>
+    <color name="md_green_900">#0d5302</color>
+    <color name="md_green_a100">#a2f78d</color>
+    <color name="md_green_a200">#5af158</color>
+    <color name="md_green_a400">#14e715</color>
+    <color name="md_green_a700">#12c700</color>
+
+    <color name="black_overlay">#66000000</color>
+</resources>

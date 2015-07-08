@@ -1,12 +1,31 @@
+<!--
+/*
+ * Copyright (C) 2015 Donelle Sanders Jr
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
 <resources>
-    <string name="app_name">Walmart Buddy</string>
+    <string name="app_name">Shopping Buddy</string>
+    <!-- TITLES -->
+    <string name="title_activity_scan">ScanActivity</string>
+
+    <!-- PROGRESS TAGS -->
+    <string name="progress_message_generic_loading">Loading please wait</string>
 
     <!-- ERROR TAGS -->
-    <string name="error_server_connection_failed">An occurred connecting to the server. Please resubmit your request again.</string>
-    <string name="error_fatal_error">An unexpected has occurred. To further assist in solving this issue please report problem to http://cannypa.com/issues</string>
-    <string name="error_unknown_error">An unexpected error occurred processing your request. Please resubmit your request again.</string>
-    <string name="error_photo_process_failed">Failed to save snaphsot :-(</string>
     <string name="error_camera_unavailable">Walmart Buddy is unable to access your camera please make sure its not being used in another application</string>
     <string name="error_create_photos_directory">Unable to create the pictures directory</string>
     <string name="error_processing_request">An error occurred processing this request</string>
+
 </resources>

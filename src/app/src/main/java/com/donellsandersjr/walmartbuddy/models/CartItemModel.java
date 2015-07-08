@@ -24,6 +24,7 @@ public final class CartItemModel extends DataModel {
     public static String KEY_NAME = "name";
     public static String KEY_PRICE = "price";
     public static String KEY_IMAGE_URL = "imageUrl";
+    public static String KEY_QUANTITY = "quantity";
     private static String KEY_PRODUCT = "product";
     private static String KEY_CATEGORY = "category";
 

@@ -38,6 +38,8 @@ public class App extends Application {
     public final static String APP_SNAPSHOTS_DIR = "snapshots";
     public final static String APP_TEMP_DIR = "tmp";
 
+    public final static String WALMART_APIKEY = "[YOUR KEY GOES HERE]";
+
     @Override
     public void onCreate() {
         super.onCreate();
