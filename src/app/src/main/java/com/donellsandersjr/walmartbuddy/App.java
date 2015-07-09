@@ -31,14 +31,9 @@ public class App extends Application {
         return _instance;
     }
 
-    public final static int THUMBNAIL_HEIGHT = 125 ;
-    public final static int THUMBNAIL_WIDTH = 75 ;
-
     public final static String APP_THUMBNAILS_DIR = "thumbnails";
     public final static String APP_SNAPSHOTS_DIR = "snapshots";
     public final static String APP_TEMP_DIR = "tmp";
-
-    public final static String WALMART_APIKEY = "[YOUR KEY GOES HERE]";
 
     @Override
     public void onCreate() {

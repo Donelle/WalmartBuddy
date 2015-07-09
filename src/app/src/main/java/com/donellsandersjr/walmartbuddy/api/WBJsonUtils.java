@@ -30,9 +30,9 @@ public final class WBJsonUtils {
         return defaultVal;
     }
 
-    public static int getInt (JSONObject json, String field, int defaultVal) {
+    public static long getLong (JSONObject json, String field, long defaultVal) {
         try {
-            return json.getInt(field);
+            return json.getLong(field);
         } catch (Exception e) {}
         return defaultVal;
     }

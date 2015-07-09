@@ -28,23 +28,6 @@
         android:layout_alignParentTop="true"
         android:keepScreenOn="true" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:fitsSystemWindows="true"
-        style="?metaButtonBarStyle">
-
-        <IconButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/scanner_close_button"
-            android:text="{fa-close} Close "
-            android:textSize="17sp"
-            android:background="@android:color/transparent"/>
-
-    </LinearLayout>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -77,7 +60,7 @@
             android:layout_marginLeft="@dimen/padding_5dp"
             android:layout_below="@+id/scanner_scan_title"
             android:layout_toEndOf="@+id/scanner_scan_pic"
-            android:layout_marginTop="@dimen/padding_10dp"
+            android:layout_marginTop="@dimen/padding_5dp"
             android:textSize="16sp"
             android:textColor="@android:color/white" />
 
@@ -86,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/padding_10dp"
-            android:layout_below="@+id/scanner_scan_pic"
+            android:layout_below="@+id/scanner_scan_price"
             android:text="{fa-cart-plus} Add to Cart"
             android:textColor="@android:color/white"
             android:textSize="17sp"

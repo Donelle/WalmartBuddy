@@ -21,10 +21,10 @@ import android.os.Bundle;
 
 public final class CartItemModel extends DataModel {
 
-    public static String KEY_NAME = "name";
-    public static String KEY_PRICE = "price";
-    public static String KEY_IMAGE_URL = "imageUrl";
-    public static String KEY_QUANTITY = "quantity";
+    private static String KEY_NAME = "name";
+    private static String KEY_PRICE = "price";
+    private static String KEY_IMAGE_URL = "imageUrl";
+    private static String KEY_QUANTITY = "quantity";
     private static String KEY_PRODUCT = "product";
     private static String KEY_CATEGORY = "category";
 
@@ -51,6 +51,42 @@ public final class CartItemModel extends DataModel {
         super.onRestoreState(state);
         this.setProduct((ProductModel) state.getParcelable(KEY_PRODUCT));
         this.setCategory((CategoryModel) state.getParcelable(KEY_CATEGORY));
+    }
+
+    public String getName () {
+        return super.getStringValue(KEY_NAME);
+    }
+
+    public CartItemModel setName (String name) {
+        super.setStringValue(KEY_NAME, name);
+        return this;
+    }
+
+    public double getPrice () {
+        return super.getDoubleValue(KEY_PRICE, 0);
+    }
+
+    public CartItemModel setPrice (double price) {
+        super.setDoubleValue(KEY_PRICE, price);
+        return this;
+    }
+
+    public int getQuantity () {
+        return super.getIntValue(KEY_QUANTITY, 0);
+    }
+
+    public CartItemModel setQuantity (int quantity) {
+        super.setIntValue(KEY_QUANTITY, quantity);
+        return this;
+    }
+
+    public String getThumbnailUrl () {
+        return super.getStringValue(KEY_IMAGE_URL, "");
+    }
+
+    public CartItemModel setThumbnailUrl (String thumbnailUrl) {
+        super.setStringValue(KEY_IMAGE_URL, thumbnailUrl);
+        return this;
     }
 
     public ProductModel getProduct () {

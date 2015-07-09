@@ -41,10 +41,10 @@ class CartItemSpec extends BaseSpec {
     public static CartItemModel getModel (CartItemDb cartItemDb) {
         CartItemModel model = createModel(CartItemModel.class);
         model.setLongValue(TableModel.DEFAULT_ID_COLUMN, cartItemDb.getId());
-        model.setStringValue(CartItemModel.KEY_NAME, cartItemDb.getName());
-        model.setDoubleValue(CartItemModel.KEY_PRICE, cartItemDb.getPrice());
-        model.setStringValue(CartItemModel.KEY_IMAGE_URL, cartItemDb.getThumbnailUrl());
-        model.setIntValue(CartItemModel.KEY_QUANTITY, cartItemDb.getQuantity());
+        model.setName(cartItemDb.getName());
+        model.setPrice(cartItemDb.getPrice());
+        model.setThumbnailUrl(cartItemDb.getThumbnailUrl());
+        model.setQuantity(cartItemDb.getQuantity());
 
         int id = cartItemDb.getProductId();
         if (id > 0) {
@@ -64,10 +64,10 @@ class CartItemSpec extends BaseSpec {
     @ModelMethod
     public static void save (CartItemDb cartItemDb, CartItemModel model) {
         cartItemDb.setId(model.getLongValue(TableModel.DEFAULT_ID_COLUMN));
-        cartItemDb.setName(model.getStringValue(CartItemModel.KEY_NAME));
-        cartItemDb.setPrice(model.getDoubleValue(CartItemModel.KEY_PRICE));
-        cartItemDb.setThumbnailUrl(model.getStringValue(CartItemModel.KEY_IMAGE_URL));
-        cartItemDb.setQuantity (model.getIntValue(CartItemModel.KEY_QUANTITY));
+        cartItemDb.setName(model.getName());
+        cartItemDb.setPrice(model.getPrice());
+        cartItemDb.setThumbnailUrl(model.getThumbnailUrl());
+        cartItemDb.setQuantity (model.getQuantity());
 
         ProductModel productModel = model.getProduct();
         if (productModel != null)

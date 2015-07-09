@@ -28,23 +28,23 @@ import java.util.Date;
 class CategorySpec extends BaseSpec {
 
     public String name;
-    public long taxonomyId;
+    public String categoryId;
     public long createDate;
 
     @ModelMethod
     public static CategoryModel getModel (CategoryDb categoryDb) {
         CategoryModel model = createModel(CategoryModel.class);
         model.setLongValue(TableModel.DEFAULT_ID_COLUMN, categoryDb.getId());
-        model.setStringValue(CategoryModel.KEY_NAME, categoryDb.getName());
-        model.setLongValue(CategoryModel.KEY_TAXONONY_ID, categoryDb.getTaxonomyId());
+        model.setName(categoryDb.getName());
+        model.setCategoryId(categoryDb.getCategoryId());
         return model;
     }
 
     @ModelMethod
     public static void save (CategoryDb categoryDb, CategoryModel model) {
         categoryDb.setId(model.getLongValue(TableModel.DEFAULT_ID_COLUMN));
-        categoryDb.setName(model.getStringValue(CategoryModel.KEY_NAME));
-        categoryDb.setTaxonomyId(model.getLongValue(CategoryModel.KEY_TAXONONY_ID));
+        categoryDb.setName(model.getName());
+        categoryDb.setCategoryId(model.getCategoryId());
 
         if (categoryDb.getId() == 0)
             categoryDb.setCreateDate(new Date().getTime());

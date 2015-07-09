@@ -20,13 +20,32 @@ import android.content.ContentValues;
 
 public final class CategoryModel extends DataModel {
 
-    public static String KEY_NAME = "name";
-    public static String KEY_TAXONONY_ID = "taxonomy_id";
+    private static String KEY_NAME = "name";
+    private static String KEY_CATEGORY_ID = "categoryId";
 
     public CategoryModel () {
         super();
     }
+
     CategoryModel (ContentValues values) {
         super(values);
+    }
+
+    public String getName () {
+        return super.getStringValue(KEY_NAME, "");
+    }
+
+    public CategoryModel setName (String name) {
+        super.setStringValue(KEY_NAME, name);
+        return this;
+    }
+
+    public String getCategoryId () {
+        return super.getStringValue(KEY_CATEGORY_ID, "");
+    }
+
+    public CategoryModel setCategoryId (String categoryId) {
+        super.getStringValue(KEY_CATEGORY_ID, categoryId);
+        return this;
     }
 }

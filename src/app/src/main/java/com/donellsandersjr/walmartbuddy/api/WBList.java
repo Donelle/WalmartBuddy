@@ -326,8 +326,8 @@ public final class WBList<T extends Parcelable & WBEquatable> extends WBParcelab
         return _list.toArray(array);
     }
 
-    public boolean indexExist (int index) {
-        return _list.size() > index && index > -1;
+    public T first () {
+        return _list.size() > 0 ? _list.get(0) : null;
     }
 
     public WBList<T> getDeletedList () {

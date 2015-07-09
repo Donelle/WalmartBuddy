@@ -33,10 +33,11 @@ class ProductSpec extends BaseSpec {
     public String brandName;
     public String upc;
     public String thumbnailUrl;
-    public double salesPrice;
+    public String largeImageUrl;
+    public double salePrice;
     public double msrp;
-    public long taxonomyId;
-    public long categoryTaxonomyId;
+    public long itemId;
+    public String categoryId;
     public long createDate;
 
 
@@ -44,15 +45,15 @@ class ProductSpec extends BaseSpec {
     public static ProductModel getModel (ProductDb productDb) {
         ProductModel model = createModel(ProductModel.class);
         model.setLongValue(TableModel.DEFAULT_ID_COLUMN, productDb.getId());
-        model.setStringValue(ProductModel.KEY_NAME, productDb.getName());
-        model.setStringValue(ProductModel.KEY_DESC, productDb.getDescription());
-        model.setStringValue(ProductModel.KEY_BRAND, productDb.getBrandName());
-        model.setStringValue(ProductModel.KEY_UPC, productDb.getUpc());
-        model.setStringValue(ProductModel.KEY_THUMBNAIL, productDb.getThumbnailUrl());
-        model.setDoubleValue(ProductModel.KEY_PRICE, productDb.getSalesPrice());
-        model.setDoubleValue(ProductModel.KEY_MSRP, productDb.getMsrp());
-        model.setLongValue(ProductModel.KEY_ITEM_TAXONONY_ID, productDb.getTaxonomyId());
-        model.setLongValue(ProductModel.KEY_CATEGORY_TAXONONY_ID, productDb.getCategoryTaxonomyId());
+        model.setName(productDb.getName());
+        model.setDescription(productDb.getDescription());
+        model.setBrand(productDb.getBrandName());
+        model.setUPC(productDb.getUpc());
+        model.setThumbnailUrl(productDb.getThumbnailUrl());
+        model.setSalePrice(productDb.getSalePrice());
+        model.setMSRP(productDb.getMsrp());
+        model.setProductId(productDb.getItemId());
+        model.setProductCategoryId(productDb.getCategoryId());
 
         return model;
     }
@@ -60,15 +61,15 @@ class ProductSpec extends BaseSpec {
     @ModelMethod
     public static void save (ProductDb productDb, ProductModel model) {
         productDb.setId(model.getLongValue(TableModel.DEFAULT_ID_COLUMN));
-        productDb.setName(model.getStringValue(ProductModel.KEY_NAME));
-        productDb.setDescription(model.getStringValue(ProductModel.KEY_DESC));
-        productDb.setBrandName(model.getStringValue(ProductModel.KEY_BRAND));
-        productDb.setUpc(model.getStringValue(ProductModel.KEY_UPC));
-        productDb.setThumbnailUrl(model.getStringValue(ProductModel.KEY_THUMBNAIL));
-        productDb.setSalesPrice(model.getDoubleValue(ProductModel.KEY_PRICE));
-        productDb.setMsrp(model.getDoubleValue(ProductModel.KEY_MSRP));
-        productDb.setTaxonomyId(model.getLongValue(ProductModel.KEY_ITEM_TAXONONY_ID));
-        productDb.setCategoryTaxonomyId(model.getLongValue(ProductModel.KEY_CATEGORY_TAXONONY_ID));
+        productDb.setName(model.getName());
+        productDb.setDescription(model.getDescription());
+        productDb.setBrandName(model.getBrand());
+        productDb.setUpc(model.getUPC());
+        productDb.setThumbnailUrl(model.getThumbnailUrl());
+        productDb.setSalePrice(model.getSalePrice());
+        productDb.setMsrp(model.getMSRP());
+        productDb.setItemId(model.getProductId());
+        productDb.setCategoryId(model.getProductCategoryId());
 
         if (productDb.getId() == 0)
             productDb.setCreateDate(new Date().getTime());

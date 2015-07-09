@@ -26,7 +26,7 @@ import java.util.List;
 
 public class CartModel extends DataModel {
 
-    public static String KEY_NAME = "name";
+    private static String KEY_NAME = "name";
     private static String KEY_ITEMS = "items";
 
     private WBList<CartItemModel> _items = new WBList<>();
@@ -64,6 +64,15 @@ public class CartModel extends DataModel {
     protected void onSaveChanges() {
         List items = Arrays.asList(_items.toArray());
         _items = new WBList<>(items);
+    }
+
+    public String getName () {
+        return super.getStringValue(KEY_NAME, "");
+    }
+
+    public CartModel setName (String name) {
+        super.setStringValue(KEY_NAME, name);
+        return this;
     }
 
     public WBList<CartItemModel> getCartItems () {

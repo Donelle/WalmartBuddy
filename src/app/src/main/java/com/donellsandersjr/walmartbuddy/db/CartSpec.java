@@ -56,6 +56,7 @@ class CartSpec extends BaseSpec {
 
         CartModel model = createModel(CartModel.class);
         model.setLongValue(TableModel.DEFAULT_ID_COLUMN, cartDb.getId());
+        model.setName(cartDb.getName());
         model.setCartItems(cartItems);
 
         return model;
@@ -66,7 +67,7 @@ class CartSpec extends BaseSpec {
         DatabaseDao db =  getDatabase();
 
         cartDb.setId(model.getLongValue(TableModel.DEFAULT_ID_COLUMN));
-        cartDb.setName(model.getStringValue(CartModel.KEY_NAME));
+        cartDb.setName(model.getName());
 
         if (cartDb.getId() == 0)
             cartDb.setCreateDate(new Date().getTime());
