@@ -20,9 +20,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.support.v7.app.AlertDialog;
-import android.util.TypedValue;
 
 
 public final class AppUI {
@@ -34,6 +32,19 @@ public final class AppUI {
                 dialog.dismiss();
             }
         });
+    }
+
+    public static android.app.AlertDialog createErrorAlert (Context ctx, String message) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ctx);
+        builder.setTitle (R.string.app_name);
+        builder.setIcon(R.mipmap.ic_error);
+        builder.setMessage (message);
+        builder.setPositiveButton (R.string.button_ok, new DialogInterface.OnClickListener() {
+            public void onClick (DialogInterface dialog, int id) {
+                dialog.dismiss ();
+            }
+        });
+        return builder.create();
     }
 
     public static AlertDialog createAlert (Context ctx, Integer resourceMessageId, DialogInterface.OnClickListener listener) {

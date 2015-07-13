@@ -19,6 +19,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     tools:context="com.donellsandersjr.walmartbuddy.activities.ScanActivity">
 
     <FrameLayout
@@ -33,8 +34,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/scanner_scan_container"
         android:layout_alignParentBottom="true"
+        android:layout_below="@+id/scanner_content"
         android:padding="@dimen/padding_10dp"
-        android:visibility="invisible">
+        android:background="#AA000000">
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:layout_width="64dp"
@@ -47,7 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/scanner_scan_title"
-            android:layout_marginLeft="@dimen/padding_5dp"
+            android:layout_marginStart="@dimen/padding_5dp"
             android:layout_toEndOf="@+id/scanner_scan_pic"
             android:layout_alignTop="@+id/scanner_scan_pic"
             android:textSize="18sp"
@@ -57,19 +59,43 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/scanner_scan_price"
-            android:layout_marginLeft="@dimen/padding_5dp"
             android:layout_below="@+id/scanner_scan_title"
             android:layout_toEndOf="@+id/scanner_scan_pic"
-            android:layout_marginTop="@dimen/padding_5dp"
+            android:layout_alignBottom="@+id/scanner_scan_quantity"
+            android:layout_marginBottom="@dimen/padding_10dp"
+            android:layout_marginStart="@dimen/padding_5dp"
+            android:gravity="bottom"
             android:textSize="16sp"
             android:textColor="@android:color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/scanner_scan_quantity"
+            android:layout_alignBottom="@+id/scanner_scan_quantity"
+            android:layout_marginBottom="@dimen/padding_10dp"
+            android:text="QTY:"
+            android:textSize="16sp"
+            android:textColor="@android:color/white" />
+
+        <EditText
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/scanner_scan_quantity"
+            android:layout_below="@+id/scanner_scan_title"
+            android:layout_alignParentEnd="true"
+            android:textSize="20sp"
+            android:hint="1"
+            android:textColor="@android:color/white"
+            android:gravity="center_horizontal"
+            android:inputType="number" />
 
         <IconButton
             android:id="@+id/scanner_add_to_cart_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/padding_10dp"
-            android:layout_below="@+id/scanner_scan_price"
+            android:layout_below="@+id/scanner_scan_quantity"
             android:text="{fa-cart-plus} Add to Cart"
             android:textColor="@android:color/white"
             android:textSize="17sp"

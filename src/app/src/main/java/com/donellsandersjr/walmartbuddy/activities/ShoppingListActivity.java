@@ -16,26 +16,13 @@
 
 package com.donellsandersjr.walmartbuddy.activities;
 
-import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.IconTextView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.donellsandersjr.walmartbuddy.R;
-import com.joanzapata.android.iconify.Iconify;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
-import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
 
 public class ShoppingListActivity extends BaseActivity {
@@ -47,8 +34,6 @@ public class ShoppingListActivity extends BaseActivity {
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.shopping_list_cart);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        _buildFloatingMenu ();
     }
 
     @Override
@@ -63,52 +48,5 @@ public class ShoppingListActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void _buildFloatingMenu () {
-        TextView textView = new TextView(this);
-        textView.setTextSize(30f);
-        textView.setTextColor(Color.WHITE);
-        textView.setText("+");
 
-        FloatingActionButton addButton =
-                new FloatingActionButton.Builder(this)
-                        .setContentView(textView)
-                        .setPosition(FloatingActionButton.POSITION_BOTTOM_RIGHT)
-                        .setBackgroundDrawable(R.drawable.round_button)
-                        .build();
-
-        textView = new IconTextView(this);
-        textView.setLayoutParams(new RelativeLayout.LayoutParams(24, 24));
-        textView.setTextSize(15f);
-        textView.setTextColor(Color.WHITE);
-        Iconify.setIcon(textView, Iconify.IconValue.fa_pencil);
-
-        SubActionButton.Builder builder = new SubActionButton.Builder(this);
-        SubActionButton newItemButton =
-                builder.setContentView(textView)
-                        .setBackgroundDrawable(getDrawable(R.drawable.small_round_button))
-                        .build();
-
-        textView = new IconTextView(this);
-        textView.setLayoutParams(new RelativeLayout.LayoutParams(24, 24));
-        textView.setTextColor(Color.WHITE);
-        textView.setTextSize(15f);
-        Iconify.setIcon(textView, Iconify.IconValue.fa_barcode);
-
-        SubActionButton scanButton =
-                builder.setContentView(textView)
-                        .setBackgroundDrawable(getDrawable(R.drawable.small_round_button))
-                        .build();
-        scanButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(ShoppingListActivity.this, ScanActivity.class));
-            }
-        });
-
-        new FloatingActionMenu.Builder(this)
-                .addSubActionView(newItemButton)
-                .addSubActionView(scanButton)
-                .attachTo(addButton)
-                .build();
-    }
 }

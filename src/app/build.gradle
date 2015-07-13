@@ -39,10 +39,8 @@ dependencies {
     }
     apt 'com.yahoo.squidb:squidb-processor:1.0.1'
     compile project(':zxingfragmentlib')
-    compile 'com.oguzdev:CircularFloatingActionMenu:1.0.2'
     compile 'com.makeramen:roundedimageview:2.1.0'
     compile 'com.joanzapata.android:android-iconify:1.0.9'
-    compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.7.2'
     compile 'com.yahoo.squidb:squidb:1.0.1'
     compile 'com.yahoo.squidb:squidb-annotations:1.0.1'

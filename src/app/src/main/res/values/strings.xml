@@ -21,11 +21,20 @@
     <string name="title_activity_scan">ScanActivity</string>
 
     <!-- PROGRESS TAGS -->
+    <string name="progress_message_searching">Searching...</string>
     <string name="progress_message_generic_loading">Loading please wait</string>
 
     <!-- ERROR TAGS -->
     <string name="error_camera_unavailable">Walmart Buddy is unable to access your camera please make sure its not being used in another application</string>
     <string name="error_create_photos_directory">Unable to create the pictures directory</string>
     <string name="error_processing_request">An error occurred processing this request</string>
+    <string name="error_cartitem_save_failure">A terrible error occurred saving this item</string>
 
+    <!-- BROKEN RULE TAGS -->
+    <string name="broken_rule_cartitem_name_invalid">Name for this item is required</string>
+    <string name="broken_rule_cartitem_quantity_invalid">Quantity for this item is required and must be 1 or more</string>
+    <string name="broken_rule_cartitem_price_invalid">Price for this item must be a valid amount</string>
+
+    <!-- NOTIFICATION TAGS -->
+    <string name="notification_cartitem_item_added">%d item(s) added to your cart</string>
 </resources>

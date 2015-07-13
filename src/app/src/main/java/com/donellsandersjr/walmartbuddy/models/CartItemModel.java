@@ -81,7 +81,7 @@ public final class CartItemModel extends DataModel {
     }
 
     public String getThumbnailUrl () {
-        return super.getStringValue(KEY_IMAGE_URL, "");
+        return super.getStringValue(KEY_IMAGE_URL);
     }
 
     public CartItemModel setThumbnailUrl (String thumbnailUrl) {

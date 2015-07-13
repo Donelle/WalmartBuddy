@@ -52,4 +52,8 @@ public final class WBStringUtils {
         }
         return parts;
     }
+
+    public static boolean areEqual (String val, String valOther) {
+        return (val == null ? valOther == null : val.contentEquals(valOther));
+    }
 }

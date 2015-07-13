@@ -41,7 +41,7 @@ import bolts.Task;
 public final class WalmartAPI {
     private static final String TAG = "com.donellesandersjr.walmartbuddy.WalmartAPI";
 
-    private static final String WALMART_APIKEY = "[YOUR API KEY GOES HERE]";
+    private static final String WALMART_APIKEY = "s48yttbvsd5kdw7j5fe5qghh";
     private static final String PRODUCT_SEARCH_QUERY = "http://api.walmartlabs.com/v1/items?apiKey=" + WALMART_APIKEY + "&format=json";
 
 
