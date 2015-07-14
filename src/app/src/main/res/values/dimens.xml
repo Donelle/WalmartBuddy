@@ -3,8 +3,18 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <!-- Padding -->
     <dimen name="padding_20dp">20dp</dimen>
     <dimen name="padding_15dp">15dp</dimen>
     <dimen name="padding_10dp">10dp</dimen>
     <dimen name="padding_5dp">5dp</dimen>
+
+    <!-- http://www.google.com/design/spec/components/buttons-floating-action-button.html#buttons-floating-action-button-floating-action-button -->
+    <dimen name="floating_button_diameter">56dp</dimen>
+    <dimen name="floating_button_margin">16dp</dimen>
+    <dimen name="floating_button_elevation_low">4sp</dimen>
+    <dimen name="floating_button_elevation_high">12sp</dimen>
+
+    <!-- Text Sizes -->
+    <dimen name="text_size_normal">17sp</dimen>
 </resources>

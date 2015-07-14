@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/padding_5dp"
+    android:animateLayoutChanges="true">
+
+    <CheckBox
+        android:id="@+id/shopping_list_item_checkedoff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/shopping_list_item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/shopping_list_item_checkedoff"
+        android:layout_toStartOf="@+id/shopping_list_item_quantity"
+        android:layout_marginTop="6dp"
+        android:gravity="top"
+        android:textSize="@dimen/text_size_normal" />
+
+    <TextView
+        android:id="@+id/shopping_list_item_quantity"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:layout_toStartOf="@+id/shopping_list_item_price"
+        android:layout_marginRight="@dimen/padding_15dp"
+        android:gravity="center_vertical"
+        android:textSize="@dimen/text_size_normal" />
+
+    <TextView
+        android:id="@+id/shopping_list_item_price"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:layout_alignParentEnd="true"
+        android:gravity="center_vertical"
+        android:textSize="@dimen/text_size_normal"
+        android:textColor="@color/md_green_800"
+        android:textStyle="bold"/>
+
+    <View
+        android:id="@+id/shopping_list_item_crossout"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="@dimen/padding_15dp"
+        android:background="@color/md_orange_900" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
+    </RelativeLayout>
+</RelativeLayout>

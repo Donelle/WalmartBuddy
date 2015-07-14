@@ -21,16 +21,19 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowContentOverlay">@null</item>
         <item name="actionBarStyle">@style/ActionBarTheme</item>
+
+        <item name="colorAccent">@color/md_orange_a700</item>
+        <item name="colorPrimary">@color/md_orange_100</item>
+        <item name="colorPrimaryDark">@color/md_orange_900</item>
     </style>
 
     <style name="ActionBarTheme" parent="@style/Widget.AppCompat.ActionBar.Solid">
-        <item name="background">@color/md_orange_900</item>
+        <item name="background">@color/md_orange_a700</item>
     </style>
 
     <style name="FullscreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@null</item>
     </style>
-
 
 </resources>

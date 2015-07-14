@@ -16,10 +16,12 @@
 
 package com.donellsandersjr.walmartbuddy.db;
 
+import com.donellsandersjr.walmartbuddy.api.WBLogger;
 import com.donellsandersjr.walmartbuddy.models.DataModel;
 import com.yahoo.squidb.data.DatabaseDao;
 
 abstract class BaseSpec {
+    private static final String TAG = "com.donellesandersjr.walmartbuddy.db.BaseSpec";
 
     private static DatabaseDao _dao;
     static DatabaseDao getDatabase () {
@@ -34,7 +36,9 @@ abstract class BaseSpec {
             instance.setEqualityComparer(new DbEqualityComparer())
                     .setSortComparer(new DbSortComparer());
             return instance;
-        } catch (Exception e) {}
+        } catch (Exception ex) {
+            WBLogger.Error(TAG, ex);
+        }
         return null;
     }
 }

@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,34 +9,52 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/padding_10dp"
-        android:layout_marginLeft="@dimen/padding_10dp"
+        android:layout_marginStart="@dimen/padding_10dp"
         android:id="@+id/shopping_list_cart_name"
         android:layout_alignParentStart="true"
         android:text=""
-        android:textSize="20dp" />
+        android:textSize="20sp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/padding_10dp"
-        android:layout_marginRight="@dimen/padding_10dp"
+        android:layout_marginEnd= "@dimen/padding_10dp"
         android:id="@+id/shopping_list_total"
         android:layout_alignParentEnd="true"
         android:text=""
-        android:textSize="28dp"
+        android:textSize="28sp"
         android:textColor="@color/md_green_600"/>
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:id="@+id/finance_divider"
-        android:layout_below="@+id/shopping_list_total" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/shopping_list_cart"
-        android:layout_below="@+id/finance_divider"
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="vertical" />
+        android:layout_below="@+id/shopping_list_cart_name">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/shopping_list_cart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/shopping_list_add_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/floating_button_margin"
+            android:layout_marginBottom="@dimen/floating_button_margin"
+            android:src="@android:drawable/ic_input_add"
+            android:tint="@android:color/white"
+            app:borderWidth="0dp"
+            app:elevation="@dimen/floating_button_elevation_low"
+            app:fabSize="normal"
+            app:pressedTranslationZ="@dimen/floating_button_elevation_high"
+            app:layout_anchor="@id/shopping_list_cart"
+            app:layout_anchorGravity="bottom|right|end"
+            app:layout_behavior="com.donellsandersjr.walmartbuddy.activities.ShoppingListActivity$AddCartItemBehavior" />
+
+    </android.support.design.widget.CoordinatorLayout>
+
 
 </RelativeLayout>

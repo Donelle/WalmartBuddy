@@ -25,6 +25,7 @@ public final class CartItemModel extends DataModel {
     private static String KEY_PRICE = "price";
     private static String KEY_IMAGE_URL = "imageUrl";
     private static String KEY_QUANTITY = "quantity";
+    private static String KEY_CHECKEDOFF = "checkedoff";
     private static String KEY_PRODUCT = "product";
     private static String KEY_CATEGORY = "category";
 
@@ -122,4 +123,14 @@ public final class CartItemModel extends DataModel {
     public boolean hasCategoryChanged () {
         return super.hasChanged(KEY_CATEGORY);
     }
+
+    public boolean getCheckedOff () {
+        return super.getBooleanValue(KEY_CHECKEDOFF);
+    }
+
+    public CartItemModel setCheckedOff (boolean checkedOff) {
+        super.setBooleanValue(KEY_CHECKEDOFF, checkedOff);
+        return this;
+    }
+
 }

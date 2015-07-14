@@ -22,6 +22,8 @@ import com.donellsandersjr.walmartbuddy.models.CartModel;
 import com.donellsandersjr.walmartbuddy.models.CategoryModel;
 import com.donellsandersjr.walmartbuddy.models.DataModel;
 import com.donellsandersjr.walmartbuddy.models.ProductModel;
+import com.yahoo.squidb.data.SquidCursor;
+import com.yahoo.squidb.sql.Query;
 
 public final class DbProvider {
 
@@ -56,4 +58,9 @@ public final class DbProvider {
         return result;
     }
 
+
+    public static SquidCursor<CartItemDb> fetchCartItems () {
+        Query whereQuery = Query.select().from(CartItemDb.TABLE);
+        return BaseSpec.getDatabase().query(CartItemDb.class, whereQuery);
+    }
 }

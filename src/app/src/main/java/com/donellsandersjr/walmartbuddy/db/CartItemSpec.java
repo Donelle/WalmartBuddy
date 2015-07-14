@@ -19,10 +19,12 @@ package com.donellsandersjr.walmartbuddy.db;
 import com.donellsandersjr.walmartbuddy.models.CartItemModel;
 import com.donellsandersjr.walmartbuddy.models.CategoryModel;
 import com.donellsandersjr.walmartbuddy.models.ProductModel;
+import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Criterion;
+import com.yahoo.squidb.sql.Property;
 
 import java.util.Date;
 
@@ -33,6 +35,8 @@ class CartItemSpec extends BaseSpec {
     public double price;
     public String thumbnailUrl;
     public int quantity;
+    @ColumnSpec(defaultValue = "0")
+    public int checkedOff;
     public int productId;
     public int categoryId;
     public long createDate;
@@ -45,6 +49,7 @@ class CartItemSpec extends BaseSpec {
         model.setPrice(cartItemDb.getPrice());
         model.setThumbnailUrl(cartItemDb.getThumbnailUrl());
         model.setQuantity(cartItemDb.getQuantity());
+        model.setCheckedOff(cartItemDb.getCheckedOff() > 0);
 
         int id = cartItemDb.getProductId();
         if (id > 0) {
@@ -67,7 +72,8 @@ class CartItemSpec extends BaseSpec {
         cartItemDb.setName(model.getName());
         cartItemDb.setPrice(model.getPrice());
         cartItemDb.setThumbnailUrl(model.getThumbnailUrl());
-        cartItemDb.setQuantity (model.getQuantity());
+        cartItemDb.setQuantity(model.getQuantity());
+        cartItemDb.setCheckedOff(model.getCheckedOff() ? 1 : 0);
 
         ProductModel productModel = model.getProduct();
         if (productModel != null)
