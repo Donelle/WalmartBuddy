@@ -29,7 +29,7 @@ import android.widget.Toast;
 
 import com.donellsandersjr.walmartbuddy.AppUI;
 import com.donellsandersjr.walmartbuddy.R;
-import com.donellsandersjr.walmartbuddy.WalmartAPI;
+import com.donellsandersjr.walmartbuddy.web.WalmartAPI;
 import com.donellsandersjr.walmartbuddy.api.WBList;
 import com.donellsandersjr.walmartbuddy.api.WBLogger;
 import com.donellsandersjr.walmartbuddy.api.WBStringUtils;

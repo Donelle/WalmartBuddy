@@ -16,16 +16,13 @@
 
 package com.donellsandersjr.walmartbuddy.activities;
 
-import android.animation.Animator;
-import android.app.ActionBar;
+
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
-import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,29 +32,42 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.CheckBox;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
 import com.donellsandersjr.walmartbuddy.R;
+import com.donellsandersjr.walmartbuddy.api.WBStringUtils;
 import com.donellsandersjr.walmartbuddy.db.CartItemDb;
 import com.donellsandersjr.walmartbuddy.db.DbProvider;
+import com.donellsandersjr.walmartbuddy.fragments.TaxRateDialogFragment;
 import com.donellsandersjr.walmartbuddy.models.CartItemModel;
+import com.donellsandersjr.walmartbuddy.models.CartModel;
 import com.yahoo.squidb.data.SquidCursor;
 
 import java.text.NumberFormat;
 
 
-public class ShoppingListActivity extends BaseActivity implements View.OnClickListener {
+public class ShoppingListActivity extends BaseActivity implements
+        View.OnClickListener, TaxRateDialogFragment.TaxRateDialogListener {
 
+    private CartModel _cartModel;
     private ShoppingListAdapter _adapter;
+    private TextView _totalTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shopping_list);
+        getSupportActionBar().setElevation(0);
+
+        _cartModel = DbProvider.fetchCart();
+        if (WBStringUtils.isNullOrEmpty(_cartModel.getZipCode())) {
+            TaxRateDialogFragment dialog = TaxRateDialogFragment.newInstance(_cartModel);
+            dialog.setDismissListener(this)
+                  .show(getFragmentManager(), "ZipcodeDialog");
+        }
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.shopping_list_cart);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -66,12 +76,7 @@ public class ShoppingListActivity extends BaseActivity implements View.OnClickLi
         FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.shopping_list_add_button);
         addButton.setOnClickListener(this);
 
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onStop();
-        _adapter.close();
+        _totalTextView = (TextView) findViewById(R.id.shopping_list_total);
     }
 
     @Override
@@ -91,12 +96,15 @@ public class ShoppingListActivity extends BaseActivity implements View.OnClickLi
 
     }
 
+    @Override /* TaxDialog.TaxDialogListener */
+    public void onDismissed(CartModel model) {
+        _cartModel = model;
+    }
+
     private class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapter.ShoppingListItemView> {
-        private SquidCursor<CartItemDb> _cursor;
 
         public ShoppingListAdapter () {
             super();
-            _cursor = DbProvider.fetchCartItems();
         }
 
         @Override
@@ -108,18 +116,14 @@ public class ShoppingListActivity extends BaseActivity implements View.OnClickLi
 
         @Override
         public void onBindViewHolder(ShoppingListItemView holder, int position) {
-            _cursor.moveToPosition(position);
-            holder.bind(new CartItemDb(_cursor).getModel());
+            holder.bind(_cartModel.getCartItems().get(position));
         }
 
         @Override
         public int getItemCount() {
-            return _cursor.getCount();
+            return _cartModel.getCartItems().size();
         }
 
-        public void close () {
-            _cursor.close();
-        }
 
         public class ShoppingListItemView extends RecyclerView.ViewHolder implements View.OnClickListener {
             CheckBox _checkedOffChkbox;
@@ -160,7 +164,7 @@ public class ShoppingListActivity extends BaseActivity implements View.OnClickLi
 
                 _model.setCheckedOff(!_model.getCheckedOff());
                 DbProvider.save(_model);
-                _cursor.requery();
+                notifyDataSetChanged();
             }
         }
     }

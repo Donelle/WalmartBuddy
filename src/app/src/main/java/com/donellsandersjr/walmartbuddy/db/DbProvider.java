@@ -58,9 +58,19 @@ public final class DbProvider {
         return result;
     }
 
-
-    public static SquidCursor<CartItemDb> fetchCartItems () {
-        Query whereQuery = Query.select().from(CartItemDb.TABLE);
-        return BaseSpec.getDatabase().query(CartItemDb.class, whereQuery);
+    public static CartModel fetchCart () {
+        Query whereQuery = Query.select().from(CartDb.TABLE);
+        CartDb cartDb = BaseSpec.getDatabase().fetchByQuery(CartDb.class, whereQuery);
+        if (cartDb == null) {
+            // This means its the first time the app been run so lets create the default
+            // shopping list and save it to the db.
+            cartDb = new CartDb()
+                    .setName("Default")
+                    .setZipCode("")
+                    .setTaxRate(0d);
+            save(cartDb.getModel());
+        }
+        return cartDb.getModel();
     }
+
 }

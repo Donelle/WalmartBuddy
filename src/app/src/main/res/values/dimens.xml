@@ -9,12 +9,28 @@
     <dimen name="padding_10dp">10dp</dimen>
     <dimen name="padding_5dp">5dp</dimen>
 
+    <!-- http://www.google.com/design/spec/components/dialogs.html#dialogs-specs -->
+    <dimen name="dialog_content_area">24dp</dimen>
+    <dimen name="dialog_button_container_height">48dp</dimen>
+    <dimen name="dialog_button_container_marginTop">16dp</dimen>
+    <dimen name="dialog_button_container_marginBottom">8dp</dimen>
+    <dimen name="dialog_button_height">36dp</dimen>
+    <dimen name="dialog_button_padding">8dp</dimen>
+
+
     <!-- http://www.google.com/design/spec/components/buttons-floating-action-button.html#buttons-floating-action-button-floating-action-button -->
     <dimen name="floating_button_diameter">56dp</dimen>
     <dimen name="floating_button_margin">16dp</dimen>
     <dimen name="floating_button_elevation_low">4sp</dimen>
     <dimen name="floating_button_elevation_high">12sp</dimen>
 
-    <!-- Text Sizes -->
-    <dimen name="text_size_normal">17sp</dimen>
+    <!--http://www.google.com/design/spec/components/text-fields.html#text-fields-single-line-text-field -->
+    <dimen name="text_size_normal">16sp</dimen>
+    <dimen name="text_tile_height">48dp</dimen>
+    <dimen name="text_top_bottom_padding">16dp</dimen>
+
+    <!-- http://www.google.com/design/spec/components/text-fields.html#text-fields-floating-labels -->
+    <dimen name="floating_text_height">72dp</dimen>
+    <dimen name="floating_text_padding_top">16dp</dimen>
+    <dimen name="floating_text_padding_bottom">8dp</dimen>
 </resources>

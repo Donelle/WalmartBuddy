@@ -41,7 +41,8 @@ class WalmartBuddyDatabase extends AbstractDatabase {
             CartDb.TABLE,
             CartItemDb.TABLE,
             ProductDb.TABLE,
-            CategoryDb.TABLE
+            CategoryDb.TABLE,
+            CartItemMapDb.TABLE
         };
     }
 

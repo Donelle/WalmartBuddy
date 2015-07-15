@@ -26,8 +26,10 @@ import java.util.List;
 
 public class CartModel extends DataModel {
 
-    private static String KEY_NAME = "name";
-    private static String KEY_ITEMS = "items";
+    private static final String KEY_NAME = "name";
+    private static final String KEY_ZIPCODE = "zipcode";
+    private static final String KEY_TAXRATE = "taxrate";
+    private static final String KEY_ITEMS = "items";
 
     private WBList<CartItemModel> _items = new WBList<>();
 
@@ -72,6 +74,24 @@ public class CartModel extends DataModel {
 
     public CartModel setName (String name) {
         super.setStringValue(KEY_NAME, name);
+        return this;
+    }
+
+    public double getTaxRate () {
+        return super.getDoubleValue(KEY_TAXRATE, 0);
+    }
+
+    public CartModel setTaxRate (double taxRate) {
+        super.setDoubleValue(KEY_TAXRATE, taxRate);
+        return this;
+    }
+
+    public String getZipCode () {
+        return super.getStringValue(KEY_ZIPCODE, "");
+    }
+
+    public CartModel setZipCode (String zipCode) {
+        super.setStringValue(KEY_ZIPCODE, zipCode);
         return this;
     }
 

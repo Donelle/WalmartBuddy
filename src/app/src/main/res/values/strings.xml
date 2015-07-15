@@ -19,6 +19,11 @@
     <string name="app_name">Shopping Buddy</string>
     <!-- TITLES -->
     <string name="title_activity_scan">ScanActivity</string>
+    <string name="title_dialog_taxrate">Sales Tax Information</string>
+
+    <!-- LABELS -->
+    <string name="label_zipcode_explanation">Please enter your zip code so we can retrieve the sales tax used at Walmart for your area.</string>
+    <string name="label_taxrate_skip">Skip</string>
 
     <!-- PROGRESS TAGS -->
     <string name="progress_message_searching">Searching...</string>
@@ -29,11 +34,13 @@
     <string name="error_create_photos_directory">Unable to create the pictures directory</string>
     <string name="error_processing_request">An error occurred processing this request</string>
     <string name="error_cartitem_save_failure">A terrible error occurred saving this item</string>
+    <string name="error_taxrate_search_failure">There was a problem with this zip code try again.</string>
 
     <!-- BROKEN RULE TAGS -->
     <string name="broken_rule_cartitem_name_invalid">Name for this item is required</string>
     <string name="broken_rule_cartitem_quantity_invalid">Quantity for this item is required and must be 1 or more</string>
     <string name="broken_rule_cartitem_price_invalid">Price for this item must be a valid amount</string>
+    <string name="broken_rule_zipcode_invalid">A valid zip code is required</string>
 
     <!-- NOTIFICATION TAGS -->
     <string name="notification_cartitem_item_added">%d item(s) added to your cart</string>

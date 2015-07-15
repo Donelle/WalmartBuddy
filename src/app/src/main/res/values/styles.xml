@@ -20,20 +20,28 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowContentOverlay">@null</item>
-        <item name="actionBarStyle">@style/ActionBarTheme</item>
 
-        <item name="colorAccent">@color/md_orange_a700</item>
-        <item name="colorPrimary">@color/md_orange_100</item>
-        <item name="colorPrimaryDark">@color/md_orange_900</item>
+        <item name="colorAccent">@color/md_orange_a200</item>
+        <item name="colorPrimary">@color/md_blue_500</item>
+        <item name="colorPrimaryDark">@color/md_blue_700</item>
+
+        <item name="android:textColorPrimary">@color/md_grey_900</item>
+        <item name="android:textColorSecondary">@color/md_grey_700</item>
+
+        <item name="android:editTextStyle">@style/EditTextStyle</item>
     </style>
 
-    <style name="ActionBarTheme" parent="@style/Widget.AppCompat.ActionBar.Solid">
-        <item name="background">@color/md_orange_a700</item>
-    </style>
 
     <style name="FullscreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@null</item>
+    </style>
+
+    <style name="EditTextStyle" parent="@style/Widget.AppCompat.EditText">
+        <item name="android:layout_height">@dimen/text_tile_height</item>
+        <item name="android:paddingTop">@dimen/text_top_bottom_padding</item>
+        <item name="android:paddingBottom">@dimen/text_top_bottom_padding</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
     </style>
 
 </resources>

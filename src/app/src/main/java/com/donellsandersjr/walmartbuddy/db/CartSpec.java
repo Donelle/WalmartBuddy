@@ -33,13 +33,15 @@ import java.util.Date;
 class CartSpec extends BaseSpec {
 
     public String name;
+    public String zipCode;
+    public double taxRate;
     public long createDate;
 
     @ModelMethod
     public static CartModel getModel (CartDb cartDb) {
 
         WBList<CartItemModel> cartItems = new WBList<>();
-        Query query = Query.select().where(CartItemMapDb.CART_ID.eq(cartDb.getId()));
+        Query query = Query.select().from(CartItemMapDb.TABLE).where(CartItemMapDb.CART_ID.eq(cartDb.getId()));
         SquidCursor<CartItemMapDb> cursor = getDatabase().query(CartItemMapDb.class, query);
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
@@ -57,6 +59,8 @@ class CartSpec extends BaseSpec {
         CartModel model = createModel(CartModel.class);
         model.setLongValue(TableModel.DEFAULT_ID_COLUMN, cartDb.getId());
         model.setName(cartDb.getName());
+        model.setZipCode(cartDb.getZipCode());
+        model.setTaxRate(cartDb.getTaxRate());
         model.setCartItems(cartItems);
 
         return model;
@@ -68,6 +72,8 @@ class CartSpec extends BaseSpec {
 
         cartDb.setId(model.getLongValue(TableModel.DEFAULT_ID_COLUMN));
         cartDb.setName(model.getName());
+        cartDb.setZipCode(model.getZipCode());
+        cartDb.setTaxRate (model.getTaxRate());
 
         if (cartDb.getId() == 0)
             cartDb.setCreateDate(new Date().getTime());
