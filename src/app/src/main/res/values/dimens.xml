@@ -25,12 +25,13 @@
     <dimen name="floating_button_elevation_high">12sp</dimen>
 
     <!--http://www.google.com/design/spec/components/text-fields.html#text-fields-single-line-text-field -->
-    <dimen name="text_size_normal">16sp</dimen>
-    <dimen name="text_tile_height">48dp</dimen>
-    <dimen name="text_top_bottom_padding">16dp</dimen>
+    <dimen name="singleline_text_size">16sp</dimen>
+    <dimen name="singleline_text_height">48dp</dimen>
+    <dimen name="singleline_text_padding_top">16dp</dimen>
+    <dimen name="singleline_text_padding_bottom">8dp</dimen>
 
     <!-- http://www.google.com/design/spec/components/text-fields.html#text-fields-floating-labels -->
     <dimen name="floating_text_height">72dp</dimen>
     <dimen name="floating_text_padding_top">16dp</dimen>
-    <dimen name="floating_text_padding_bottom">8dp</dimen>
+    <dimen name="floating_text_padding">8dp</dimen>
 </resources>

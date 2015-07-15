@@ -46,7 +46,7 @@
         app:layout_collapseMode="parallax"
         app:layout_anchor="@id/shopping_list_appbar"
         app:layout_anchorGravity="bottom|start"
-        app:layout_behavior="com.donellsandersjr.walmartbuddy.activities.ShoppingListActivity$AddCartItemBehavior" />
+        app:layout_behavior="com.donellesandersjr.walmartbuddy.activities.ShoppingListActivity$AddCartItemBehavior" />
 
 
     <android.support.v7.widget.RecyclerView

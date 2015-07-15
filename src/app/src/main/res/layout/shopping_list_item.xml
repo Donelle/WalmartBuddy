@@ -18,17 +18,15 @@
         android:layout_toEndOf="@+id/shopping_list_item_checkedoff"
         android:layout_toStartOf="@+id/shopping_list_item_quantity"
         android:layout_marginTop="@dimen/padding_5dp"
-        android:gravity="top"
-        android:textSize="@dimen/text_size_normal" />
+        android:gravity="top" />
 
     <TextView
         android:id="@+id/shopping_list_item_quantity"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
         android:layout_toStartOf="@+id/shopping_list_item_price"
-        android:layout_marginRight="@dimen/padding_15dp"
-        android:gravity="center_vertical"
-        android:textSize="@dimen/text_size_normal" />
+        android:layout_marginEnd="@dimen/padding_15dp"
+        android:gravity="center_vertical" />
 
     <TextView
         android:id="@+id/shopping_list_item_price"
@@ -36,7 +34,6 @@
         android:layout_height="35dp"
         android:layout_alignParentEnd="true"
         android:gravity="center_vertical"
-        android:textSize="@dimen/text_size_normal"
         android:textStyle="bold"/>
 
     <View

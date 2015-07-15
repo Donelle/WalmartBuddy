@@ -18,7 +18,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "com.donellsandersjr.walmartbuddy"
+        applicationId "com.donellesandersjr.walmartbuddy"
         minSdkVersion 21
         targetSdkVersion 22
         versionCode 1
@@ -41,6 +41,7 @@ dependencies {
     compile 'com.makeramen:roundedimageview:2.1.0'
     compile 'com.joanzapata.android:android-iconify:1.0.9'
     compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.7.2'
+    compile 'org.rocko.bpb:library:1.0.0'
     compile 'com.yahoo.squidb:squidb:1.0.1'
     compile 'com.yahoo.squidb:squidb-annotations:1.0.1'
     apt 'com.yahoo.squidb:squidb-processor:1.0.1'

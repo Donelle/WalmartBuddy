@@ -34,7 +34,7 @@
     <string name="error_create_photos_directory">Unable to create the pictures directory</string>
     <string name="error_processing_request">An error occurred processing this request</string>
     <string name="error_cartitem_save_failure">A terrible error occurred saving this item</string>
-    <string name="error_taxrate_search_failure">There was a problem with this zip code try again.</string>
+    <string name="error_taxrate_search_failure">Unable to find tax rate for this zip code please try again.</string>
 
     <!-- BROKEN RULE TAGS -->
     <string name="broken_rule_cartitem_name_invalid">Name for this item is required</string>

@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    tools:context="com.donellsandersjr.walmartbuddy.activities.ScanActivity">
+    tools:context="com.donellesandersjr.walmartbuddy.activities.ScanActivity">
 
     <FrameLayout
         android:id="@+id/scanner_content"
