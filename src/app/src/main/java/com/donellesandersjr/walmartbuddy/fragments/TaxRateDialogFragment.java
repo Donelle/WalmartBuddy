@@ -127,7 +127,7 @@ public class TaxRateDialogFragment extends DialogFragment implements View.OnClic
                     }
                 }, Task.UI_THREAD_EXECUTOR);
             } else {
-                _zipcodeLayout.setError(getString(R.string.broken_rule_zipcode_invalid));
+                _zipcodeLayout.setError(getString(R.string.broken_rule_cart_zipcode_invalid));
             }
         }
     }

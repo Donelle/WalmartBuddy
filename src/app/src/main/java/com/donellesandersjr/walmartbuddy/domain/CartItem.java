@@ -154,4 +154,13 @@ public final class CartItem extends DomainObject<CartItemModel> {
         _productModel = productModel;
         return this;
     }
+
+    public boolean getCheckedOff () {
+        return super.getModel().getCheckedOff();
+    }
+
+    public CartItem setCheckedOff (boolean checkedOff) {
+        super.getModel().setCheckedOff(checkedOff);
+        return this;
+    }
 }

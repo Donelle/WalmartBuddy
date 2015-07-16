@@ -21,7 +21,7 @@ import android.content.SharedPreferences;
 
 public final class AppPreferences {
     public static final String PREFERENCE_NAME = "WalmartBuddy";
-    public static final String PREFERENCE_ZIPCODE = "zipcode";
+    public static final String PREFERENCE_DISPLAY_TAXRATE_SETUP = "displayTaxRateSetup";
 
     private static AppPreferences appPreferences;
     private SharedPreferences _sharedPreferences;
@@ -41,18 +41,30 @@ public final class AppPreferences {
             // Set defaults
             //
             SharedPreferences sharedPreferences = appPreferences.getSharedPreferences();
-            if (!sharedPreferences.contains(PREFERENCE_ZIPCODE))
-                savePreference(PREFERENCE_ZIPCODE, "");
+            if (!sharedPreferences.contains(PREFERENCE_DISPLAY_TAXRATE_SETUP))
+                savePreference(PREFERENCE_DISPLAY_TAXRATE_SETUP, false);
         }
     }
 
-    public static void savePreference (String key, String value) {
+    public static AppPreferences savePreference (String key, String value) {
         SharedPreferences.Editor editor = appPreferences.getSharedPreferences().edit();
         editor.putString(key, value);
-        editor.commit();
+        editor.apply();
+        return appPreferences;
     }
 
-    public static String getStringPreference (String key, String defaultVal) {
-        return appPreferences.getSharedPreferences().getString(key, defaultVal);
+    public static AppPreferences savePreference (String key, boolean val) {
+        SharedPreferences.Editor editor = appPreferences.getSharedPreferences().edit();
+        editor.putBoolean(key, val);
+        editor.apply();
+        return appPreferences;
+    }
+
+    public static String getStringPreference (String key) {
+        return appPreferences.getSharedPreferences().getString(key, "");
+    }
+
+    public static boolean getBooleanPreference (String key) {
+        return appPreferences.getSharedPreferences().getBoolean(key, false);
     }
 }

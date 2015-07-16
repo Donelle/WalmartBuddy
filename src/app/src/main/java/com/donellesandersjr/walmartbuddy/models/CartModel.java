@@ -69,7 +69,7 @@ public class CartModel extends DataModel {
     }
 
     public String getName () {
-        return super.getStringValue(KEY_NAME, "");
+        return super.getStringValue(KEY_NAME);
     }
 
     public CartModel setName (String name) {
@@ -78,7 +78,7 @@ public class CartModel extends DataModel {
     }
 
     public double getTaxRate () {
-        return super.getDoubleValue(KEY_TAXRATE, 0);
+        return super.getDoubleValue(KEY_TAXRATE);
     }
 
     public CartModel setTaxRate (double taxRate) {
@@ -87,7 +87,7 @@ public class CartModel extends DataModel {
     }
 
     public String getZipCode () {
-        return super.getStringValue(KEY_ZIPCODE, "");
+        return super.getStringValue(KEY_ZIPCODE);
     }
 
     public CartModel setZipCode (String zipCode) {

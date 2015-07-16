@@ -20,11 +20,19 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 
 public final class AppUI {
     private static String TAG = "com.donellesandersjr.walmart.AppUI";
+
+    public static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
+    public static final Interpolator FAST_OUT_SLOW_IN_INTERPOLATOR = new FastOutSlowInInterpolator();
+    public static final Interpolator DECELERATE_INTERPOLATOR = new DecelerateInterpolator();
 
     public static AlertDialog createAlert (Context ctx, Integer resourceMessageId) {
         return createAlert(ctx, resourceMessageId, new DialogInterface.OnClickListener() {

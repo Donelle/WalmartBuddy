@@ -40,8 +40,13 @@
     <string name="broken_rule_cartitem_name_invalid">Name for this item is required</string>
     <string name="broken_rule_cartitem_quantity_invalid">Quantity for this item is required and must be 1 or more</string>
     <string name="broken_rule_cartitem_price_invalid">Price for this item must be a valid amount</string>
-    <string name="broken_rule_zipcode_invalid">A valid zip code is required</string>
+    <string name="broken_rule_cart_zipcode_invalid">A valid zip code is required</string>
+    <string name="broken_rule_cart_name_invalid">Name for this Shopping list is requireds</string>
+    <string name="broken_rule_cart_taxrate_invalid">Tax rate must be valid percentage greater than zero</string>
 
     <!-- NOTIFICATION TAGS -->
     <string name="notification_cartitem_item_added">%d item(s) added to your cart</string>
+
+    <!-- MENUITEM TAGS -->
+    <string name="menuitem_action_taxrate">Edit Tax Rate</string>
 </resources>

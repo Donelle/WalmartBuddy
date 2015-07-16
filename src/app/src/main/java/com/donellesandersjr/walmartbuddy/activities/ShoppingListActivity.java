@@ -16,14 +16,14 @@
 
 package com.donellesandersjr.walmartbuddy.activities;
 
-
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -37,12 +37,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
+import com.donellesandersjr.walmartbuddy.AppPreferences;
+import com.donellesandersjr.walmartbuddy.AppUI;
 import com.donellesandersjr.walmartbuddy.R;
-import com.donellesandersjr.walmartbuddy.api.WBStringUtils;
-import com.donellesandersjr.walmartbuddy.db.DbProvider;
+import com.donellesandersjr.walmartbuddy.api.WBLogger;
+import com.donellesandersjr.walmartbuddy.domain.Cart;
+import com.donellesandersjr.walmartbuddy.domain.CartItem;
 import com.donellesandersjr.walmartbuddy.fragments.TaxRateDialogFragment;
-import com.donellesandersjr.walmartbuddy.models.CartItemModel;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
+import com.joanzapata.android.iconify.IconDrawable;
+import com.joanzapata.android.iconify.Iconify;
 
 import java.text.NumberFormat;
 
@@ -50,22 +54,33 @@ import java.text.NumberFormat;
 public class ShoppingListActivity extends BaseActivity implements
         View.OnClickListener, TaxRateDialogFragment.TaxRateDialogListener {
 
-    private CartModel _cartModel;
+    private final String TAG = "com.donellesandersjr.walmart.activities.ShoppingListActivity";
+
+    private final String STATE_SHOPPING_CART = "ShoppingListActivity.STATE_SHOPPING_CART";
+    private Cart _shoppingCart;
+
     private ShoppingListAdapter _adapter;
     private TextView _totalTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_shopping_list);
         getSupportActionBar().setElevation(0);
+        getSupportActionBar().setTitle("");
 
-        _cartModel = DbProvider.fetchCart();
-        if (WBStringUtils.isNullOrEmpty(_cartModel.getZipCode())) {
-            TaxRateDialogFragment dialog = TaxRateDialogFragment.newInstance(_cartModel);
-            dialog.setDismissListener(this)
-                  .show(getFragmentManager(), "ZipcodeDialog");
-        }
+        _shoppingCart = new Cart();
+        if (savedInstanceState != null)
+            _shoppingCart = savedInstanceState.getParcelable(STATE_SHOPPING_CART);
+        //
+        // Figure out if we've already shown this dialog before because
+        // we don't want to "harass" the user with this. They can choose
+        // to find out their tax rate or not.
+        //
+        if (!AppPreferences.getBooleanPreference(AppPreferences.PREFERENCE_DISPLAY_TAXRATE_SETUP))
+           _displayTaxRateDialog();
+
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.shopping_list_cart);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -75,17 +90,30 @@ public class ShoppingListActivity extends BaseActivity implements
         addButton.setOnClickListener(this);
 
         _totalTextView = (TextView) findViewById(R.id.shopping_list_total);
+        _totalTextView.setText(NumberFormat.getCurrencyInstance().format(_shoppingCart.getEstimatedTotal()));
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_shopping_list, menu);
+
+        IconDrawable iconDrawable =
+                new IconDrawable(this, Iconify.IconValue.fa_barcode)
+                    .color(Color.WHITE)
+                    .actionBarSize();
+        menu.findItem(R.id.action_scan_item).setIcon(iconDrawable);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_scan_item) {
+
+        } else if (id == R.id.action_taxrate) {
+            _displayTaxRateDialog();
+        }
+        
         return super.onOptionsItemSelected(item);
     }
 
@@ -96,8 +124,21 @@ public class ShoppingListActivity extends BaseActivity implements
 
     @Override /* TaxDialog.TaxDialogListener */
     public void onDismissed(CartModel model) {
-        _cartModel = model;
+        _shoppingCart = new Cart(model);
+        _totalTextView.setText(NumberFormat.getCurrencyInstance().format(_shoppingCart.getEstimatedTotal()));
+        //
+        // Save that we've shown the tax rate setup atleast once
+        //
+        AppPreferences.savePreference(AppPreferences.PREFERENCE_DISPLAY_TAXRATE_SETUP, true);
     }
+
+
+    private void _displayTaxRateDialog () {
+        TaxRateDialogFragment dialog = TaxRateDialogFragment.newInstance(_shoppingCart.getModel());
+        dialog.setDismissListener(this)
+                .show(getFragmentManager(), "TaxRateDialogFragment");
+    }
+
 
     private class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapter.ShoppingListItemView> {
 
@@ -114,12 +155,12 @@ public class ShoppingListActivity extends BaseActivity implements
 
         @Override
         public void onBindViewHolder(ShoppingListItemView holder, int position) {
-            holder.bind(_cartModel.getCartItems().get(position));
+            holder.bind(_shoppingCart.getCartItems().get(position));
         }
 
         @Override
         public int getItemCount() {
-            return _cartModel.getCartItems().size();
+            return _shoppingCart.getCartItems().size();
         }
 
 
@@ -127,7 +168,7 @@ public class ShoppingListActivity extends BaseActivity implements
             CheckBox _checkedOffChkbox;
             TextView _nameTextView, _quantityTextView, _priceTextView;
             View _crossedoutView;
-            CartItemModel _model;
+            CartItem _cartItem;
 
             public ShoppingListItemView (View itemView) {
                 super(itemView);
@@ -139,30 +180,37 @@ public class ShoppingListActivity extends BaseActivity implements
                 _crossedoutView = itemView.findViewById(R.id.shopping_list_item_crossout);
             }
 
-            public void bind (CartItemModel model) {
-                _model = model;
-                _checkedOffChkbox.setChecked(model.getCheckedOff());
-                _nameTextView.setText(model.getName());
-                _priceTextView.setText(NumberFormat.getCurrencyInstance().format(model.getPrice()));
+            public void bind (CartItem cartItem) {
+                _cartItem = cartItem;
+                _checkedOffChkbox.setChecked(_cartItem.getCheckedOff());
+                _nameTextView.setText(_cartItem.getName());
+                _priceTextView.setText(NumberFormat.getCurrencyInstance().format(_cartItem.getPrice()));
 
-                int quantity = model.getQuantity();
+                int quantity = _cartItem.getQuantity();
                 _quantityTextView.setText(quantity > 0 ? String.valueOf(quantity) : "");
 
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) _crossedoutView.getLayoutParams();
-                params.width = model.getCheckedOff() ? RelativeLayout.LayoutParams.MATCH_PARENT : 0;
+                params.width = _cartItem.getCheckedOff() ? RelativeLayout.LayoutParams.MATCH_PARENT : 0;
                 _crossedoutView.setLayoutParams(params);
             }
 
             @Override
             public void onClick(View v) {
+                ViewCompat.animate(_crossedoutView)
+                        .scaleX(!_cartItem.getCheckedOff() ? 1.0F : 0 )
+                        .setDuration(500)
+                        .setInterpolator(AppUI.DECELERATE_INTERPOLATOR)
+                        .start();
 
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) _crossedoutView.getLayoutParams();
-                params.width = !_model.getCheckedOff() ? RelativeLayout.LayoutParams.MATCH_PARENT : 0;
-                _crossedoutView.setLayoutParams(params);
-
-                _model.setCheckedOff(!_model.getCheckedOff());
-                DbProvider.save(_model);
-                notifyDataSetChanged();
+                _cartItem.setCheckedOff(!_cartItem.getCheckedOff());
+                try {
+                    _cartItem.save();
+                    notifyDataSetChanged();
+                } catch (Exception ex) {
+                    WBLogger.Error(TAG, ex);
+                    Snackbar.make(getWindow().getDecorView(), R.string.error_cartitem_save_failure, Snackbar.LENGTH_LONG)
+                            .show();
+                }
             }
         }
     }
@@ -172,8 +220,6 @@ public class ShoppingListActivity extends BaseActivity implements
      * @ref https://guides.codepath.com/android/Floating-Action-Buttons
      */
     public static class AddCartItemBehavior extends FloatingActionButton.Behavior {
-        private static final android.view.animation.Interpolator INTERPOLATOR =
-                new FastOutSlowInInterpolator();
         private boolean mIsAnimatingOut = false;
 
         public AddCartItemBehavior (Context context, AttributeSet attrs) {
@@ -205,7 +251,7 @@ public class ShoppingListActivity extends BaseActivity implements
         // hide the FAB when the AppBarLayout exits
         private void animateOut(final FloatingActionButton button) {
             ViewCompat.animate(button).scaleX(0.0F).scaleY(0.0F).alpha(0.0F)
-                    .setInterpolator(INTERPOLATOR).withLayer()
+                    .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR).withLayer()
                     .setListener(new ViewPropertyAnimatorListener() {
                         public void onAnimationStart(View view) {
                             AddCartItemBehavior.this.mIsAnimatingOut = true;
@@ -227,7 +273,7 @@ public class ShoppingListActivity extends BaseActivity implements
         private void animateIn(FloatingActionButton button) {
             button.setVisibility(View.VISIBLE);
             ViewCompat.animate(button).scaleX(1.0F).scaleY(1.0F).alpha(1.0F)
-                    .setInterpolator(INTERPOLATOR).withLayer().setListener(null)
+                    .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR).withLayer().setListener(null)
                     .start();
         }
     }
