@@ -38,7 +38,7 @@ public final class WalmartAPI extends WebAPI {
 
     private static final String WALMART_APIKEY = "[YOUR KEY GOES HERE]";
     private static final String PRODUCT_SEARCH_QUERY = "http://api.walmartlabs.com/v1/items?apiKey=" + WALMART_APIKEY + "&format=json";
-
+    private static final String SEARCH_QUERY =  "http://api.walmartlabs.com/v1/search?apiKey=" + WALMART_APIKEY + "&format=json";
 
     public static Task<WBList<ProductModel>> fetchProductByUPC (String upc) {
         final HashMap<String, String> params = new HashMap<>();
@@ -47,28 +47,48 @@ public final class WalmartAPI extends WebAPI {
         return Task.callInBackground(new Callable<WBList<ProductModel>>() {
             @Override
             public WBList<ProductModel> call() throws Exception {
-                WBList<ProductModel> products = new WBList<>();
                 URL url = buildUrl(PRODUCT_SEARCH_QUERY, params);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                try {
-                    JSONObject response = readFrom(connection.getInputStream());
-                    if (response.has(Response.ITEMS)) {
-                        JSONArray items = response.getJSONArray(Response.ITEMS);
-                        int len = items.length();
-                        for (int i =0; i < len; i++) {
-                            JSONObject item = WBJsonUtils.getObject(items, i, null);
-                            if (item != null) products.add(productFrom(item));
-                        }
-                    }
-                } catch (Exception ex) {
-                    readErrorsFrom(connection.getErrorStream());
-                    throw ex;
-                } finally {
-                    connection.disconnect();
-                }
-                return products;
+                return fetchResults(url, params);
             }
         });
+    }
+
+    public static Task<WBList<ProductModel>> search (String query) {
+        final HashMap<String, String> params = new HashMap<>();
+        params.put("query", query);
+
+        return Task.callInBackground(new Callable<WBList<ProductModel>>() {
+            @Override
+            public WBList<ProductModel> call() throws Exception {
+                URL url = buildUrl(SEARCH_QUERY, params);
+                return fetchResults(url, params);
+            }
+        });
+    }
+
+    static WBList<ProductModel> fetchResults (URL url, HashMap<String, String> params) throws Exception {
+        HttpURLConnection connection = null;
+        WBList<ProductModel> products = new WBList<>();
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+            JSONObject response = readFrom(connection.getInputStream());
+            if (response.has(Response.ITEMS)) {
+                JSONArray items = response.getJSONArray(Response.ITEMS);
+                int len = items.length();
+                for (int i =0; i < len; i++) {
+                    JSONObject item = WBJsonUtils.getObject(items, i, null);
+                    if (item != null) products.add(productFrom(item));
+                }
+            }
+        } catch (Exception ex) {
+            if (connection != null)
+                readErrorsFrom(connection.getErrorStream());
+            throw ex;
+        } finally {
+            if (connection != null)
+                connection.disconnect();
+        }
+        return products;
     }
 
     static ProductModel productFrom (JSONObject jsonObject) {

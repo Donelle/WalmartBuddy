@@ -1,0 +1,182 @@
+<!--
+/*
+ * Copyright (C) 2015 Donelle Sanders Jr
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingEnd="@dimen/padding_10dp">
+
+            <ImageButton
+                android:id="@+id/new_item_action_close"
+                android:layout_width="@dimen/button_height"
+                android:layout_height="@dimen/button_height"
+                android:layout_alignParentStart="true"
+                android:padding="@dimen/padding_5dp"
+                android:src="@mipmap/ic_close"
+                android:scaleType="centerCrop"
+                android:background="@color/transparent"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/new_item_action_close"
+                android:padding="@dimen/padding_5dp"
+                android:text="@string/title_activity_new_item"
+                android:textSize="20sp"
+                android:textColor="@android:color/white"/>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:id="@+id/new_item_results_container"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@+id/toolbar"
+        android:padding="@dimen/padding_10dp"
+        android:background="@color/md_grey_300">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/new_item_results_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/new_item_content_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:padding="@dimen/activity_vertical_margin"
+        android:background="@color/background_material_light">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/new_item_search_container"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/new_item_search"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/FloatingTextAppearanceHint">
+
+            <EditText
+                android:id="@+id/new_item_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Item Name"
+                style="@style/EditTextStyle.FloatingText"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <IconButton
+            android:id="@+id/new_item_search"
+            android:layout_width="@dimen/button_touch_target"
+            android:layout_height="@dimen/button_touch_target"
+            android:layout_toStartOf="@+id/new_item_search_progressbar"
+            android:layout_alignTop="@+id/new_item_search_progressbar"
+            android:text="{fa-search}"
+            android:textSize="24sp"
+            android:textColor="?attr/colorAccent"
+            style="@style/ButtonStyle.Flat"/>
+
+        <org.rocko.bpb.BounceProgressBar
+            android:id="@+id/new_item_search_progressbar"
+            android:layout_width="@dimen/button_height"
+            android:layout_height="@dimen/button_height"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/padding_20dp"
+            android:visibility="invisible"
+            app:shape="circle"
+            app:singleSrcSize="6dp"
+            app:speed="250"
+            app:src="?attr/colorAccent" />
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/new_item_price_container"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/new_item_search_container"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/FloatingTextAppearanceHint">
+
+            <EditText
+                android:id="@+id/new_item_price"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:hint="Price"
+                android:inputType="numberDecimal"
+                style="@style/EditTextStyle.FloatingText"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/new_item_qty_container"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_below="@+id/new_item_search_container"
+            android:layout_toEndOf="@+id/new_item_price_container"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/FloatingTextAppearanceHint">
+
+            <EditText
+                android:id="@+id/new_item_qty"
+                android:layout_width="65dp"
+                android:layout_height="match_parent"
+                android:hint="Qty"
+                android:inputType="number"
+                android:gravity="center_horizontal"
+                style="@style/EditTextStyle.FloatingText"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/new_item_photo"
+            android:layout_width="@dimen/cardview_media_size_normal"
+            android:layout_height="@dimen/cardview_media_size_normal"
+            android:layout_below="@+id/new_item_qty_container"
+            android:background="@drawable/imageview_snapshot_background"/>
+
+
+        <Button
+            android:id="@+id/new_item_add_to_cart"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_alignParentBottom="true"
+            android:backgroundTint="?attr/colorAccent"
+            android:text="Add To Cart"
+            android:textColor="#FFFFFF" />
+
+    </RelativeLayout>
+
+
+
+</RelativeLayout>

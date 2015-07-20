@@ -17,7 +17,8 @@
 package com.donellesandersjr.walmartbuddy.activities;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -26,6 +27,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,7 +35,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -41,12 +42,11 @@ import com.donellesandersjr.walmartbuddy.AppPreferences;
 import com.donellesandersjr.walmartbuddy.AppUI;
 import com.donellesandersjr.walmartbuddy.R;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
+import com.donellesandersjr.walmartbuddy.db.DbProvider;
 import com.donellesandersjr.walmartbuddy.domain.Cart;
 import com.donellesandersjr.walmartbuddy.domain.CartItem;
 import com.donellesandersjr.walmartbuddy.fragments.TaxRateDialogFragment;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
-import com.joanzapata.android.iconify.IconDrawable;
-import com.joanzapata.android.iconify.Iconify;
 
 import java.text.NumberFormat;
 
@@ -60,19 +60,20 @@ public class ShoppingListActivity extends BaseActivity implements
     private Cart _shoppingCart;
 
     private ShoppingListAdapter _adapter;
-    private TextView _totalTextView;
+    private TextView _totalTextView, _cartItemTotalTextView;
+
+    private final int NEW_ITEM_RESULT = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_shopping_list);
-        getSupportActionBar().setElevation(0);
-        getSupportActionBar().setTitle("");
+        setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
 
-        _shoppingCart = new Cart();
         if (savedInstanceState != null)
             _shoppingCart = savedInstanceState.getParcelable(STATE_SHOPPING_CART);
+        else
+            _shoppingCart = new Cart(DbProvider.fetchCart());
         //
         // Figure out if we've already shown this dialog before because
         // we don't want to "harass" the user with this. They can choose
@@ -89,43 +90,43 @@ public class ShoppingListActivity extends BaseActivity implements
         FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.shopping_list_add_button);
         addButton.setOnClickListener(this);
 
+        _cartItemTotalTextView = (TextView) findViewById(R.id.shopping_list_cartitem_total);
         _totalTextView = (TextView) findViewById(R.id.shopping_list_total);
-        _totalTextView.setText(NumberFormat.getCurrencyInstance().format(_shoppingCart.getEstimatedTotal()));
+        _setEstimatedTotal();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_shopping_list, menu);
-
-        IconDrawable iconDrawable =
-                new IconDrawable(this, Iconify.IconValue.fa_barcode)
-                    .color(Color.WHITE)
-                    .actionBarSize();
-        menu.findItem(R.id.action_scan_item).setIcon(iconDrawable);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_scan_item) {
-
-        } else if (id == R.id.action_taxrate) {
+        if (item.getItemId() == R.id.action_taxrate) {
             _displayTaxRateDialog();
         }
-        
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == NEW_ITEM_RESULT && resultCode == RESULT_OK) {
+            _shoppingCart = new Cart(DbProvider.fetchCart());
+            _adapter.notifyDataSetChanged();
+        }
     }
 
     @Override /* View.OnClickListener */
     public void onClick(View v) {
-
+        startActivityForResult(new Intent(this, NewItemActivity.class), NEW_ITEM_RESULT);
     }
 
     @Override /* TaxDialog.TaxDialogListener */
     public void onDismissed(CartModel model) {
         _shoppingCart = new Cart(model);
-        _totalTextView.setText(NumberFormat.getCurrencyInstance().format(_shoppingCart.getEstimatedTotal()));
+        _setEstimatedTotal();
         //
         // Save that we've shown the tax rate setup atleast once
         //
@@ -137,6 +138,14 @@ public class ShoppingListActivity extends BaseActivity implements
         TaxRateDialogFragment dialog = TaxRateDialogFragment.newInstance(_shoppingCart.getModel());
         dialog.setDismissListener(this)
                 .show(getFragmentManager(), "TaxRateDialogFragment");
+    }
+
+    private void _setEstimatedTotal () {
+        double estimatedTotal = _shoppingCart.getEstimatedTotal();
+        _totalTextView.setText(estimatedTotal > 0 ? NumberFormat.getCurrencyInstance().format(estimatedTotal) : "$0");
+
+        int items = _shoppingCart.getCartItems().size();
+        _cartItemTotalTextView.setText(items > 0 ? String.format("%d Items", items) : "");
     }
 
 
@@ -167,7 +176,6 @@ public class ShoppingListActivity extends BaseActivity implements
         public class ShoppingListItemView extends RecyclerView.ViewHolder implements View.OnClickListener {
             CheckBox _checkedOffChkbox;
             TextView _nameTextView, _quantityTextView, _priceTextView;
-            View _crossedoutView;
             CartItem _cartItem;
 
             public ShoppingListItemView (View itemView) {
@@ -177,31 +185,23 @@ public class ShoppingListActivity extends BaseActivity implements
                 _nameTextView = (TextView) itemView.findViewById(R.id.shopping_list_item_name);
                 _quantityTextView = (TextView) itemView.findViewById(R.id.shopping_list_item_quantity);
                 _priceTextView = (TextView) itemView.findViewById(R.id.shopping_list_item_price);
-                _crossedoutView = itemView.findViewById(R.id.shopping_list_item_crossout);
             }
 
             public void bind (CartItem cartItem) {
                 _cartItem = cartItem;
                 _checkedOffChkbox.setChecked(_cartItem.getCheckedOff());
-                _nameTextView.setText(_cartItem.getName());
                 _priceTextView.setText(NumberFormat.getCurrencyInstance().format(_cartItem.getPrice()));
+                _nameTextView.setText(_cartItem.getName());
+                _nameTextView.setPaintFlags(_cartItem.getCheckedOff() ?
+                        _nameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG :
+                        _nameTextView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
 
                 int quantity = _cartItem.getQuantity();
                 _quantityTextView.setText(quantity > 0 ? String.valueOf(quantity) : "");
-
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) _crossedoutView.getLayoutParams();
-                params.width = _cartItem.getCheckedOff() ? RelativeLayout.LayoutParams.MATCH_PARENT : 0;
-                _crossedoutView.setLayoutParams(params);
             }
 
             @Override
             public void onClick(View v) {
-                ViewCompat.animate(_crossedoutView)
-                        .scaleX(!_cartItem.getCheckedOff() ? 1.0F : 0 )
-                        .setDuration(500)
-                        .setInterpolator(AppUI.DECELERATE_INTERPOLATOR)
-                        .start();
-
                 _cartItem.setCheckedOff(!_cartItem.getCheckedOff());
                 try {
                     _cartItem.save();

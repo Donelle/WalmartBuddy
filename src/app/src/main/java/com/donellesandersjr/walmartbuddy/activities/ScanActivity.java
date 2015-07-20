@@ -23,12 +23,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.donellesandersjr.walmartbuddy.AppUI;
 import com.donellesandersjr.walmartbuddy.R;
+import com.donellesandersjr.walmartbuddy.api.WBImageUtils;
 import com.donellesandersjr.walmartbuddy.web.WalmartAPI;
 import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
@@ -36,7 +38,6 @@ import com.donellesandersjr.walmartbuddy.api.WBStringUtils;
 import com.donellesandersjr.walmartbuddy.domain.CartItem;
 import com.donellesandersjr.walmartbuddy.models.ProductModel;
 import com.google.zxing.Result;
-import com.makeramen.roundedimageview.RoundedImageView;
 import com.welcu.android.zxingfragmentlib.BarCodeScannerFragment;
 
 
@@ -59,7 +60,7 @@ public class ScanActivity extends BaseActivity implements
 
     private final String TAG = "com.donellesandersjr.walmartbuddy.activities.ScanActivity";
 
-    private RoundedImageView _productImageView;
+    private ImageView _productImageView;
     private View _productView;
     private TextView _productTitleTextView, _productPriceTextView;
     private EditText _productQuantityEditText;
@@ -81,10 +82,7 @@ public class ScanActivity extends BaseActivity implements
                     .commit();
         }
 
-        _productImageView = (RoundedImageView) findViewById(R.id.scanner_scan_pic);
-        _productImageView.setCornerRadius(getDPUnits(20));
-        _productImageView.setOval(true);
-        _productImageView.mutateBackground(true);
+        _productImageView = (ImageView) findViewById(R.id.scanner_scan_pic);
         _productView = findViewById(R.id.scanner_scan_container);
 
         _productTitleTextView = (TextView) findViewById(R.id.scanner_scan_title);
@@ -123,25 +121,8 @@ public class ScanActivity extends BaseActivity implements
                         }, Task.UI_THREAD_EXECUTOR);
                     } else {
                         ProductModel productModel = task.getResult().first();
-                        HttpURLConnection connection = null;
-                        try {
-                            URL url = new URL(productModel.getThumbnailUrl());
-                            connection = (HttpURLConnection) url.openConnection();
-                            InputStream inputStream = new BufferedInputStream(connection.getInputStream());
-                            BufferedInputStream buffIn = new BufferedInputStream(inputStream);
-                            thumbnail = BitmapFactory.decodeStream(buffIn);
-                            _product = productModel;
-                        } catch (Exception ex) {
-                            //
-                            // We should load a default image when one can't be fetched
-                            // but I'm being lazy so.. bite me :-P
-                            //
-                            WBLogger.Error(TAG, ex);
-                            throw ex;
-                        } finally {
-                            if (connection != null)
-                                connection.disconnect();
-                        }
+                        thumbnail = WBImageUtils.bitmapFromURL(new URL(productModel.getThumbnailUrl()));
+                        _product = productModel;
                     }
                     return thumbnail;
                 }

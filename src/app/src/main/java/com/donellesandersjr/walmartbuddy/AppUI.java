@@ -20,11 +20,26 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
+
+import com.donellesandersjr.walmartbuddy.api.WBImageUtils;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.net.URI;
+import java.net.URL;
+import java.util.concurrent.Callable;
+
+import bolts.Continuation;
+import bolts.Task;
 
 
 public final class AppUI {
@@ -70,6 +85,38 @@ public final class AppUI {
         dialog.setMessage(activity.getString(resourceMessageId));
         dialog.setCanceledOnTouchOutside(false);
         return dialog;
+    }
+
+    public static void loadImage  (final String filePath, final ImageView imageView) {
+        Task.callInBackground(new Callable<Bitmap>() {
+            @Override
+            public Bitmap call() throws Exception {
+               return WBImageUtils.bitmapFromUri(URI.create(filePath));
+            }
+        }).onSuccess(new Continuation<Bitmap, Void>() {
+            @Override
+            public Void then(Task<Bitmap> task) throws Exception {
+                final Bitmap thumbnail = task.getResult();
+                imageView.setImageBitmap(thumbnail);
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
+    }
+
+    public static void loadImageUrl (final String urlPath,  final ImageView imageView) {
+        Task.callInBackground(new Callable<Bitmap>() {
+            @Override
+            public Bitmap call() throws Exception {
+                return WBImageUtils.bitmapFromURL(new URL(urlPath));
+            }
+        }).onSuccess(new Continuation<Bitmap, Void>() {
+            @Override
+            public Void then(Task<Bitmap> task) throws Exception {
+                final Bitmap thumbnail = task.getResult();
+                imageView.setImageBitmap(thumbnail);
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
     }
 
 }

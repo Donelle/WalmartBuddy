@@ -17,7 +17,6 @@
     <dimen name="dialog_button_height">36dp</dimen>
     <dimen name="dialog_button_padding">8dp</dimen>
 
-
     <!-- http://www.google.com/design/spec/components/buttons-floating-action-button.html#buttons-floating-action-button-floating-action-button -->
     <dimen name="floating_button_diameter">56dp</dimen>
     <dimen name="floating_button_margin">16dp</dimen>
@@ -25,13 +24,43 @@
     <dimen name="floating_button_elevation_high">12sp</dimen>
 
     <!--http://www.google.com/design/spec/components/text-fields.html#text-fields-single-line-text-field -->
-    <dimen name="singleline_text_size">16sp</dimen>
+    <dimen name="singleline_text_font_size">16sp</dimen>
     <dimen name="singleline_text_height">48dp</dimen>
     <dimen name="singleline_text_padding_top">16dp</dimen>
-    <dimen name="singleline_text_padding_bottom">8dp</dimen>
+    <dimen name="singleline_text_padding_bottom">16dp</dimen>
 
     <!-- http://www.google.com/design/spec/components/text-fields.html#text-fields-floating-labels -->
     <dimen name="floating_text_height">72dp</dimen>
-    <dimen name="floating_text_padding_top">16dp</dimen>
+    <dimen name="floating_text_padding_top_bottom">16dp</dimen>
     <dimen name="floating_text_padding">8dp</dimen>
+    <dimen name="floating_text_font_size">16sp</dimen>
+    <dimen name="floating_text_hint_font_size">12sp</dimen>
+
+    <!-- http://www.google.com/design/spec/components/subheaders.html# -->
+    <dimen name="list_subheader_height">48dp</dimen>
+    <dimen name="list_subheader_font_size">14sp</dimen>
+    <dimen name="list_subheader_padding">16dp</dimen>
+    <dimen name="list_subheader_marginLeft">72dp</dimen>
+
+    <!-- http://www.google.com/design/spec/components/cards.html#cards-content-blocks -->
+    <dimen name="cardview_media_area_top_padding">16dp</dimen>
+    <dimen name="cardview_media_area_right_padding">16dp</dimen>
+    <dimen name="cardview_media_size_small">80dp</dimen>
+    <dimen name="cardview_media_size_normal">112dp</dimen>
+    <dimen name="cardview_media_size_large">152dp</dimen>
+    <dimen name="cardview_title_top_padding">24dp</dimen>
+    <dimen name="cardview_font_size">24sp</dimen>
+    <dimen name="cardview_subtitle_font_size">14sp</dimen>
+    <dimen name="cardview_actions_padding">8dp</dimen>
+
+    <!-- http://www.google.com/design/spec/components/buttons.html#buttons-flat-raised-buttons -->
+    <dimen name="button_height">36dp</dimen>
+    <dimen name="button_width">88dp</dimen>
+    <dimen name="button_padding">8dp</dimen>
+    <dimen name="button_touch_target">48dp</dimen>
+    <dimen name="button_footer_height">48dp</dimen>
+    <dimen name="button_font_size">16sp</dimen>
+
+    <!-- http://www.google.com/design/spec/components/lists.html#lists-specs -->
+
 </resources>

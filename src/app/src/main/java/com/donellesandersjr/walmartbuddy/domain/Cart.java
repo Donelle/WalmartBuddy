@@ -46,6 +46,7 @@ public final class Cart extends  DomainObject<CartModel> {
     public Cart ()  {
         super();
         setName(null);
+        setTaxRate(-1d);
     }
 
     public Cart (CartModel model) {

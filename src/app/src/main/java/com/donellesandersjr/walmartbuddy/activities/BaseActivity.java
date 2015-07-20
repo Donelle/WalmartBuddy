@@ -23,18 +23,15 @@ import android.view.WindowManager;
 
 public class BaseActivity extends AppCompatActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+    protected float getDPUnits (int unit) {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            unit,
+            getResources().getDisplayMetrics());
     }
 
-    protected float getDPUnits (int unit) {
-        return Float.valueOf(
-                TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_DIP,
-                        unit,
-                        getResources().getDisplayMetrics())
-        );
+    protected int getPixels (float dpUnits) {
+        return Float.valueOf(dpUnits * (getResources().getDisplayMetrics().densityDpi / 160f))
+                    .intValue();
     }
 }

@@ -20,6 +20,7 @@
     <!-- TITLES -->
     <string name="title_activity_scan">ScanActivity</string>
     <string name="title_dialog_taxrate">Sales Tax Information</string>
+    <string name="title_activity_new_item">New Item</string>
 
     <!-- LABELS -->
     <string name="label_zipcode_explanation">Please enter your zip code so we can retrieve the sales tax used at Walmart for your area.</string>
@@ -36,6 +37,9 @@
     <string name="error_cartitem_save_failure">A terrible error occurred saving this item</string>
     <string name="error_taxrate_search_failure">Unable to find tax rate for this zip code please try again.</string>
 
+    <!-- BUNDLE ARGS -->
+    <string name="bundle_key_cartitem">bundle.key.cartitem</string>
+
     <!-- BROKEN RULE TAGS -->
     <string name="broken_rule_cartitem_name_invalid">Name for this item is required</string>
     <string name="broken_rule_cartitem_quantity_invalid">Quantity for this item is required and must be 1 or more</string>
@@ -49,4 +53,5 @@
 
     <!-- MENUITEM TAGS -->
     <string name="menuitem_action_taxrate">Edit Tax Rate</string>
+
 </resources>

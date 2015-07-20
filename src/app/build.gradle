@@ -38,16 +38,15 @@ dependencies {
     compile('it.sephiroth.android.library.targettooltip:target-tooltip-library:1.2.2@aar') {
         transitive = true
     }
-    compile 'com.makeramen:roundedimageview:2.1.0'
     compile 'com.joanzapata.android:android-iconify:1.0.9'
-    compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.7.2'
     compile 'org.rocko.bpb:library:1.0.0'
     compile 'com.yahoo.squidb:squidb:1.0.1'
     compile 'com.yahoo.squidb:squidb-annotations:1.0.1'
     apt 'com.yahoo.squidb:squidb-processor:1.0.1'
     compile 'com.parse.bolts:bolts-android:1.2.0'
-    compile 'com.android.support:support-v4:22.2.0'
-    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:support-v4:22.2.1'
+    compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.android.support:recyclerview-v7:22.2.0'
-    compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:cardview-v7:22.2.0'
+    compile 'com.android.support:design:22.2.1'
 }

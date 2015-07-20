@@ -28,7 +28,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
 
-abstract class DomainObject<TModel extends DataModel> extends WBParcelable implements  WBEquatable<DomainObject> {
+public abstract class DomainObject<TModel extends DataModel> extends WBParcelable implements  WBEquatable<DomainObject> {
     public static final String TAG = "com.donellesandersjr.walmartbuddy.domain.DomainObject";
 
     private final String KEY_MODEL = "DomainObject.KEY_MODEL";
