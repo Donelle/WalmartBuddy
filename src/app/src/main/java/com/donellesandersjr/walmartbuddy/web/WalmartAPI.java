@@ -19,6 +19,7 @@ package com.donellesandersjr.walmartbuddy.web;
 import com.donellesandersjr.walmartbuddy.api.WBJsonUtils;
 import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
+import com.donellesandersjr.walmartbuddy.models.CategoryModel;
 import com.donellesandersjr.walmartbuddy.models.ProductModel;
 
 import org.json.JSONArray;
@@ -39,6 +40,7 @@ public final class WalmartAPI extends WebAPI {
     private static final String WALMART_APIKEY = "[YOUR KEY GOES HERE]";
     private static final String PRODUCT_SEARCH_QUERY = "http://api.walmartlabs.com/v1/items?apiKey=" + WALMART_APIKEY + "&format=json";
     private static final String SEARCH_QUERY =  "http://api.walmartlabs.com/v1/search?apiKey=" + WALMART_APIKEY + "&format=json";
+    private static final String CATEGORIES_QUERY = "http://api.walmartlabs.com/v1/taxonomy?apiKey="+ WALMART_APIKEY + "&format=json";;
 
     public static Task<WBList<ProductModel>> fetchProductByUPC (String upc) {
         final HashMap<String, String> params = new HashMap<>();
@@ -63,6 +65,42 @@ public final class WalmartAPI extends WebAPI {
             public WBList<ProductModel> call() throws Exception {
                 URL url = buildUrl(SEARCH_QUERY, params);
                 return fetchResults(url, params);
+            }
+        });
+    }
+
+    public static Task<WBList<CategoryModel>> fetchCategories () {
+        return Task.callInBackground(new Callable<WBList<CategoryModel>>() {
+            @Override
+            public WBList<CategoryModel> call() throws Exception {
+                HttpURLConnection connection = null;
+                WBList<CategoryModel> categories = new WBList<>();
+                try {
+                    URL url = new URL(CATEGORIES_QUERY);
+                    connection = (HttpURLConnection) url.openConnection();
+                    JSONObject response = readFrom(connection.getInputStream());
+                    if (response.has(Response.CATEGORIES)) {
+                        JSONArray items = response.getJSONArray(Response.ITEMS);
+                        int len = items.length();
+                        for (int i =0; i < len; i++) {
+                            JSONObject item = WBJsonUtils.getObject(items, i, null);
+                            if (item != null) {
+                                CategoryModel model = new CategoryModel()
+                                        .setCategoryId(WBJsonUtils.getString(item, TaxonomyResponse.ID, null))
+                                        .setName(WBJsonUtils.getString(item, TaxonomyResponse.NAME, null));
+                                categories.add(model);
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    if (connection != null)
+                        readErrorsFrom(connection.getErrorStream());
+                    throw ex;
+                } finally {
+                    if (connection != null)
+                        connection.disconnect();
+                }
+                return categories;
             }
         });
     }
@@ -107,6 +145,8 @@ public final class WalmartAPI extends WebAPI {
     }
 
 
+
+
     static void readErrorsFrom (InputStream stream) {
         JSONObject response = readFrom(stream);
         if (response.has(Response.ERRORS)) {
@@ -128,6 +168,7 @@ public final class WalmartAPI extends WebAPI {
     static class Response {
         static final String ITEMS = "items";
         static final String ERRORS = "errors";
+        static final String CATEGORIES = "categories";
     }
 
     /**
@@ -146,6 +187,23 @@ public final class WalmartAPI extends WebAPI {
          * Number of matching items to be returned, max value 25. Default is 10.
          */
         static final String NUM_OF_ITEMS = "numItems";
+    }
+
+    /**
+     * Taxonomy API exposes the category taxonomy used by walmart.com to categorize items.
+     * It describes three levels - Departments, Categories and Sub-categories as available on Walmart.com.
+     *
+     * @reference https://developer.walmartlabs.com/docs/read/Taxonomy_API
+     */
+    static class TaxonomyResponse {
+        /**
+         * Category id for this category. These values are used as an input parameter to other APIs.
+         */
+        static final String ID = "id";
+        /**
+         * Name for this category as specified on Walmart.com
+         */
+        static final String NAME = "name";
     }
 
     /**

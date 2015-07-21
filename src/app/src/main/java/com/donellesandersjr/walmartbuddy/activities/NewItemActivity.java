@@ -29,12 +29,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.donellesandersjr.walmartbuddy.AppUI;
@@ -50,7 +50,6 @@ import com.donellesandersjr.walmartbuddy.web.WalmartAPI;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 
-import org.rocko.bpb.BounceProgressBar;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -61,10 +60,11 @@ public class NewItemActivity extends BaseActivity implements
     private final String TAG = "com.donellesandersjr.walmart.activities.NewItemActivity";
 
     View _contentContainer,  _resultsContainer;
-    BounceProgressBar _progressbar;
     EditText _itemNameEditText;
     TextView _resultsCounterTextView;
     SearchResultPagerAdapter _adapter;
+    Button _searchButton;
+    ProgressBar _progressbar;
 
     boolean _bIsShowingResults, _bIsSearching;
 
@@ -83,19 +83,18 @@ public class NewItemActivity extends BaseActivity implements
 
         _contentContainer = findViewById(R.id.new_item_content_container);
         _resultsContainer = findViewById(R.id.new_item_results_container);
-        _progressbar = (BounceProgressBar) findViewById(R.id.new_item_search_progressbar);
         _itemNameEditText = (EditText) findViewById(R.id.new_item_name);
         _resultsCounterTextView = (TextView) findViewById(R.id.new_item_results_counter);
+        _progressbar = (ProgressBar) findViewById(R.id.progress_horizontal);
+        _searchButton = (Button) findViewById(R.id.new_item_search);
+        _searchButton.setOnClickListener(this);
 
         ViewPager pager = (ViewPager) findViewById(R.id.new_item_results_pager);
         pager.setPageTransformer(true, new DepthPageTransformer());
         pager.setAdapter(_adapter = new SearchResultPagerAdapter(getSupportFragmentManager()));
         pager.addOnPageChangeListener(this);
 
-        Button button = (Button) findViewById(R.id.new_item_search);
-        button.setOnClickListener(this);
-
-        button = (Button) findViewById(R.id.new_item_add_to_cart);
+        Button button = (Button) findViewById(R.id.new_item_add_to_cart);
         button.setOnClickListener(this);
 
         button = (Button) findViewById(R.id.new_item_results_hide);
@@ -182,18 +181,16 @@ public class NewItemActivity extends BaseActivity implements
             @Override
             public Object then(Task<WBList<ProductModel>> task) throws Exception {
                 _bIsSearching = false;
-                _progressbar.setVisibility(View.INVISIBLE);
+                _progressbar.setVisibility(View.GONE);
 
                 if (task.isFaulted()) {
-                    Snackbar.make(getWindow().getDecorView(), R.string.error_walmart_search_failure, Snackbar.LENGTH_LONG)
-                            .show();
+                    _showMessage(getString(R.string.error_walmart_search_failure));
                 } else {
                     _adapter.reload(task.getResult());
                     if (_adapter.getCount() > 0) {
                         _toggleSearchResults();
                     } else {
-                        Snackbar.make(getWindow().getDecorView(), R.string.notification_no_items_found, Snackbar.LENGTH_LONG)
-                                .show();
+                        _showMessage(getString(R.string.notification_no_items_found));
                     }
                 }
                 return null;
@@ -212,7 +209,6 @@ public class NewItemActivity extends BaseActivity implements
         _bIsShowingResults = !_bIsShowingResults;
     }
 
-
     private void _hideKeyboard() {
         // Check if no view has focus:
         View view = this.getCurrentFocus();
@@ -220,6 +216,12 @@ public class NewItemActivity extends BaseActivity implements
             InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+
+
+    private void _showMessage (String message){
+        Snackbar.make(findViewById(R.id.coordinatorLayout), message, Snackbar.LENGTH_LONG)
+                .show();
     }
 
     private class SearchResultPagerAdapter extends FragmentStatePagerAdapter {
@@ -259,7 +261,7 @@ public class NewItemActivity extends BaseActivity implements
         }
     }
 
-    public class DepthPageTransformer implements ViewPager.PageTransformer {
+    private class DepthPageTransformer implements ViewPager.PageTransformer {
         private static final float MIN_SCALE = 0.75f;
 
         public void transformPage(View view, float position) {

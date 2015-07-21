@@ -74,7 +74,7 @@
         app:layout_collapseMode="parallax"
         app:layout_anchor="@id/toolbar"
         app:layout_anchorGravity="bottom|start"
-        app:layout_behavior="com.donellesandersjr.walmartbuddy.activities.ShoppingListActivity$AddCartItemBehavior" />
+        app:layout_behavior="@string/floating_action_button_behavior" />
 
     <TextView
         android:id="@+id/shopping_list_cartitem_total"

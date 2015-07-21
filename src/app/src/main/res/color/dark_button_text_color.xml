@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 /*
  * Copyright (C) 2015 Donelle Sanders Jr
@@ -14,16 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
--->
-<layer-list  xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape>
-            <solid android:color="#FFFFFF" />
-            <stroke android:width="1dp" android:color="?attr/colorPrimary" />
-            <padding android:left="1dp" android:top="1dp" android:right="1dp" android:bottom="1dp" />
-        </shape>
-    </item>
-    <item>
-        <bitmap android:src="@mipmap/ic_camera_alt" android:gravity="center" android:tint="?attr/colorPrimary"  />
-    </item>
-</layer-list>
+ -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/md_blue_500" android:state_focused="true" android:state_pressed="false" />
+    <item android:color="@color/md_orange_a200" android:state_focused="true" android:state_pressed="true" />
+    <item android:color="@color/md_orange_a200" android:state_focused="false" android:state_pressed="true" />
+    <item android:color="@color/md_blue_500" />
+</selector>

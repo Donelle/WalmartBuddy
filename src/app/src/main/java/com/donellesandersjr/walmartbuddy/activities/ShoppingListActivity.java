@@ -16,19 +16,14 @@
 
 package com.donellesandersjr.walmartbuddy.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,7 +34,6 @@ import android.widget.TextView;
 
 
 import com.donellesandersjr.walmartbuddy.AppPreferences;
-import com.donellesandersjr.walmartbuddy.AppUI;
 import com.donellesandersjr.walmartbuddy.R;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
 import com.donellesandersjr.walmartbuddy.db.DbProvider;
@@ -212,69 +206,6 @@ public class ShoppingListActivity extends BaseActivity implements
                             .show();
                 }
             }
-        }
-    }
-
-    /**
-     * Scrolling animation implementaion
-     * @ref https://guides.codepath.com/android/Floating-Action-Buttons
-     */
-    public static class AddCartItemBehavior extends FloatingActionButton.Behavior {
-        private boolean mIsAnimatingOut = false;
-
-        public AddCartItemBehavior (Context context, AttributeSet attrs) {
-            super();
-        }
-
-        @Override
-        public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout,
-                                           FloatingActionButton child, View directTargetChild, View target, int nestedScrollAxes) {
-            return nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL ||
-                    super.onStartNestedScroll(coordinatorLayout, child, directTargetChild, target,
-                            nestedScrollAxes);
-        }
-
-        @Override
-        public void onNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child,
-                                   View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-            super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed,
-                    dyUnconsumed);
-
-            if (dyConsumed > 0 && !this.mIsAnimatingOut && child.getVisibility() == View.VISIBLE) {
-                animateOut(child);
-            } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE) {
-                animateIn(child);
-            }
-        }
-
-        // Same animation that FloatingActionButton.Behavior uses to
-        // hide the FAB when the AppBarLayout exits
-        private void animateOut(final FloatingActionButton button) {
-            ViewCompat.animate(button).scaleX(0.0F).scaleY(0.0F).alpha(0.0F)
-                    .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR).withLayer()
-                    .setListener(new ViewPropertyAnimatorListener() {
-                        public void onAnimationStart(View view) {
-                            AddCartItemBehavior.this.mIsAnimatingOut = true;
-                        }
-
-                        public void onAnimationCancel(View view) {
-                            AddCartItemBehavior.this.mIsAnimatingOut = false;
-                        }
-
-                        public void onAnimationEnd(View view) {
-                            AddCartItemBehavior.this.mIsAnimatingOut = false;
-                            view.setVisibility(View.GONE);
-                        }
-                    }).start();
-        }
-
-        // Same animation that FloatingActionButton.Behavior
-        // uses to show the FAB when the AppBarLayout enters
-        private void animateIn(FloatingActionButton button) {
-            button.setVisibility(View.VISIBLE);
-            ViewCompat.animate(button).scaleX(1.0F).scaleY(1.0F).alpha(1.0F)
-                    .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR).withLayer().setListener(null)
-                    .start();
         }
     }
 }

@@ -18,7 +18,6 @@ package com.donellesandersjr.walmartbuddy.activities;
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -41,9 +40,6 @@ import com.google.zxing.Result;
 import com.welcu.android.zxingfragmentlib.BarCodeScannerFragment;
 
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.Map;
@@ -53,7 +49,7 @@ import bolts.Continuation;
 import bolts.Task;
 
 
-public class ScanActivity extends BaseActivity implements
+public class ScanItemActivity extends BaseActivity implements
         BarCodeScannerFragment.IResultCallback,
         View.OnClickListener
 {
@@ -114,7 +110,7 @@ public class ScanActivity extends BaseActivity implements
                             @Override
                             public Object call() throws Exception {
                                 _productView.setVisibility(View.INVISIBLE);
-                                Toast.makeText(ScanActivity.this, R.string.error_processing_request, Toast.LENGTH_LONG)
+                                Toast.makeText(ScanItemActivity.this, R.string.error_processing_request, Toast.LENGTH_LONG)
                                         .show();
                                 return null;
                             }

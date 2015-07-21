@@ -23,8 +23,15 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
+import android.util.AttributeSet;
+import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
@@ -119,4 +126,90 @@ public final class AppUI {
         }, Task.UI_THREAD_EXECUTOR);
     }
 
+
+
+    /**
+     * Scrolling animation implementaion
+     * @ref https://guides.codepath.com/android/Floating-Action-Buttons
+     */
+    public static class FloatingActionButtonBehavior extends FloatingActionButton.Behavior {
+        private boolean mIsAnimatingOut = false;
+
+        public FloatingActionButtonBehavior (Context context, AttributeSet attrs) {
+            super();
+        }
+
+        @Override
+        public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout,
+                                           FloatingActionButton child, View directTargetChild, View target, int nestedScrollAxes) {
+            return nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL ||
+                    super.onStartNestedScroll(coordinatorLayout, child, directTargetChild, target,
+                            nestedScrollAxes);
+        }
+
+        @Override
+        public void onNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child,
+                                   View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+            super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed,
+                    dyUnconsumed);
+
+            if (dyConsumed > 0 && !this.mIsAnimatingOut && child.getVisibility() == View.VISIBLE) {
+                animateOut(child);
+            } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE) {
+                animateIn(child);
+            }
+        }
+
+        // Same animation that FloatingActionButton.Behavior uses to
+        // hide the FAB when the AppBarLayout exits
+        private void animateOut(final FloatingActionButton button) {
+            ViewCompat.animate(button).scaleX(0.0F).scaleY(0.0F).alpha(0.0F)
+                    .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR).withLayer()
+                    .setListener(new ViewPropertyAnimatorListener() {
+                        public void onAnimationStart(View view) {
+                            FloatingActionButtonBehavior.this.mIsAnimatingOut = true;
+                        }
+
+                        public void onAnimationCancel(View view) {
+                            FloatingActionButtonBehavior.this.mIsAnimatingOut = false;
+                        }
+
+                        public void onAnimationEnd(View view) {
+                            FloatingActionButtonBehavior.this.mIsAnimatingOut = false;
+                            view.setVisibility(View.GONE);
+                        }
+                    }).start();
+        }
+
+        // Same animation that FloatingActionButton.Behavior
+        // uses to show the FAB when the AppBarLayout enters
+        private void animateIn(FloatingActionButton button) {
+            button.setVisibility(View.VISIBLE);
+            ViewCompat.animate(button).scaleX(1.0F).scaleY(1.0F).alpha(1.0F)
+                    .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR).withLayer().setListener(null)
+                    .start();
+        }
+    }
+
+    /**
+     * Animates the main view to show the snackbar
+     * @ref https://lab.getbase.com/introduction-to-coordinator-layout-on-android/
+     */
+    public static class SnackbarBehavior extends CoordinatorLayout.Behavior {
+        public SnackbarBehavior (Context context, AttributeSet attrs) {
+            super (context, attrs);
+        }
+
+        @Override
+        public boolean layoutDependsOn(CoordinatorLayout parent, View child, View dependency) {
+            return dependency instanceof Snackbar.SnackbarLayout;
+        }
+
+        @Override
+        public boolean onDependentViewChanged(CoordinatorLayout parent, View child, View dependency) {
+            float translationY = Math.min(0, dependency.getTranslationY() - dependency.getHeight());
+            child.setTranslationY(translationY);
+            return true;
+        }
+    }
 }
