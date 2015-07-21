@@ -62,7 +62,7 @@ public class NewItemFragment extends BaseFragment<CartItem> implements View.OnCl
                 "Price not available");
 
         ImageView imageView = (ImageView) rootView.findViewById(R.id.item_search_result_photo);
-        AppUI.loadImage(cartItem.getThumbnailUrl(), imageView);
+        AppUI.loadImageUrl(cartItem.getThumbnailUrl(), imageView);
 
         Button selectButton = (Button) rootView.findViewById(R.id.item_search_result_select);
         selectButton.setOnClickListener(this);

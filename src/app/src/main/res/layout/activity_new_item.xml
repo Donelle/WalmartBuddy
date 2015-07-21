@@ -55,10 +55,10 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/new_item_results_container"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
         android:padding="@dimen/padding_10dp"
         android:background="@color/md_grey_300">
@@ -66,9 +66,31 @@
         <android.support.v4.view.ViewPager
             android:id="@+id/new_item_results_pager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="180dp"
+            android:layout_alignParentStart="true"/>
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/new_item_results_counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/new_item_results_pager"
+            android:paddingTop="@dimen/singleline_text_padding_top"
+            android:textSize="@dimen/singleline_text_font_size" />
+
+        <IconButton
+            android:id="@+id/new_item_results_hide"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/button_height"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/new_item_results_pager"
+            android:gravity="bottom"
+            android:text="{fa-toggle-up} Hide"
+            android:textSize="18sp"
+            android:textColor="?attr/colorAccent"
+            style="@style/ButtonStyle.Flat"/>
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/new_item_content_container"
@@ -169,7 +191,7 @@
         <Button
             android:id="@+id/new_item_add_to_cart"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/button_height"
+            android:layout_height="48dp"
             android:layout_alignParentBottom="true"
             android:backgroundTint="?attr/colorAccent"
             android:text="Add To Cart"

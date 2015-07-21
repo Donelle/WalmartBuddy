@@ -16,8 +16,10 @@
 
 package com.donellesandersjr.walmartbuddy.activities;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -27,15 +29,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.donellesandersjr.walmartbuddy.AppUI;
 import com.donellesandersjr.walmartbuddy.R;
 import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
+import com.donellesandersjr.walmartbuddy.api.WBStringUtils;
 import com.donellesandersjr.walmartbuddy.domain.CartItem;
 import com.donellesandersjr.walmartbuddy.fragments.NewItemFragment;
 import com.donellesandersjr.walmartbuddy.models.CartItemModel;
@@ -50,14 +56,15 @@ import bolts.Continuation;
 import bolts.Task;
 
 public class NewItemActivity extends BaseActivity implements
-        View.OnClickListener {
+        View.OnClickListener, ViewPager.OnPageChangeListener {
 
     private final String TAG = "com.donellesandersjr.walmart.activities.NewItemActivity";
 
-    ViewPager _resultsPager;
     View _contentContainer,  _resultsContainer;
     BounceProgressBar _progressbar;
     EditText _itemNameEditText;
+    TextView _resultsCounterTextView;
+    SearchResultPagerAdapter _adapter;
 
     boolean _bIsShowingResults, _bIsSearching;
 
@@ -76,15 +83,22 @@ public class NewItemActivity extends BaseActivity implements
 
         _contentContainer = findViewById(R.id.new_item_content_container);
         _resultsContainer = findViewById(R.id.new_item_results_container);
-        _resultsPager = (ViewPager) findViewById(R.id.new_item_results_pager);
-        _resultsPager.setPageTransformer(true, new DepthPageTransformer());
         _progressbar = (BounceProgressBar) findViewById(R.id.new_item_search_progressbar);
         _itemNameEditText = (EditText) findViewById(R.id.new_item_name);
+        _resultsCounterTextView = (TextView) findViewById(R.id.new_item_results_counter);
+
+        ViewPager pager = (ViewPager) findViewById(R.id.new_item_results_pager);
+        pager.setPageTransformer(true, new DepthPageTransformer());
+        pager.setAdapter(_adapter = new SearchResultPagerAdapter(getSupportFragmentManager()));
+        pager.addOnPageChangeListener(this);
 
         Button button = (Button) findViewById(R.id.new_item_search);
         button.setOnClickListener(this);
 
         button = (Button) findViewById(R.id.new_item_add_to_cart);
+        button.setOnClickListener(this);
+
+        button = (Button) findViewById(R.id.new_item_results_hide);
         button.setOnClickListener(this);
 
         ImageView imageView = (ImageButton)findViewById(R.id.new_item_action_close);
@@ -117,66 +131,131 @@ public class NewItemActivity extends BaseActivity implements
     public void onClick(View v) {
         int id = v.getId();
         if (id == R.id.new_item_search) {
-            if (_bIsSearching) return;
-
-            _bIsSearching = true;
-            _progressbar.setVisibility(View.VISIBLE);
-            WalmartAPI.search(_cartItem.getName()).continueWith(new Continuation<WBList<ProductModel>, Object>() {
-                @Override
-                public Object then(Task<WBList<ProductModel>> task) throws Exception {
-                    _bIsSearching = false;
-                    _progressbar.setVisibility(View.INVISIBLE);
-
-                    if (task.isFaulted()) {
-                        //
-                        // TODO: Display snackbar with a failed search message
-                        //
-                    } else {
-                        SearchResultPagerAdapter adapter =
-                                new SearchResultPagerAdapter(task.getResult(), NewItemActivity.this.getSupportFragmentManager());
-                        _resultsPager.setAdapter(adapter);
-
-                        int height = _resultsContainer.getLayoutParams().height;
-                        ViewCompat.animate(_contentContainer)
-                                .yBy(_bIsShowingResults ? -height : height)
-                                .setDuration(500)
-                                .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR)
-                                .withLayer()
-                                .start();
-                        _bIsShowingResults = !_bIsShowingResults;
-                    }
-                    return null;
-                }
-            }, Task.UI_THREAD_EXECUTOR);
+            _processSearchRequest();
         } else if (id == R.id.new_item_action_close) {
             finish();
+        } else if (id == R.id.new_item_results_hide) {
+            _toggleSearchResults();
         }
     }
 
+    @Override /*  ViewPager.OnPageChangeListener  */
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        String text = String.format("%1$d of %2$d", ++position, _adapter.getCount());
+        _resultsCounterTextView.setText(text);
+    }
+
+    @Override /*  ViewPager.OnPageChangeListener */
+    public void onPageSelected(int position) {
+
+    }
+
+    @Override /*  ViewPager.OnPageChangeListener */
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    private void _processSearchRequest () {
+        //
+        // Are we searching?
+        //
+        if (_bIsSearching || _bIsShowingResults)
+            return;
+        //
+        // Do we have valid search criteria
+        //
+        String itemNameQuery = _itemNameEditText.getText().toString();
+        if (WBStringUtils.isNullOrEmpty(itemNameQuery) || itemNameQuery.length() < 2) {
+            _itemNameEditText.setError(getString(R.string.broken_rule_cartitem_query_invalid));
+            return;
+        }
+        //
+        // Close the keyboard if its visible
+        //
+        _hideKeyboard();
+        //
+        // Execute search
+        //
+        _bIsSearching = true;
+        _progressbar.setVisibility(View.VISIBLE);
+        WalmartAPI.search(itemNameQuery).continueWith(new Continuation<WBList<ProductModel>, Object>() {
+            @Override
+            public Object then(Task<WBList<ProductModel>> task) throws Exception {
+                _bIsSearching = false;
+                _progressbar.setVisibility(View.INVISIBLE);
+
+                if (task.isFaulted()) {
+                    Snackbar.make(getWindow().getDecorView(), R.string.error_walmart_search_failure, Snackbar.LENGTH_LONG)
+                            .show();
+                } else {
+                    _adapter.reload(task.getResult());
+                    if (_adapter.getCount() > 0) {
+                        _toggleSearchResults();
+                    } else {
+                        Snackbar.make(getWindow().getDecorView(), R.string.notification_no_items_found, Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                }
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
+    }
+
+    private void _toggleSearchResults () {
+        int height = _resultsContainer.getMeasuredHeight();
+        ViewCompat.animate(_contentContainer)
+                .yBy(_bIsShowingResults ? -height : height)
+                .setDuration(500)
+                .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR)
+                .withLayer()
+                .start();
+        _bIsShowingResults = !_bIsShowingResults;
+    }
+
+
+    private void _hideKeyboard() {
+        // Check if no view has focus:
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
 
     private class SearchResultPagerAdapter extends FragmentStatePagerAdapter {
         private WBList<ProductModel> _items;
 
-        public SearchResultPagerAdapter(WBList<ProductModel> items, FragmentManager fm) {
+        public SearchResultPagerAdapter(FragmentManager fm) {
             super(fm);
-            _items = items;
+            _items = new WBList<>();
         }
 
         @Override
         public Fragment getItem(int position) {
-            //
-            // TODO: You need to transform the product model into a cart item
-            //
+            ProductModel productModel = _items.get(position);
+            CartItemModel model = new CartItemModel()
+                    .setName(productModel.getName())
+                    .setPrice(productModel.getSalePrice())
+                    .setQuantity(1)
+                    .setThumbnailUrl(productModel.getThumbnailUrl())
+                    .setProduct(productModel);
+
             Bundle args = new Bundle();
-            args.putParcelable(getString(R.string.bundle_key_cartitem), null);
+            args.putParcelable(getString(R.string.bundle_key_cartitem), model);
             NewItemFragment fragment = new NewItemFragment();
             fragment.setArguments(args);
+
             return fragment;
         }
 
         @Override
         public int getCount() {
             return _items.size();
+        }
+
+        public void reload (WBList<ProductModel> items) {
+            _items = items;
+            this.notifyDataSetChanged();
         }
     }
 

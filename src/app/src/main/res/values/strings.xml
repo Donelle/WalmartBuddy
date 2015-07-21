@@ -36,6 +36,7 @@
     <string name="error_processing_request">An error occurred processing this request</string>
     <string name="error_cartitem_save_failure">A terrible error occurred saving this item</string>
     <string name="error_taxrate_search_failure">Unable to find tax rate for this zip code please try again.</string>
+    <string name="error_walmart_search_failure">An occurred processing your search request please try again.</string>
 
     <!-- BUNDLE ARGS -->
     <string name="bundle_key_cartitem">bundle.key.cartitem</string>
@@ -44,12 +45,14 @@
     <string name="broken_rule_cartitem_name_invalid">Name for this item is required</string>
     <string name="broken_rule_cartitem_quantity_invalid">Quantity for this item is required and must be 1 or more</string>
     <string name="broken_rule_cartitem_price_invalid">Price for this item must be a valid amount</string>
+    <string name="broken_rule_cartitem_query_invalid">Name should be 3 letters or more in order to search</string>
     <string name="broken_rule_cart_zipcode_invalid">A valid zip code is required</string>
     <string name="broken_rule_cart_name_invalid">Name for this Shopping list is requireds</string>
     <string name="broken_rule_cart_taxrate_invalid">Tax rate must be valid percentage greater than zero</string>
 
     <!-- NOTIFICATION TAGS -->
     <string name="notification_cartitem_item_added">%d item(s) added to your cart</string>
+    <string name="notification_no_items_found">No items found.</string>
 
     <!-- MENUITEM TAGS -->
     <string name="menuitem_action_taxrate">Edit Tax Rate</string>

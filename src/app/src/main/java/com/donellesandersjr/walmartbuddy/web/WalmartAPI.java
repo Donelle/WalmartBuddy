@@ -42,7 +42,7 @@ public final class WalmartAPI extends WebAPI {
 
     public static Task<WBList<ProductModel>> fetchProductByUPC (String upc) {
         final HashMap<String, String> params = new HashMap<>();
-        params.put(ItemResponse.UPC, upc);
+        params.put(QueryParams.UPC, upc);
 
         return Task.callInBackground(new Callable<WBList<ProductModel>>() {
             @Override
@@ -55,7 +55,8 @@ public final class WalmartAPI extends WebAPI {
 
     public static Task<WBList<ProductModel>> search (String query) {
         final HashMap<String, String> params = new HashMap<>();
-        params.put("query", query);
+        params.put(QueryParams.QUERY, query);
+        params.put(QueryParams.NUM_OF_ITEMS, "25");
 
         return Task.callInBackground(new Callable<WBList<ProductModel>>() {
             @Override
@@ -92,7 +93,7 @@ public final class WalmartAPI extends WebAPI {
     }
 
     static ProductModel productFrom (JSONObject jsonObject) {
-        WBLogger.Debug(TAG, "JSON - " + jsonObject.toString());
+        //WBLogger.Debug(TAG, "JSON - " + jsonObject.toString());
         return new ProductModel()
                 .setName(WBJsonUtils.getString(jsonObject, FullItemResponse.NAME, null))
                 .setDescription(WBJsonUtils.getString(jsonObject, FullItemResponse.SHORT_DESC, null))
@@ -129,6 +130,23 @@ public final class WalmartAPI extends WebAPI {
         static final String ERRORS = "errors";
     }
 
+    /**
+     * Query Parameters
+     */
+    static class QueryParams {
+        /**
+         * upc of the item
+         */
+        static final String UPC = "upc";
+        /**
+         * Search text - whitespace separated sequence of keywords to search for
+         */
+        static final String QUERY = "query";
+        /**
+         * Number of matching items to be returned, max value 25. Default is 10.
+         */
+        static final String NUM_OF_ITEMS = "numItems";
+    }
 
     /**
      * Base Response is a smaller response that describes basic attributes for an item. It has been designed

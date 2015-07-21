@@ -21,7 +21,7 @@ import android.content.ContentValues;
 public final class ProductModel extends DataModel {
 
     private static String KEY_UPC = "upc";
-    private static String KEY_PRICE = "salePrice";
+    private static String KEY_PRICE = "price";
     private static String KEY_NAME = "name";
     private static String KEY_BRAND = "brandName";
     private static String KEY_DESC = "shortDescription";
