@@ -55,9 +55,10 @@ public final class WalmartAPI extends WebAPI {
         });
     }
 
-    public static Task<WBList<ProductModel>> search (String query) {
+    public static Task<WBList<ProductModel>> search (String query, String categoryId) {
         final HashMap<String, String> params = new HashMap<>();
         params.put(QueryParams.QUERY, query);
+        params.put(QueryParams.CATEGORYID, categoryId);
         params.put(QueryParams.NUM_OF_ITEMS, "25");
 
         return Task.callInBackground(new Callable<WBList<ProductModel>>() {
@@ -80,7 +81,7 @@ public final class WalmartAPI extends WebAPI {
                     connection = (HttpURLConnection) url.openConnection();
                     JSONObject response = readFrom(connection.getInputStream());
                     if (response.has(Response.CATEGORIES)) {
-                        JSONArray items = response.getJSONArray(Response.ITEMS);
+                        JSONArray items = response.getJSONArray(Response.CATEGORIES);
                         int len = items.length();
                         for (int i =0; i < len; i++) {
                             JSONObject item = WBJsonUtils.getObject(items, i, null);
@@ -93,6 +94,7 @@ public final class WalmartAPI extends WebAPI {
                         }
                     }
                 } catch (Exception ex) {
+                    WBLogger.Error(TAG, ex);
                     if (connection != null)
                         readErrorsFrom(connection.getErrorStream());
                     throw ex;
@@ -120,6 +122,7 @@ public final class WalmartAPI extends WebAPI {
                 }
             }
         } catch (Exception ex) {
+            WBLogger.Error(TAG, ex);
             if (connection != null)
                 readErrorsFrom(connection.getErrorStream());
             throw ex;
@@ -169,6 +172,7 @@ public final class WalmartAPI extends WebAPI {
         static final String ITEMS = "items";
         static final String ERRORS = "errors";
         static final String CATEGORIES = "categories";
+
     }
 
     /**
@@ -187,6 +191,20 @@ public final class WalmartAPI extends WebAPI {
          * Number of matching items to be returned, max value 25. Default is 10.
          */
         static final String NUM_OF_ITEMS = "numItems";
+        /**
+         * Category id of the category for search within a category. This should
+         * match the id field from Taxonomy API
+         */
+        static final String CATEGORYID = "categoryId";
+        /**
+         *
+         */
+        static final String TOTALRESULTS = "totalResults";
+        /**
+         * Starting point of the results within the matching set of items -
+         * upto 10 items will be returned starting from this item
+         */
+        static final String START = "start";
     }
 
     /**
@@ -247,7 +265,6 @@ public final class WalmartAPI extends WebAPI {
          * Small size image for the item in jpeg format with dimensions 100 x 100 pixels
          */
         static final String THUMBNAILURL = "thumbnailImage";
-
     }
 
     /**

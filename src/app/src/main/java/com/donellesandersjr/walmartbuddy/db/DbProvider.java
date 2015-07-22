@@ -17,11 +17,13 @@
 
 package com.donellesandersjr.walmartbuddy.db;
 
+import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.models.CartItemModel;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
 import com.donellesandersjr.walmartbuddy.models.CategoryModel;
 import com.donellesandersjr.walmartbuddy.models.DataModel;
 import com.donellesandersjr.walmartbuddy.models.ProductModel;
+import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Query;
 
 public final class DbProvider {
@@ -72,4 +74,20 @@ public final class DbProvider {
         return cartDb.getModel();
     }
 
+    public static WBList<CategoryModel> fetchCategories () {
+        WBList<CategoryModel> categories = new WBList<>();
+        SquidCursor<CategoryDb> cursor =
+                BaseSpec.getDatabase().query(CategoryDb.class, Query.select().from(CategoryDb.TABLE));
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    CategoryDb db = new CategoryDb(cursor);
+                    categories.add(db.getModel());
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+        return categories;
+    }
 }

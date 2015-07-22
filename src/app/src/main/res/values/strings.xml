@@ -32,6 +32,7 @@
     <!-- PROGRESS TAGS -->
     <string name="progress_message_searching">Searching...</string>
     <string name="progress_message_generic_loading">Loading please wait</string>
+    <string name="progress_message_loading_categories">Please wait while we download categories..</string>
 
     <!-- ERROR TAGS -->
     <string name="error_camera_unavailable">Walmart Buddy is unable to access your camera please make sure its not being used in another application</string>
@@ -40,6 +41,7 @@
     <string name="error_cartitem_save_failure">A terrible error occurred saving this item</string>
     <string name="error_taxrate_search_failure">Unable to find tax rate for this zip code please try again.</string>
     <string name="error_walmart_search_failure">An occurred processing your search request please try again.</string>
+    <string name="error_walmart_categories_download_failure">An occurred downloading categories from Walmart online please try again.</string>
 
     <!-- BUNDLE ARGS -->
     <string name="bundle_key_cartitem">bundle.key.cartitem</string>

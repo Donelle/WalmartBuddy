@@ -25,7 +25,7 @@ public final class DbEqualityComparer implements WBEqualityComparer<DataModel> {
     @Override
     public boolean equals(DataModel x, DataModel y) {
         long id1 = x.getLongValue(TableModel.DEFAULT_ID_COLUMN, 0L);
-        long id2 = x.getLongValue(TableModel.DEFAULT_ID_COLUMN, 0L);
+        long id2 = y.getLongValue(TableModel.DEFAULT_ID_COLUMN, 0L);
 
         if (id1 == 0 && id2 == 0) {
             // These are new records so lets compare the objects themselves

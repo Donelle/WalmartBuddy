@@ -48,4 +48,9 @@ public final class CategoryModel extends DataModel {
         super.getStringValue(KEY_CATEGORY_ID, categoryId);
         return this;
     }
+
+    @Override
+    public String toString() {
+        return this.getName();
+    }
 }
