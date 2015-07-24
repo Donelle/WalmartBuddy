@@ -27,6 +27,7 @@ import com.donellesandersjr.walmartbuddy.models.CartItemModel;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public final class Cart extends  DomainObject<CartModel> {
     public static final Integer RULE_NAME = 100;
@@ -141,7 +142,7 @@ public final class Cart extends  DomainObject<CartModel> {
         if (_cartItems != null)
             return _cartItems;
 
-        WBList<CartItemModel> models = super.getModel().getCartItems();
+        List<CartItemModel> models = super.getModel().getCartItems();
         if (models != null) {
             ArrayList<CartItem> cartItems = new ArrayList<>(models.size());
             for (CartItemModel model : models)

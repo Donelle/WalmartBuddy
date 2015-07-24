@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 /*
  * Copyright (C) 2015 Donelle Sanders Jr
@@ -15,10 +16,10 @@
  * limitations under the License.
  */
  -->
-
 <resources>
 
     <style name="AppTheme" parent="BaseTheme">
+
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <!-- enable window content transitions -->
         <item name="android:windowContentTransitions">true</item>

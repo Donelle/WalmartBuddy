@@ -80,18 +80,15 @@ class CartSpec extends BaseSpec {
 
         if (db.persist(cartDb))
             model.setLongValue(TableModel.DEFAULT_ID_COLUMN, cartDb.getId());
-
-        if (model.getCartItems().hasChanged()) {
-            //
-            // Blow away the existing map items first before we insert our new collection
-            //
-            db.deleteWhere(CartItemMapDb.class, CartItemMapDb.CART_ID.eq(cartDb.getId()));
-            for (CartItemModel cartItemModel : model.getCartItems()) {
-                CartItemMapDb mapDb = new CartItemMapDb();
-                mapDb.setCartId(cartDb.getId());
-                mapDb.setCartItemId(cartItemModel.getLongValue(TableModel.DEFAULT_ID_COLUMN));
-                db.persist(mapDb);
-            }
+        //
+        // Blow away the existing map items first before we insert our new collection
+        //
+        db.deleteWhere(CartItemMapDb.class, CartItemMapDb.CART_ID.eq(cartDb.getId()));
+        for (CartItemModel cartItemModel : model.getCartItems()) {
+            CartItemMapDb mapDb = new CartItemMapDb();
+            mapDb.setCartId(cartDb.getId());
+            mapDb.setCartItemId(cartItemModel.getLongValue(TableModel.DEFAULT_ID_COLUMN));
+            db.persist(mapDb);
         }
     }
 

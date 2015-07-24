@@ -19,6 +19,7 @@ package com.donellesandersjr.walmartbuddy.activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -27,7 +28,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -57,7 +57,6 @@ import com.donellesandersjr.walmartbuddy.models.ProductModel;
 import com.donellesandersjr.walmartbuddy.web.WalmartAPI;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
-import com.yahoo.squidb.data.TableModel;
 
 
 import bolts.Continuation;
@@ -90,6 +89,7 @@ public class NewItemActivity extends BaseActivity implements
         _itemNameEditText = (EditText) findViewById(R.id.new_item_name);
         _resultsCounterTextView = (TextView) findViewById(R.id.new_item_results_counter);
         _progressbar = (ProgressBar) findViewById(R.id.progress_horizontal);
+        _progressbar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.md_orange_a200), PorterDuff.Mode.SRC_IN);
         _searchButton = (Button) findViewById(R.id.new_item_search);
         _searchButton.setOnClickListener(this);
 
@@ -433,18 +433,16 @@ public class NewItemActivity extends BaseActivity implements
      * This class is responsible for providing a listing of product categories
      */
     private class CategoryDataAdapter extends ArrayAdapter<CategoryModel> {
-        private TypedValue _colorPrimaryValue =new TypedValue();
 
         public CategoryDataAdapter(WBList<CategoryModel> categories) {
             super(NewItemActivity.this, R.layout.new_item_list_item, R.id.new_item_list_text, categories);
-            getTheme().resolveAttribute(android.R.attr.colorPrimary, _colorPrimaryValue, true);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View rootView = super.getView(position, convertView, parent);
             TextView textView = (TextView) rootView.findViewById(R.id.new_item_list_text);
-            textView.setTextColor(_colorPrimaryValue.data);
+            textView.setTextColor(getResources().getColor(R.color.md_blue_500));
             //
             // We need to capture the icon used for this item
             //

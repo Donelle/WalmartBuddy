@@ -21,41 +21,63 @@ import org.json.JSONObject;
 
 public final class WBJsonUtils {
 
-    public static String getString (JSONObject json, String field, String defaultVal) {
+    public static String getString (JSONObject element, String field, String defaultVal) {
         try {
-            String val = json.getString(field);
+            String val = element.getString(field);
             if (!WBStringUtils.isNullOrEmpty(val))
                 return val;
         } catch (Exception e) {}
         return defaultVal;
     }
 
-    public static long getLong (JSONObject json, String field, long defaultVal) {
+    public static long getLong (JSONObject element, String field, long defaultVal) {
         try {
-            return json.getLong(field);
+            return element.getLong(field);
         } catch (Exception e) {}
         return defaultVal;
     }
 
-    public static boolean getBool (JSONObject json, String field, boolean defaultVal) {
+    public static boolean getBool (JSONObject element, String field, boolean defaultVal) {
         try {
-            return json.getBoolean(field);
+            return element.getBoolean(field);
         } catch (Exception e) {}
         return defaultVal;
     }
 
-    public static double getDouble (JSONObject json, String field, double defaultVal) {
+    public static double getDouble (JSONObject element, String field, double defaultVal) {
         try {
-            return Double.valueOf(json.getDouble(field)).floatValue();
+            return Double.valueOf(element.getDouble(field)).floatValue();
         } catch (Exception ex) {}
         return defaultVal;
     }
 
-    public static JSONObject getObject (JSONArray jsonArray, int pos, JSONObject defaultVal) {
+    public static JSONObject getObject (JSONArray element, int pos, JSONObject defaultVal) {
         try {
-            JSONObject val = jsonArray.getJSONObject(pos);
+            JSONObject val = element.getJSONObject(pos);
             if (val != null) return val;
         } catch (Exception e) {}
         return defaultVal;
     }
+
+    public static JSONObject getObject (String json) {
+        try {
+            return new JSONObject(json);
+        } catch (Exception ex) {}
+        return new JSONObject();
+    }
+
+    public static JSONArray getArray (JSONObject element, String field) {
+        try {
+            return element.getJSONArray(field);
+        } catch (Exception e) {}
+        return new JSONArray();
+    }
+
+    public static JSONArray getArray (String json) {
+        try {
+            return new JSONArray(json);
+        } catch (Exception e) {}
+        return new JSONArray();
+    }
+
 }

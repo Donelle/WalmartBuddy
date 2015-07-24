@@ -85,8 +85,7 @@
                 android:id="@+id/new_item_results_pager"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
-                android:layout_alignParentStart="true"
-                android:background="@color/md_grey_100"/>
+                android:layout_alignParentStart="true" />
 
             <TextView
                 android:id="@+id/new_item_results_counter"
@@ -139,11 +138,22 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/new_item_categories_label"
-                android:layout_toStartOf="@+id/new_item_search"
+                android:layout_toStartOf="@+id/new_item_categories_filter"
                 android:paddingBottom="16dp"
                 android:prompt="@string/label_categories"
                 android:spinnerMode="dropdown"
                 android:backgroundTint="?attr/colorPrimary"/>
+
+            <IconButton
+                android:id="@+id/new_item_categories_filter"
+                android:layout_width="@dimen/button_touch_target"
+                android:layout_height="@dimen/button_touch_target"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/new_item_categories_label"
+                android:text="{fa-filter}"
+                android:textSize="24sp"
+                android:textColor="@color/dark_button_text_color"
+                style="@style/ButtonStyle.Flat"/>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/new_item_search_container"

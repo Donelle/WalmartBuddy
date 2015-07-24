@@ -17,11 +17,20 @@
 package com.donellesandersjr.walmartbuddy.models;
 
 import android.content.ContentValues;
+import android.os.Bundle;
+
+import com.donellesandersjr.walmartbuddy.api.WBList;
+
+import java.util.Collections;
+import java.util.List;
 
 public final class CategoryModel extends DataModel {
 
     private static String KEY_NAME = "name";
     private static String KEY_CATEGORY_ID = "categoryId";
+    private static String KEY_SUBCATEGORIES = "subcategories";
+
+    private WBList<CategoryModel> _subcategories = new WBList<>();
 
     public CategoryModel () {
         super();
@@ -29,6 +38,18 @@ public final class CategoryModel extends DataModel {
 
     CategoryModel (ContentValues values) {
         super(values);
+    }
+
+    @Override
+    protected void onRestoreState(Bundle state) {
+        super.onRestoreState(state);
+        _subcategories = state.getParcelable(KEY_SUBCATEGORIES);
+    }
+
+    @Override
+    protected void onSaveState(Bundle state) {
+        super.onSaveState(state);
+        state.putParcelable(KEY_SUBCATEGORIES, _subcategories);
     }
 
     public String getName () {
@@ -46,6 +67,19 @@ public final class CategoryModel extends DataModel {
 
     public CategoryModel setCategoryId (String categoryId) {
         super.getStringValue(KEY_CATEGORY_ID, categoryId);
+        return this;
+    }
+
+    public List<CategoryModel> getSubcategories () {
+        return Collections.unmodifiableList(_subcategories);
+    }
+
+    public CategoryModel setSubcategories (List<CategoryModel> subcategories) {
+        if (!(subcategories == null && _subcategories == null)) {
+            _subcategories = subcategories != null ?
+                    new WBList<>((List) subcategories) :
+                    new WBList<CartItemModel>();
+        }
         return this;
     }
 

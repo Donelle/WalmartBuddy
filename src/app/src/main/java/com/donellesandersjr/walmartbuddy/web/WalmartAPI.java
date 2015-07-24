@@ -37,7 +37,7 @@ import bolts.Task;
 public final class WalmartAPI extends WebAPI {
     private static final String TAG = "com.donellesandersjr.walmartbuddy.WalmartAPI";
 
-    private static final String WALMART_APIKEY = "[YOUR KEY GOES HERE]";
+    private static final String WALMART_APIKEY = "s48yttbvsd5kdw7j5fe5qghh";
     private static final String PRODUCT_SEARCH_QUERY = "http://api.walmartlabs.com/v1/items?apiKey=" + WALMART_APIKEY + "&format=json";
     private static final String SEARCH_QUERY =  "http://api.walmartlabs.com/v1/search?apiKey=" + WALMART_APIKEY + "&format=json";
     private static final String CATEGORIES_QUERY = "http://api.walmartlabs.com/v1/taxonomy?apiKey="+ WALMART_APIKEY + "&format=json";;
@@ -86,10 +86,9 @@ public final class WalmartAPI extends WebAPI {
                         for (int i =0; i < len; i++) {
                             JSONObject item = WBJsonUtils.getObject(items, i, null);
                             if (item != null) {
-                                CategoryModel model = new CategoryModel()
-                                        .setCategoryId(WBJsonUtils.getString(item, TaxonomyResponse.ID, null))
-                                        .setName(WBJsonUtils.getString(item, TaxonomyResponse.NAME, null));
+                                CategoryModel model = categoryFrom(item);
                                 categories.add(model);
+                                populateSubcategories(model, item);
                             }
                         }
                     }
@@ -105,6 +104,23 @@ public final class WalmartAPI extends WebAPI {
                 return categories;
             }
         });
+    }
+
+    static void populateSubcategories (CategoryModel parent, JSONObject element) {
+        if (element.has(TaxonomyResponse.CHILDREN)) {
+            WBList<CategoryModel> categories = new WBList<>();
+            JSONArray items = WBJsonUtils.getArray(element, TaxonomyResponse.CHILDREN);
+            int len = items.length();
+            for (int i =0; i < len; i++) {
+                JSONObject item = WBJsonUtils.getObject(items, i, null);
+                if (item != null) {
+                    CategoryModel model = categoryFrom(item);
+                    categories.add(model);
+                    populateSubcategories(model, item);
+                }
+            }
+            parent.setSubcategories(categories);
+        }
     }
 
     static WBList<ProductModel> fetchResults (URL url, HashMap<String, String> params) throws Exception {
@@ -147,7 +163,11 @@ public final class WalmartAPI extends WebAPI {
                 .setProductCategoryId(WBJsonUtils.getString(jsonObject, FullItemResponse.CATEGORYID, null));
     }
 
-
+    static CategoryModel categoryFrom (JSONObject jsonObject) {
+        return new CategoryModel()
+                .setCategoryId(WBJsonUtils.getString(jsonObject, TaxonomyResponse.ID, null))
+                .setName(WBJsonUtils.getString(jsonObject, TaxonomyResponse.NAME, null));
+    }
 
 
     static void readErrorsFrom (InputStream stream) {
@@ -222,6 +242,10 @@ public final class WalmartAPI extends WebAPI {
          * Name for this category as specified on Walmart.com
          */
         static final String NAME = "name";
+        /**
+         * List of categories that have the current category as a parent in the taxonomy.
+         */
+        static final String CHILDREN = "children";
     }
 
     /**

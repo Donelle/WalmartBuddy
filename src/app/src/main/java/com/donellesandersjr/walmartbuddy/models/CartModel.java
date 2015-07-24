@@ -22,6 +22,7 @@ import android.os.Bundle;
 import com.donellesandersjr.walmartbuddy.api.WBList;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class CartModel extends DataModel {
@@ -95,8 +96,8 @@ public class CartModel extends DataModel {
         return this;
     }
 
-    public WBList<CartItemModel> getCartItems () {
-        return _items;
+    public List<CartItemModel> getCartItems () {
+        return Collections.unmodifiableList(_items);
     }
 
     public CartModel setCartItems (List<CartItemModel> cartItems) {

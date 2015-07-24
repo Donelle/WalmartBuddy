@@ -21,8 +21,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -39,8 +37,6 @@ import android.widget.ImageView;
 
 import com.donellesandersjr.walmartbuddy.api.WBImageUtils;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.Callable;

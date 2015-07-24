@@ -29,20 +29,24 @@
         <item name="colorPrimary">@color/md_blue_500</item>
         <item name="colorPrimaryDark">@color/md_blue_700</item>
 
+        <item name="colorControlNormal">@color/md_blue_500</item>
+        <item name="colorControlActivated">@color/md_orange_a200</item>
+        <item name="colorButtonNormal">@color/md_blue_500</item>
+        <item name="colorControlHighlight">@color/md_orange_a200</item>
+
+        <item name="actionOverflowButtonStyle">@style/ActionButtonOverflowStyle</item>
+
         <item name="android:textColorPrimary">@color/md_grey_900</item>
         <item name="android:textColorSecondary">@color/md_grey_100</item>
 
         <item name="android:editTextStyle">@style/EditTextStyle</item>
         <item name="android:buttonStyle">@style/ButtonStyle</item>
-
     </style>
 
     <style name="EditTextStyle" parent="@style/Widget.AppCompat.EditText">
         <item name="android:paddingTop">@dimen/singleline_text_padding_top</item>
         <item name="android:paddingBottom">@dimen/singleline_text_padding_bottom</item>
         <item name="android:textAppearance">@style/EditTextAppearance</item>
-        <item name="android:backgroundTint">?attr/colorPrimary</item>
-        <item name="android:textCursorDrawable">@drawable/light_edit_text_cursor_color</item>
         <item name="android:singleLine">true</item>
     </style>
 
@@ -58,7 +62,7 @@
     </style>
 
     <style name="FloatingTextAppearanceHint" parent="@style/TextAppearance.AppCompat.Caption">
-        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorAccent</item>
         <item name="android:textSize">@dimen/floating_text_hint_font_size</item>
     </style>
 
@@ -72,4 +76,7 @@
         <item name="android:background">@color/transparent</item>
     </style>
 
+    <style name="ActionButtonOverflowStyle" parent="@style/Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">@color/md_grey_100</item>
+    </style>
 </resources>
