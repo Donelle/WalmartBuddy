@@ -6,7 +6,7 @@ import android.os.Bundle;
 import com.donellesandersjr.walmartbuddy.domain.DomainObject;
 
 public abstract class BaseFragment<T extends DomainObject> extends Fragment {
-    private final String STATE_OBJECT = "BaseFragment.FRAGMENT_STATE";
+    private final String STATE_OBJECT = "BaseFragment.STATE_OBJECT";
 
     private T _object;
     protected void setDomainObject (T object) {

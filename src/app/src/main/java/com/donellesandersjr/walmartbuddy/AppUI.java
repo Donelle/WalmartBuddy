@@ -52,6 +52,7 @@ public final class AppUI {
     public static final Interpolator FAST_OUT_SLOW_IN_INTERPOLATOR = new FastOutSlowInInterpolator();
     public static final Interpolator DECELERATE_INTERPOLATOR = new DecelerateInterpolator();
 
+
     public static AlertDialog createAlert (Context ctx, Integer resourceMessageId) {
         return createAlert(ctx, resourceMessageId, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -82,13 +83,15 @@ public final class AppUI {
         return builder.create();
     }
 
-
     public static ProgressDialog createProgressDialog (Activity activity, int resourceMessageId) {
         ProgressDialog dialog = new ProgressDialog(activity, ProgressDialog.STYLE_SPINNER);
         dialog.setMessage(activity.getString(resourceMessageId));
         dialog.setCanceledOnTouchOutside(false);
         return dialog;
     }
+
+
+
 
     public static void loadImage  (final String filePath, final ImageView imageView) {
         Task.callInBackground(new Callable<Bitmap>() {

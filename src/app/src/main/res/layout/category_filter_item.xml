@@ -16,14 +16,11 @@
  * limitations under the License.
  */
  -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <item android:id="@+id/action_scan_item"
-        android:title=""
-        app:showAsAction="ifRoom" />
-
-    <item android:id="@+id/action_search_item"
-        android:title=""
-        app:showAsAction="ifRoom" />
-</menu>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/padding_10dp"
+    android:textSize="16sp"
+    android:text="Bags  x"
+    android:textColor="@color/md_grey_100"
+    android:background="@drawable/category_filter_item_background"/>

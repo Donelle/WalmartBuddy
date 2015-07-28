@@ -16,10 +16,8 @@
 
 package com.donellesandersjr.walmartbuddy.activities;
 
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
-import android.view.WindowManager;
 
 public class BaseActivity extends AppCompatActivity {
 

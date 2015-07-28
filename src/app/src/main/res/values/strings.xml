@@ -23,6 +23,7 @@
     <string name="title_activity_scan">ScanActivity</string>
     <string name="title_activity_new_item">New Item</string>
     <string name="title_activity_search_item">Search</string>
+    <string name="title_activity_filter_category">Filter Category</string>
 
     <!-- LABELS -->
     <string name="label_zipcode_explanation">Please enter your zip code so we can retrieve the sales tax used at Walmart for your area.</string>
@@ -33,18 +34,23 @@
     <string name="progress_message_searching">Searching...</string>
     <string name="progress_message_generic_loading">Loading please wait</string>
     <string name="progress_message_loading_categories">Please wait while we download categories..</string>
+    <string name="progress_message_saving_new_cartitem">Saving item to your shopping list please wait..</string>
 
     <!-- ERROR TAGS -->
     <string name="error_camera_unavailable">Walmart Buddy is unable to access your camera please make sure its not being used in another application</string>
     <string name="error_create_photos_directory">Unable to create the pictures directory</string>
     <string name="error_processing_request">An error occurred processing this request</string>
-    <string name="error_cartitem_save_failure">A terrible error occurred saving this item</string>
+    <string name="error_cartitem_save_failure">A terrible error occurred saving this item to your shopping list</string>
+    <string name="error_cartitem_validation_failure">Please fill in the required fields in order to add item to your shopping list</string>
     <string name="error_taxrate_search_failure">Unable to find tax rate for this zip code please try again.</string>
     <string name="error_walmart_search_failure">An occurred processing your search request please try again.</string>
     <string name="error_walmart_categories_download_failure">An occurred downloading categories from Walmart online please try again.</string>
+    <string name="error_photo_save_failure">An error occurred saving your photo to your device but it will not interfere with saving this item to your shopping list.</string>
 
     <!-- BUNDLE ARGS -->
     <string name="bundle_key_cartitem">bundle.key.cartitem</string>
+    <string name="bundle_key_category">bundle.key.category</string>
+    <string name="bundle_key_cart">bundle.key.cart</string>
 
     <!-- BROKEN RULE TAGS -->
     <string name="broken_rule_cartitem_name_invalid">Name for this item is required</string>
@@ -56,7 +62,7 @@
     <string name="broken_rule_cart_taxrate_invalid">Tax rate must be valid percentage greater than zero</string>
 
     <!-- NOTIFICATION TAGS -->
-    <string name="notification_cartitem_item_added">%d item(s) added to your cart</string>
+    <string name="notification_cartitem_item_added">1 item added to your shopping list</string>
     <string name="notification_no_items_found">No items found.</string>
 
     <!-- MENUITEM TAGS -->
@@ -65,4 +71,5 @@
     <!-- BEHAVIORS -->
     <string name="floating_action_button_behavior" translatable="false">com.donellesandersjr.walmartbuddy.AppUI$FloatingActionButtonBehavior</string>
     <string name="snackbar_behavior" translatable="false">com.donellesandersjr.walmartbuddy.AppUI$SnackbarBehavior</string>
+
 </resources>

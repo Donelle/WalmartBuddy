@@ -32,13 +32,15 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingStart="0dp"
             android:paddingEnd="@dimen/padding_10dp">
 
             <ImageButton
-                android:id="@+id/new_item_action_close"
-                android:layout_width="@dimen/button_height"
-                android:layout_height="@dimen/button_height"
+                android:id="@+id/new_item_close"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_alignParentStart="true"
+                android:layout_marginTop="3dp"
                 android:padding="@dimen/padding_5dp"
                 android:src="@mipmap/ic_close"
                 android:scaleType="centerCrop"
@@ -47,72 +49,22 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/new_item_action_close"
+                android:layout_toEndOf="@+id/new_item_close"
+                android:layout_marginStart="@dimen/padding_5dp"
                 android:padding="@dimen/padding_5dp"
                 android:text="@string/title_activity_new_item"
                 android:textSize="20sp"
-                android:textColor="@android:color/white"/>
+                android:textColor="@android:color/white" />
 
         </RelativeLayout>
 
     </android.support.v7.widget.Toolbar>
 
-    <ProgressBar
-        android:visibility="gone"
-        android:id="@+id/progress_horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:layout_below="@+id/toolbar"
-        android:layout_marginTop="-7dp"
-        android:indeterminate="true"
-        android:indeterminateBehavior="cycle"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
-
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/progress_horizontal">
-
-        <RelativeLayout
-            android:id="@+id/new_item_results_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/padding_10dp"
-            android:background="@color/md_grey_300">
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/new_item_results_pager"
-                android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:layout_alignParentStart="true" />
-
-            <TextView
-                android:id="@+id/new_item_results_counter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/new_item_results_pager"
-                android:layout_toStartOf="@+id/new_item_results_hide"
-                android:paddingTop="@dimen/singleline_text_padding_top"
-                android:textSize="@dimen/singleline_text_font_size"
-                android:textColor="?attr/colorPrimary"
-                android:gravity="end"/>
-
-            <IconButton
-                android:id="@+id/new_item_results_hide"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_below="@+id/new_item_results_pager"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="-22dp"
-                android:text="{fa-chevron-up}"
-                android:textSize="24sp"
-                android:textColor="@color/dark_button_text_color"
-                android:background="@color/transparent"/>
-
-        </RelativeLayout>
+        android:layout_below="@+id/toolbar">
 
         <RelativeLayout
             android:id="@+id/new_item_content_container"
@@ -122,50 +74,15 @@
             android:background="@color/background_material_light"
             app:layout_behavior="@string/snackbar_behavior">
 
-            <TextView
-                android:id="@+id/new_item_categories_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/floating_text_padding_top_bottom"
-                android:paddingStart="5dp"
-                android:paddingEnd="0dp"
-                android:text="Category"
-                android:textSize="@dimen/floating_text_hint_font_size" />
-
-            <Spinner
-                android:id="@+id/new_item_categories"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/new_item_categories_label"
-                android:layout_toStartOf="@+id/new_item_categories_filter"
-                android:paddingBottom="16dp"
-                android:prompt="@string/label_categories"
-                android:spinnerMode="dropdown"
-                android:backgroundTint="?attr/colorPrimary"/>
-
-            <IconButton
-                android:id="@+id/new_item_categories_filter"
-                android:layout_width="@dimen/button_touch_target"
-                android:layout_height="@dimen/button_touch_target"
-                android:layout_alignParentEnd="true"
-                android:layout_below="@+id/new_item_categories_label"
-                android:text="{fa-filter}"
-                android:textSize="24sp"
-                android:textColor="@color/dark_button_text_color"
-                style="@style/ButtonStyle.Flat"/>
-
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/new_item_search_container"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/new_item_categories"
-                android:layout_toStartOf="@+id/new_item_search"
                 app:errorEnabled="true"
                 app:hintTextAppearance="@style/FloatingTextAppearanceHint">
 
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/new_item_name"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -173,18 +90,6 @@
                     style="@style/EditTextStyle.FloatingText"/>
 
             </android.support.design.widget.TextInputLayout>
-
-            <IconButton
-                android:id="@+id/new_item_search"
-                android:layout_width="@dimen/button_touch_target"
-                android:layout_height="@dimen/button_touch_target"
-                android:layout_alignParentEnd="true"
-                android:layout_below="@+id/new_item_categories"
-                android:layout_marginTop="20dp"
-                android:text="{fa-search}"
-                android:textSize="24sp"
-                android:textColor="@color/dark_button_text_color"
-                style="@style/ButtonStyle.Flat"/>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/new_item_price_container"
@@ -230,6 +135,7 @@
                 android:layout_width="@dimen/cardview_media_size_normal"
                 android:layout_height="@dimen/cardview_media_size_normal"
                 android:layout_below="@+id/new_item_qty_container"
+                android:scaleType="centerCrop"
                 android:background="@drawable/imageview_snapshot_background"/>
 
             <Button
@@ -237,7 +143,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_alignParentBottom="true"
-                android:backgroundTint="?attr/colorAccent"
                 android:text="Add To Cart"
                 android:textColor="#FFFFFF" />
 

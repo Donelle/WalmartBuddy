@@ -18,12 +18,14 @@
 package com.donellesandersjr.walmartbuddy.db;
 
 import com.donellesandersjr.walmartbuddy.api.WBList;
+import com.donellesandersjr.walmartbuddy.domain.CartItem;
 import com.donellesandersjr.walmartbuddy.models.CartItemModel;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
 import com.donellesandersjr.walmartbuddy.models.CategoryModel;
 import com.donellesandersjr.walmartbuddy.models.DataModel;
 import com.donellesandersjr.walmartbuddy.models.ProductModel;
 import com.yahoo.squidb.data.SquidCursor;
+import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Query;
 
 public final class DbProvider {
@@ -59,25 +61,36 @@ public final class DbProvider {
         return result;
     }
 
-    public static CartModel fetchCart () {
+    public static WBList<CartModel> fetchCarts (Criterion criterion) {
+        WBList<CartModel> carts = new WBList<>();
         Query whereQuery = Query.select().from(CartDb.TABLE);
-        CartDb cartDb = BaseSpec.getDatabase().fetchByQuery(CartDb.class, whereQuery);
-        if (cartDb == null) {
-            // This means its the first time the app been run so lets create the default
-            // shopping list and save it to the db.
-            cartDb = new CartDb()
-                    .setName("Default")
-                    .setZipCode("")
-                    .setTaxRate(0d);
-            save(cartDb.getModel());
+        if (criterion != null)
+            whereQuery.where(criterion);
+
+        SquidCursor<CartDb> cursor =
+                BaseSpec.getDatabase().query(CartDb.class, whereQuery);
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    CartDb db = new CartDb(cursor);
+                    carts.add(db.getModel());
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
         }
-        return cartDb.getModel();
+        return carts;
     }
 
-    public static WBList<CategoryModel> fetchCategories () {
+
+    public static WBList<CategoryModel> fetchCategories (Criterion criterion) {
         WBList<CategoryModel> categories = new WBList<>();
+        Query whereQuery =  Query.select().from(CategoryDb.TABLE);
+        if(criterion != null)
+            whereQuery.where(criterion);
+
         SquidCursor<CategoryDb> cursor =
-                BaseSpec.getDatabase().query(CategoryDb.class, Query.select().from(CategoryDb.TABLE));
+                BaseSpec.getDatabase().query(CategoryDb.class, whereQuery);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
@@ -89,5 +102,47 @@ public final class DbProvider {
             cursor.close();
         }
         return categories;
+    }
+
+    public static WBList<ProductModel> fetchProducts (Criterion criterion) {
+        WBList<ProductModel> products = new WBList<>();
+        Query whereQuery = Query.select().from(ProductDb.TABLE);
+        if (criterion != null)
+            whereQuery.where(criterion);
+
+        SquidCursor<ProductDb> cursor =
+                BaseSpec.getDatabase().query(ProductDb.class, whereQuery);
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    ProductDb db = new ProductDb(cursor);
+                    products.add(db.getModel());
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+        return products;
+    }
+
+    public static WBList<CartItemModel> fetchCartItems (Criterion criterion) {
+        WBList<CartItemModel> cartItems = new WBList<>();
+        Query whereQuery = Query.select().from(CartItemDb.TABLE);
+        if (criterion != null)
+            whereQuery.where(criterion);
+
+        SquidCursor<CartItemDb> cursor =
+                BaseSpec.getDatabase().query(CartItemDb.class, whereQuery);
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    CartItemDb db = new CartItemDb(cursor);
+                    cartItems.add(db.getModel());
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+        return cartItems;
     }
 }

@@ -69,11 +69,17 @@
     <style name="ButtonStyle" parent="@style/Widget.AppCompat.Button">
         <item name="android:padding">@dimen/button_padding</item>
         <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:textAppearance">@style/ButtonTextAppearance</item>
     </style>
 
     <style name="ButtonStyle.Flat">
-        <item name="android:stateListAnimator">@null</item>
         <item name="android:background">@color/transparent</item>
+    </style>
+
+    <style name="ButtonTextAppearance">
+        <item name="android:textSize">@dimen/button_font_size</item>
+        <item name="android:textColor">@color/md_grey_100</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 
     <style name="ActionButtonOverflowStyle" parent="@style/Widget.AppCompat.ActionButton.Overflow">

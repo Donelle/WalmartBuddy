@@ -22,25 +22,23 @@
     android:paddingStart="0dp"
     android:paddingEnd="@dimen/singleline_list_padding">
 
-    <TextView
-        android:id="@+id/new_item_list_text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/new_item_list_icon"
-        android:paddingStart="@dimen/padding_5dp"
-        android:textSize="@dimen/singleline_list_font_size"
-        android:gravity="center_vertical"/>
-
     <IconTextView
-        android:id="@+id/new_item_list_icon"
+        android:id="@+id/search_item_list_icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginTop="14dp"
-        android:layout_alignParentEnd="true"
-        android:text="{fa-history}"
+        android:layout_marginStart="@dimen/singleline_list_icon_padding_start"
         android:textSize="18sp"
-        android:textColor="@color/md_grey_400"
+        android:textColor="?attr/colorPrimary"
         android:gravity="center_vertical|start" />
+
+    <TextView
+        android:id="@+id/search_item_list_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/singleline_list_text_padding_start"
+        android:text="Testing"
+        android:textSize="@dimen/singleline_list_font_size"
+        android:gravity="center_vertical"/>
 
 </RelativeLayout>

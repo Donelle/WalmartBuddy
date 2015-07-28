@@ -35,7 +35,9 @@ import android.widget.TextView;
 
 import com.donellesandersjr.walmartbuddy.AppPreferences;
 import com.donellesandersjr.walmartbuddy.R;
+import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
+import com.donellesandersjr.walmartbuddy.db.CartDb;
 import com.donellesandersjr.walmartbuddy.db.DbProvider;
 import com.donellesandersjr.walmartbuddy.domain.Cart;
 import com.donellesandersjr.walmartbuddy.domain.CartItem;
@@ -66,8 +68,24 @@ public class ShoppingListActivity extends BaseActivity implements
 
         if (savedInstanceState != null)
             _shoppingCart = savedInstanceState.getParcelable(STATE_SHOPPING_CART);
-        else
-            _shoppingCart = new Cart(DbProvider.fetchCart());
+        else {
+            WBList<CartModel> models = DbProvider.fetchCarts(null);
+            if (models.size() == 0) {
+                try {
+                    // This means its the first time the app been run so lets create the default
+                    // shopping list and save it to the db.
+                    _shoppingCart = new Cart()
+                            .setName("Default")
+                            .setZipCode("")
+                            .setTaxRate(0d);
+                    _shoppingCart.save();
+                } catch (Exception ex) {
+                    WBLogger.Error(TAG, ex);
+                }
+            } else {
+                _shoppingCart = new Cart(models.first());
+            }
+        }
         //
         // Figure out if we've already shown this dialog before because
         // we don't want to "harass" the user with this. They can choose
@@ -107,14 +125,15 @@ public class ShoppingListActivity extends BaseActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == NEW_ITEM_RESULT && resultCode == RESULT_OK) {
-            _shoppingCart = new Cart(DbProvider.fetchCart());
-            _adapter.notifyDataSetChanged();
+            /* TODO */
         }
     }
 
     @Override /* View.OnClickListener */
     public void onClick(View v) {
-        startActivityForResult(new Intent(this, NewItemActivity.class), NEW_ITEM_RESULT);
+        Intent intent = new Intent(this, NewItemActivity.class);
+        intent.putExtra(getString(R.string.bundle_key_cart), _shoppingCart.getModel());
+        startActivityForResult(intent, NEW_ITEM_RESULT);
     }
 
     @Override /* TaxDialog.TaxDialogListener */

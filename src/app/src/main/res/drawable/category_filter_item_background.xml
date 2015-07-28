@@ -16,14 +16,11 @@
  * limitations under the License.
  */
  -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <item android:id="@+id/action_scan_item"
-        android:title=""
-        app:showAsAction="ifRoom" />
-
-    <item android:id="@+id/action_search_item"
-        android:title=""
-        app:showAsAction="ifRoom" />
-</menu>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" >
+    <solid android:color="@color/md_blue_500" />
+    <corners
+        android:topLeftRadius="3dp"
+        android:bottomLeftRadius="3dp"
+        android:topRightRadius="3dp"
+        android:bottomRightRadius="3dp" />
+</shape>

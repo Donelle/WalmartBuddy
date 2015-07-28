@@ -16,107 +16,175 @@
 
 package com.donellesandersjr.walmartbuddy.activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
+import android.graphics.Point;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.PersistableBundle;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.IconTextView;
-import android.widget.ImageButton;
+import android.widget.Filter;
+import android.widget.FilterQueryProvider;
+import android.widget.Filterable;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.donellesandersjr.walmartbuddy.App;
 import com.donellesandersjr.walmartbuddy.AppUI;
 import com.donellesandersjr.walmartbuddy.R;
+import com.donellesandersjr.walmartbuddy.api.WBImageUtils;
 import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
-import com.donellesandersjr.walmartbuddy.api.WBStringUtils;
+import com.donellesandersjr.walmartbuddy.db.CartItemDb;
 import com.donellesandersjr.walmartbuddy.db.DbProvider;
-import com.donellesandersjr.walmartbuddy.fragments.NewItemFragment;
+import com.donellesandersjr.walmartbuddy.db.ProductDb;
+import com.donellesandersjr.walmartbuddy.domain.Cart;
+import com.donellesandersjr.walmartbuddy.domain.CartItem;
+import com.donellesandersjr.walmartbuddy.domain.DomainRuleObserver;
 import com.donellesandersjr.walmartbuddy.models.CartItemModel;
-import com.donellesandersjr.walmartbuddy.models.CategoryModel;
+import com.donellesandersjr.walmartbuddy.models.CartModel;
 import com.donellesandersjr.walmartbuddy.models.ProductModel;
-import com.donellesandersjr.walmartbuddy.web.WalmartAPI;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URI;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
 
+
 public class NewItemActivity extends BaseActivity implements
-        View.OnClickListener, ViewPager.OnPageChangeListener, View.OnTouchListener {
+        View.OnClickListener, AdapterView.OnItemClickListener {
 
     private final String TAG = "com.donellesandersjr.walmart.activities.NewItemActivity";
 
-    View _contentContainer,  _resultsContainer;
-    EditText _itemNameEditText;
-    TextView _resultsCounterTextView;
-    ViewPager _resultsPager;
-    Button _searchButton;
-    ProgressBar _progressbar;
-    CategoryDataAdapter _categoryAdapter;
-    Spinner _categoriesSpinner;
+    private AutoCompleteTextView _itemNameEditText;
+    private EditText _priceEditText;
+    private EditText _quantityEditText;
+    private ImageView _snapshotImageView;
 
-    boolean _bIsShowingResults, _bIsSearching;
+    private final String STATE_CART = "NewItemActivity.STATE_CART";
+    private Cart _cart;
+    private CartItem _newCartItem;
+
+    private final int REQUEST_CODE_CAPTURE_IMAGE = 100;
+    private Uri _snapshotUri;
+
+    private interface OnTextChangedListener {
+        void onTextChanged (String newText);
+    }
+
+    private static class EditTextWatcher implements TextWatcher {
+        private OnTextChangedListener _listener;
+        private String _previousText;
+
+        public EditTextWatcher (OnTextChangedListener listener) {
+            _listener = listener;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            _previousText = s.toString();
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (!_previousText.contentEquals(s.toString()))
+                _listener.onTextChanged(s.toString());
+        }
+
+        public static EditTextWatcher newInstance (OnTextChangedListener listener) {
+            return new EditTextWatcher(listener);
+        }
+    }
+
+    private EditTextWatcher _itemNameWatcher = EditTextWatcher.newInstance(new OnTextChangedListener() {
+        @Override
+        public void onTextChanged(String newText) {
+            _newCartItem.setName(newText);
+        }
+    });
+
+    private EditTextWatcher _itemPriceWatcher = EditTextWatcher.newInstance(new OnTextChangedListener() {
+        @Override
+        public void onTextChanged(String newText) {
+            _newCartItem.setPrice(Double.parseDouble(newText));
+        }
+    });
+
+    private EditTextWatcher _itemQtyWatcher = EditTextWatcher.newInstance(new OnTextChangedListener() {
+        @Override
+        public void onTextChanged(String newText) {
+            _newCartItem.setQuantity(Integer.parseInt(newText));
+        }
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        _createCartItem();
+        if (savedInstanceState != null) {
+            _cart = savedInstanceState.getParcelable(STATE_CART);
+        } else {
+            CartModel model = getIntent().getParcelableExtra(getString(R.string.bundle_key_cart));
+            _cart = new Cart(model);
+        }
+
         setContentView(R.layout.activity_new_item);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
-        _contentContainer = findViewById(R.id.new_item_content_container);
-        _resultsContainer = findViewById(R.id.new_item_results_container);
-        _itemNameEditText = (EditText) findViewById(R.id.new_item_name);
-        _resultsCounterTextView = (TextView) findViewById(R.id.new_item_results_counter);
-        _progressbar = (ProgressBar) findViewById(R.id.progress_horizontal);
-        _progressbar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.md_orange_a200), PorterDuff.Mode.SRC_IN);
-        _searchButton = (Button) findViewById(R.id.new_item_search);
-        _searchButton.setOnClickListener(this);
+        _itemNameEditText = (AutoCompleteTextView) findViewById(R.id.new_item_name);
+        _itemNameEditText.addTextChangedListener(_itemNameWatcher);
+        _itemNameEditText.setOnItemClickListener(this);
+        _itemNameEditText.setAdapter(new ProductDataAdapter());
+        _itemNameEditText.setThreshold(2);
 
-        _resultsPager = (ViewPager) findViewById(R.id.new_item_results_pager);
-        _resultsPager.setPageTransformer(true, new DepthPageTransformer());
-        _resultsPager.setAdapter(new SearchResultPagerAdapter(new WBList<ProductModel>(), getSupportFragmentManager()));
-        _resultsPager.addOnPageChangeListener(this);
+        _priceEditText =(EditText) findViewById(R.id.new_item_price);
+        _priceEditText.addTextChangedListener(_itemPriceWatcher);
 
-        _categoriesSpinner = (Spinner) findViewById(R.id.new_item_categories);
-        _categoriesSpinner.setAdapter(_categoryAdapter = new CategoryDataAdapter(DbProvider.fetchCategories()));
-        _categoriesSpinner.setOnTouchListener(this);
-        if (_categoryAdapter.getCount() > 0) {
-            int pos = _categoryAdapter.getFoodCategoryPos();
-            if (pos != -1) _categoriesSpinner.setSelection(pos);
-        }
+        _quantityEditText = (EditText) findViewById(R.id.new_item_qty);
+        _quantityEditText.addTextChangedListener(_itemQtyWatcher);
 
-        Button button = (Button) findViewById(R.id.new_item_add_to_cart);
-        button.setOnClickListener(this);
+        _snapshotImageView = (ImageView)findViewById(R.id.new_item_photo);
+        _snapshotImageView.setOnClickListener(this);
 
-        button = (Button) findViewById(R.id.new_item_results_hide);
-        button.setOnClickListener(this);
+        findViewById(R.id.new_item_add_to_cart).setOnClickListener(this);
+        findViewById(R.id.new_item_close).setOnClickListener(this);
+    }
 
-        ImageView imageView = (ImageButton)findViewById(R.id.new_item_action_close);
-        imageView.setOnClickListener(this);
-
-        imageView = (ImageView)findViewById(R.id.new_item_photo);
-        imageView.setOnClickListener(this);
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putParcelable(STATE_CART, _cart);
     }
 
     @Override
@@ -127,442 +195,293 @@ public class NewItemActivity extends BaseActivity implements
                         .color(Color.WHITE)
                         .actionBarSize();
         menu.findItem(R.id.action_scan_item).setIcon(iconDrawable);
+        iconDrawable =
+                new IconDrawable(this, Iconify.IconValue.fa_search)
+                        .color(Color.WHITE)
+                        .actionBarSize();
+        menu.findItem(R.id.action_search_item).setIcon(iconDrawable);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_scan_item) {
-
+        int id = item.getItemId();
+        if (id == R.id.action_scan_item) {
+            Intent intent = new Intent(this, ScanItemActivity.class);
+            intent.putExtra(getString(R.string.bundle_key_cart), _cart.getModel());
+            startActivity(intent);
+        } else if (id == R.id.action_search_item) {
+            Intent intent = new Intent(this, SearchItemActivity.class);
+            intent.putExtra(getString(R.string.bundle_key_cart), _cart.getModel());
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_CAPTURE_IMAGE && resultCode == Activity.RESULT_OK) {
+            final Point displayDims = _calculateARC();
+            Task.callInBackground(new Callable<Bitmap>() {
+                @Override
+                public Bitmap call() throws Exception {
+                    FileInputStream stream = new FileInputStream(_snapshotUri.getPath());
+                    Bitmap photo = null;
+                    try {
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inJustDecodeBounds = true;
+                        BitmapFactory.decodeStream(stream, null, options);
+                        stream.close();
+
+                        options.inSampleSize = WBImageUtils.calculateInSampleSize(
+                                options, displayDims.x, displayDims.y);
+                        options.inJustDecodeBounds = false;
+
+                        stream = new FileInputStream(_snapshotUri.getPath());
+                        photo = BitmapFactory.decodeStream(stream, null, options);
+                    } finally {
+                        if (stream != null)
+                            try {
+                                stream.close();
+                            } catch (Exception ex) {}
+                    }
+                    return photo;
+                }
+            }).onSuccess(new Continuation<Bitmap, Void>() {
+                @Override
+                public Void then(Task<Bitmap> task) throws Exception {
+                    _snapshotImageView.setImageBitmap(task.getResult());
+                    return null;
+                }
+            }, Task.UI_THREAD_EXECUTOR);
+        }
     }
 
     @Override /* View.OnClickListener */
     public void onClick(View v) {
         int id = v.getId();
-        if (id == R.id.new_item_search) {
-            //
-            // Check if we categories loaded and if not fetch'em first
-            //
-            if (_categoryAdapter.getCount() == 0) {
-                _downloadCategories().onSuccess(new Continuation<Boolean, Object>() {
-                    @Override
-                    public Object then(Task<Boolean> task) throws Exception {
-                        if (task.getResult()) {
-                            //
-                            // Now set the default search to Food category
-                            //
-                            int pos = _categoryAdapter.getFoodCategoryPos();
-                            _categoriesSpinner.setSelection(pos != -1 ? pos : 0);
-                            //
-                            // Now process the request
-                            //
-                            _processSearchRequest();
-                        }
-                        return null;
-                    }
-                }, Task.UI_THREAD_EXECUTOR);
-            } else {
-                _processSearchRequest();
-            }
-        } else if (id == R.id.new_item_action_close) {
+        if (id == R.id.new_item_close) {
             finish();
-        } else if (id == R.id.new_item_results_hide) {
-            _toggleSearchResults();
+        } else if (id == R.id.new_item_add_to_cart) {
+            _addItemToCart();
+        } else if (id == R.id.new_item_photo) {
+            File dir = super.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            _snapshotUri = Uri.fromFile(new File(dir, "Snapshot.jpeg"));
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, _snapshotUri);
+            startActivityForResult(intent, REQUEST_CODE_CAPTURE_IMAGE);
         }
     }
 
-    @Override /* View.OnTouchListener */
-    public boolean onTouch(View v, MotionEvent event) {
-        //
-        // We check the view id for code readability purposes
-        //
-        if (v.getId() == R.id.new_item_categories && event.getAction() == MotionEvent.ACTION_UP) {
-            if (_categoryAdapter.getCount() == 0) {
-                _downloadCategories().onSuccess(new Continuation<Boolean, Object>() {
-                    @Override
-                    public Object then(Task<Boolean> task) throws Exception {
-                        if (task.getResult())
-                            _categoriesSpinner.performClick();
-                        return null;
-                    }
-                }, Task.UI_THREAD_EXECUTOR);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override /*  ViewPager.OnPageChangeListener  */
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        String text = String.format("%1$d of %2$d", ++position, _resultsPager.getAdapter().getCount());
-        _resultsCounterTextView.setText(text);
-    }
-
-    @Override /*  ViewPager.OnPageChangeListener */
-    public void onPageSelected(int position) {
+    @Override /* AdapterView.OnItemClickListener */
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
     }
 
-    @Override /*  ViewPager.OnPageChangeListener */
-    public void onPageScrollStateChanged(int state) {
+    private Point _calculateARC() {
+        /* http://andrew.hedges.name/experiments/aspect_ratio/  */
+        Display display = super.getWindowManager().getDefaultDisplay();
+        Point displayDims = new Point();
+        display.getSize(displayDims);
+        int newWidth = super.getPixels(super.getDPUnits(100));
 
+        displayDims.y = displayDims.y / displayDims.x * newWidth;
+        displayDims.x = newWidth;
+        return displayDims;
     }
 
-    /**
-     * Responsible for executing search queries against walmart's api and then
-     * displaying the results.
-     */
-    private void _processSearchRequest () {
-        //
-        // Are we searching?
-        //
-        if (_bIsSearching)
-            return;
-        //
-        // Do we have valid search criteria
-        //
-        String itemName = _itemNameEditText.getText().toString();
-        if (WBStringUtils.isNullOrEmpty(itemName) || itemName.length() < 2) {
-            _itemNameEditText.setError(getString(R.string.broken_rule_cartitem_query_invalid));
-            return;
-        }
-        //
-        // Get Category Id
-        //
-        CategoryModel selCategory = (CategoryModel) _categoriesSpinner.getSelectedItem();
-        String categoryId = selCategory.getCategoryId();
-        //
-        // Close the keyboard if its visible
-        //
-        _hideKeyboard();
-        //
-        // Hide current results if they are showing
-        //
-        if (_bIsShowingResults)
-            _toggleSearchResults();
-        //
-        // Execute search
-        //
-        _bIsSearching = true;
-        _progressbar.setVisibility(View.VISIBLE);
-        WalmartAPI.search(itemName, categoryId).continueWith(new Continuation<WBList<ProductModel>, Object>() {
+    private void _createCartItem () {
+        _newCartItem = new CartItem();
+        _newCartItem.subscribeToRule(CartItem.RULE_NAME, new DomainRuleObserver() {
             @Override
-            public Object then(Task<WBList<ProductModel>> task) throws Exception {
-                _bIsSearching = false;
-                _progressbar.setVisibility(View.GONE);
+            public void onRuleChanged(boolean isBroken, String message) {
+                _itemNameEditText.setError(isBroken ? message : null);
+            }
+        });
+        _newCartItem.subscribeToRule(CartItem.RULE_PRICE, new DomainRuleObserver() {
+            @Override
+            public void onRuleChanged(boolean isBroken, String message) {
+                _priceEditText.setError(isBroken ? message : null);
+            }
+        });
+        _newCartItem.subscribeToRule(CartItem.RULE_QUANTITY, new DomainRuleObserver() {
+            @Override
+            public void onRuleChanged(boolean isBroken, String message) {
+                _quantityEditText.setError(isBroken ? message : null);
+            }
+        });
+    }
 
-                if (task.isFaulted()) {
-                    _showMessage(getString(R.string.error_walmart_search_failure));
-                } else {
-                    WBList<ProductModel> productModels = task.getResult();
-                    if (productModels.size() > 0) {
-                        _resultsPager.setAdapter(new SearchResultPagerAdapter(productModels, getSupportFragmentManager()));
-                        _toggleSearchResults();
+    private void _addItemToCart () {
+        if (_newCartItem.isValid()) {
+            final ProgressDialog dialog = AppUI.createProgressDialog(this, R.string.progress_message_saving_new_cartitem);
+            dialog.show();
+
+            Task.callInBackground(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    //
+                    // Did we take a photo?
+                    //
+                    if (_snapshotUri != null) {
+                        Bitmap bitmap = WBImageUtils.bitmapFromUri(URI.create(_snapshotUri.getPath()));
+                        Uri fileUri = Uri.fromFile(App.createSnapshotFile());
+                        WBImageUtils.compressToFile(bitmap, URI.create(fileUri.getPath()));
+                        _newCartItem.setThumbnailUrl(fileUri.getPath());
+                    }
+                    return null;
+                }
+            }).continueWith(new Continuation<Object, Object>() {
+                @Override
+                public Object then(Task<Object> task) throws Exception {
+                    if (task.isFaulted()) {
+                        WBLogger.Error(TAG, task.getError());
+                        Task.call(new Callable<Object>() {
+                            @Override
+                            public Object call() throws Exception {
+                                //
+                                // Let the user know that we couldn't save the pic to disk
+                                //
+                                _showMessage(getString(R.string.error_photo_save_failure));
+                                return null;
+                            }
+                        }, Task.UI_THREAD_EXECUTOR);
+                    }
+                    //
+                    // Save the item
+                    //
+                    WBList<CartItem> cartItems = _cart.getCartItems();
+                    cartItems.add(_newCartItem);
+                    _cart.setCartItems(cartItems).save();
+                    return null;
+                }
+            }).continueWith(new Continuation<Object, Object>() {
+                @Override
+                public Object then(Task<Object> task) throws Exception {
+                    dialog.dismiss();
+                    if(task.isFaulted()) {
+                        WBLogger.Error(TAG, task.getError());
+                        //
+                        // Something went wrong so let the user know
+                        //
+                        _showMessage(getString(R.string.error_cartitem_save_failure));
                     } else {
-                        _showMessage(getString(R.string.notification_no_items_found));
+                        //
+                        // Reset our UI
+                        //
+                        _resetUI();
+                        //
+                        // Create empty cart item
+                        //
+                        _createCartItem();
+                        //
+                        // Notify the user item added
+                        //
+                        _showMessage(getString(R.string.notification_cartitem_item_added));
                     }
+                    return null;
                 }
-                return null;
+            }, Task.UI_THREAD_EXECUTOR);
+        } else {
+            //
+            // Trigger the visual display of errors in the UI
+            //
+            Set<Map.Entry<Integer, String>> brokenRules = _newCartItem.getBrokenRules().entrySet();
+            for (Map.Entry<Integer, String> rule : brokenRules) {
+                int id = rule.getKey();
+                if (id == CartItem.RULE_NAME)
+                   _itemNameEditText.setError(rule.getValue());
+                else if (id == CartItem.RULE_PRICE)
+                    _priceEditText.setError(rule.getValue());
+                else if (id == CartItem.RULE_QUANTITY)
+                    _quantityEditText.setError(rule.getValue());
             }
-        }, Task.UI_THREAD_EXECUTOR);
-    }
 
-    /**
-     * This method is responsible for fetching the category listing from Walmart
-     * @return
-     *      The result of the operation, true if success otherwise false.
-     */
-    private Task<Boolean> _downloadCategories () {
-        //
-        // Let the user know we are fetching the categories first before
-        // we execute their query
-        //
-        final ProgressDialog dialog = AppUI.createProgressDialog(this, R.string.progress_message_loading_categories);
-        dialog.show();
-
-        return WalmartAPI.fetchCategories().continueWith(new Continuation<WBList<CategoryModel>, Boolean>() {
-            @Override
-            public Boolean then(Task<WBList<CategoryModel>> task) throws Exception {
-                dialog.dismiss();
-                if (task.isFaulted()) {
-                    Snackbar.make(
-                                findViewById(R.id.coordinatorLayout),
-                                getString(R.string.error_walmart_categories_download_failure),
-                                Snackbar.LENGTH_INDEFINITE)
-                            .setAction("RETRY", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    _downloadCategories ();
-                                }
-                            })
-                            .setActionTextColor(Color.RED)
-                            .show();
-                    return false;
-                } else {
-                    WBList<CategoryModel> categories = task.getResult();
-                    //
-                    // Persist the results to the database
-                    //
-                    for (CategoryModel categoryModel : categories)
-                        DbProvider.save(categoryModel);
-                    //
-                    // Now populate our spinner
-                    //
-                    _categoryAdapter.addAll(categories);
-                }
-                return true;
-            }
-        }, Task.UI_THREAD_EXECUTOR);
-    }
-
-    /**
-     * Responsible for showing/hiding the search results view
-     */
-    private void _toggleSearchResults () {
-        int height = _resultsContainer.getMeasuredHeight();
-        ViewCompat.animate(_contentContainer)
-                .yBy(_bIsShowingResults ? -height : height)
-                .setDuration(500)
-                .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR)
-                .withLayer()
-                .start();
-        _bIsShowingResults = !_bIsShowingResults;
-    }
-
-    /**
-     * Should be pretty obvious here :-)
-     */
-    private void _hideKeyboard() {
-        // Check if no view has focus:
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            _showMessage(getString(R.string.error_cartitem_validation_failure));
         }
     }
 
-    /**
-     * Displays messages via the snackbar control
-     * @param message
-     */
+
+    private void _resetUI () {
+        _itemNameEditText.removeTextChangedListener(_itemNameWatcher);
+        _itemNameEditText.setText("");
+        _itemNameEditText.addTextChangedListener(_itemNameWatcher);
+
+        _priceEditText.removeTextChangedListener(_itemPriceWatcher);
+        _priceEditText.setText("");
+        _priceEditText.addTextChangedListener(_itemPriceWatcher);
+
+        _quantityEditText.removeTextChangedListener(_itemQtyWatcher);
+        _quantityEditText.setText("");
+        _quantityEditText.addTextChangedListener(_itemQtyWatcher);
+
+        _snapshotImageView.setImageBitmap(null);
+        _snapshotUri = null;
+    }
+
     private void _showMessage (String message){
         Snackbar.make(findViewById(R.id.coordinatorLayout), message, Snackbar.LENGTH_LONG)
                 .show();
     }
 
 
-    /**
-     * This class is responsible for displaying the product cards after a successful search
-     */
-    private class SearchResultPagerAdapter extends FragmentStatePagerAdapter {
-        private WBList<ProductModel> _items;
-
-        public SearchResultPagerAdapter(WBList<ProductModel> items, FragmentManager fm) {
-            super(fm);
-            _items = items;
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            ProductModel productModel = _items.get(position);
-            CartItemModel model = new CartItemModel()
-                    .setName(productModel.getName())
-                    .setPrice(productModel.getSalePrice())
-                    .setQuantity(1)
-                    .setThumbnailUrl(productModel.getThumbnailUrl())
-                    .setProduct(productModel);
-
-            Bundle args = new Bundle();
-            args.putParcelable(getString(R.string.bundle_key_cartitem), model);
-            NewItemFragment fragment = new NewItemFragment();
-            fragment.setArguments(args);
-
-            return fragment;
-        }
+    private class ProductDataAdapter extends BaseAdapter implements Filterable {
+        private WBList<CartItemModel> _inventory;
 
         @Override
         public int getCount() {
-            return _items.size();
+            return _inventory.size();
         }
-    }
 
-    /**
-     * This class is responsible for providing the smooth transitions between
-     * product cards.
-     */
-    private class DepthPageTransformer implements ViewPager.PageTransformer {
-        private static final float MIN_SCALE = 0.75f;
-
-        public void transformPage(View view, float position) {
-            int pageWidth = view.getWidth();
-
-            if (position < -1) { // [-Infinity,-1)
-                // This page is way off-screen to the left.
-                view.setAlpha(0);
-
-            } else if (position <= 0) { // [-1,0]
-                // Use the default slide transition when moving to the left page
-                view.setAlpha(1);
-                view.setTranslationX(0);
-                view.setScaleX(1);
-                view.setScaleY(1);
-
-            } else if (position <= 1) { // (0,1]
-                // Fade the page out.
-                view.setAlpha(1 - position);
-
-                // Counteract the default slide transition
-                view.setTranslationX(pageWidth * -position);
-
-                // Scale the page down (between MIN_SCALE and 1)
-                float scaleFactor = MIN_SCALE
-                        + (1 - MIN_SCALE) * (1 - Math.abs(position));
-                view.setScaleX(scaleFactor);
-                view.setScaleY(scaleFactor);
-
-            } else { // (1,+Infinity]
-                // This page is way off-screen to the right.
-                view.setAlpha(0);
-            }
+        @Override
+        public Object getItem(int position) {
+            return _inventory.get(position);
         }
-    }
 
-    /**
-     * This class is responsible for providing a listing of product categories
-     */
-    private class CategoryDataAdapter extends ArrayAdapter<CategoryModel> {
-
-        public CategoryDataAdapter(WBList<CategoryModel> categories) {
-            super(NewItemActivity.this, R.layout.new_item_list_item, R.id.new_item_list_text, categories);
+        @Override
+        public long getItemId(int position) {
+            return _inventory.get(position).getIntValue(CartItemDb.DEFAULT_ID_COLUMN);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View rootView = super.getView(position, convertView, parent);
-            TextView textView = (TextView) rootView.findViewById(R.id.new_item_list_text);
-            textView.setTextColor(getResources().getColor(R.color.md_blue_500));
-            //
-            // We need to capture the icon used for this item
-            //
-            TextView iconTextView = (TextView) rootView.findViewById(R.id.new_item_list_icon);
-            _setIcon(iconTextView, getItem(position));
+            if (convertView == null)
+                convertView = getLayoutInflater().inflate(R.layout.new_item_list_item, parent, false);
 
-            return rootView;
+            TextView textView = (TextView) convertView.findViewById(R.id.new_item_list_text);
+            textView.setText(_inventory.get(position).getName());
+
+            return convertView;
         }
 
         @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            View rootView =  super.getDropDownView(position, convertView, parent);
-            //
-            // We need to capture the icon used for this item
-            //
-            IconTextView iconTextView = (IconTextView) rootView.findViewById(R.id.new_item_list_icon);
-            _setIcon (iconTextView, getItem(position));
-
-            return rootView;
+        public boolean hasStableIds() {
+            return true;
         }
 
-        public int getFoodCategoryPos () {
-            int count = super.getCount();
-            for (int i = 0; i < count; i++) {
-                CategoryModel model = super.getItem(i);
-                if (WBStringUtils.areEqual(model.getCategoryId(), "976759"))
-                    return i;
-            }
-            return -1;
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    if (constraint != null) {
+                        _inventory = DbProvider.fetchCartItems(CartItemDb.NAME.like(constraint));
+                        FilterResults results = new FilterResults();
+                        results.values = _inventory;
+                        results.count = _inventory.size();
+                        return results;
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    /* NOOP */
+                }
+            };
         }
 
-        private void _setIcon (TextView textView, CategoryModel model) {
-            Iconify.IconValue iconValue;
-            switch (model.getCategoryId()) {
-                case "91083":
-                    //Auto & Tires
-                    iconValue = Iconify.IconValue.fa_automobile;
-                    break;
-                case "3920":
-                    // Books
-                    iconValue = Iconify.IconValue.fa_book;
-                    break;
 
-                case "1105910":
-                    //Cell Phones
-                    iconValue = Iconify.IconValue.fa_mobile_phone;
-                    break;
-
-                case "3944":
-                    // Electronics
-                    iconValue = Iconify.IconValue.fa_laptop;
-                    break;
-
-                case "976759":
-                    // Food
-                    iconValue = Iconify.IconValue.fa_shopping_cart;
-                    break;
-
-                case "1094765":
-                    // Gifts & Registry
-                    iconValue = Iconify.IconValue.fa_gift;
-                    break;
-
-                case "976760":
-                    // Health
-                    iconValue = Iconify.IconValue.fa_heartbeat;
-                    break;
-
-                case "4044":
-                case "1072864":
-                case "1115193":
-                    // HOME
-                    iconValue = Iconify.IconValue.fa_home;
-                    break;
-
-                case "3891":
-                    // Jewelry
-                    iconValue = Iconify.IconValue.fa_diamond;
-                    break;
-
-                case "4096":
-                    // Movies & TV
-                    iconValue = Iconify.IconValue.fa_film;
-                    break;
-
-                case "4104":
-                    // Music
-                    iconValue = Iconify.IconValue.fa_music;
-                    break;
-
-                case "1229749":
-                    // Office
-                    iconValue = Iconify.IconValue.fa_fax;
-                    break;
-
-                case "5440":
-                    // Pets
-                    iconValue = Iconify.IconValue.fa_paw;
-                    break;
-
-                case "5426":
-                    // Photo Center
-                    iconValue = Iconify.IconValue.fa_camera;
-                    break;
-
-                case "4125":
-                    // Sports & Outdoors
-                    iconValue = Iconify.IconValue.fa_soccer_ball_o;
-                    break;
-
-                case "4171":
-                    // Toys
-                    iconValue = Iconify.IconValue.fa_rocket;
-                    break;
-
-                default:
-                    iconValue = Iconify.IconValue.fa_tag;
-            }
-
-            Iconify.setIcon(textView, iconValue);
-        }
     }
 }
