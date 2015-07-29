@@ -66,8 +66,8 @@
         android:layout_below="@+id/toolbar"
         android:paddingStart="@dimen/padding_10dp"
         android:paddingEnd="@dimen/padding_10dp"
-        android:paddingTop="@dimen/singleline_list_padding_top"
-        android:paddingBottom="@dimen/singleline_list_padding_bottom"
+        android:paddingTop="@dimen/singleline_list_text_padding_top"
+        android:paddingBottom="@dimen/singleline_list_text_padding_bottom"
         android:text="Category"
         android:textSize="18sp"/>
 
@@ -79,8 +79,8 @@
         android:layout_marginStart="95dp"
         android:paddingStart="@dimen/padding_10dp"
         android:paddingEnd="@dimen/padding_10dp"
-        android:paddingTop="@dimen/singleline_list_padding_top"
-        android:paddingBottom="@dimen/singleline_list_padding_bottom"
+        android:paddingTop="@dimen/singleline_list_text_padding_top"
+        android:paddingBottom="@dimen/singleline_list_text_padding_bottom"
         android:text="Apparel"
         android:textSize="18sp"
         android:textColor="?attr/colorPrimary"
@@ -100,8 +100,8 @@
         android:layout_below="@+id/divider"
         android:paddingStart="@dimen/padding_10dp"
         android:paddingEnd="@dimen/padding_10dp"
-        android:paddingTop="@dimen/singleline_list_padding_top"
-        android:paddingBottom="@dimen/singleline_list_padding_bottom"
+        android:paddingTop="@dimen/singleline_list_text_padding_top"
+        android:paddingBottom="@dimen/singleline_list_text_padding_bottom"
         android:text="Filter"
         android:textSize="18sp"/>
 
@@ -113,8 +113,8 @@
         android:layout_below="@+id/filter_category_text"
         android:paddingStart="@dimen/padding_10dp"
         android:paddingEnd="@dimen/padding_10dp"
-        android:paddingTop="@dimen/singleline_list_padding_top"
-        android:paddingBottom="@dimen/singleline_list_padding_bottom"
+        android:paddingTop="@dimen/singleline_list_text_padding_top"
+        android:paddingBottom="@dimen/singleline_list_text_padding_bottom"
         android:hint="Choose Subcategory"
         android:textColorHint="@color/md_grey_400"/>
 

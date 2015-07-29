@@ -16,8 +16,11 @@
 
 package com.donellesandersjr.walmartbuddy.activities;
 
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
+
+import com.donellesandersjr.walmartbuddy.R;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -31,5 +34,10 @@ public class BaseActivity extends AppCompatActivity {
     protected int getPixels (float dpUnits) {
         return Float.valueOf(dpUnits * (getResources().getDisplayMetrics().densityDpi / 160f))
                     .intValue();
+    }
+
+    protected void showMessage (String message){
+        Snackbar.make(findViewById(R.id.coordinatorLayout), message, Snackbar.LENGTH_LONG)
+                .show();
     }
 }

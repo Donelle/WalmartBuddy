@@ -133,4 +133,8 @@ public final class CartItemModel extends DataModel {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return this.getName();
+    }
 }

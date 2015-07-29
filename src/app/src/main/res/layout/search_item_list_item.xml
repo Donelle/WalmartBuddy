@@ -18,7 +18,7 @@
  -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/singleline_list_icon_text_height"
+    android:layout_height="@dimen/singleline_list_height"
     android:paddingStart="0dp"
     android:paddingEnd="@dimen/singleline_list_padding">
 

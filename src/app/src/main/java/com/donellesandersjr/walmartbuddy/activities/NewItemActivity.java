@@ -19,7 +19,6 @@ package com.donellesandersjr.walmartbuddy.activities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -32,6 +31,7 @@ import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.view.Display;
 import android.view.Menu;
@@ -43,10 +43,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.Filter;
-import android.widget.FilterQueryProvider;
 import android.widget.Filterable;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.donellesandersjr.walmartbuddy.App;
@@ -55,6 +53,7 @@ import com.donellesandersjr.walmartbuddy.R;
 import com.donellesandersjr.walmartbuddy.api.WBImageUtils;
 import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
+import com.donellesandersjr.walmartbuddy.api.WBStringUtils;
 import com.donellesandersjr.walmartbuddy.db.CartItemDb;
 import com.donellesandersjr.walmartbuddy.db.DbProvider;
 import com.donellesandersjr.walmartbuddy.db.ProductDb;
@@ -70,6 +69,7 @@ import com.joanzapata.android.iconify.Iconify;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -166,7 +166,7 @@ public class NewItemActivity extends BaseActivity implements
         _itemNameEditText.addTextChangedListener(_itemNameWatcher);
         _itemNameEditText.setOnItemClickListener(this);
         _itemNameEditText.setAdapter(new ProductDataAdapter());
-        _itemNameEditText.setThreshold(2);
+        _itemNameEditText.setThreshold(3);
 
         _priceEditText =(EditText) findViewById(R.id.new_item_price);
         _priceEditText.addTextChangedListener(_itemPriceWatcher);
@@ -276,7 +276,11 @@ public class NewItemActivity extends BaseActivity implements
 
     @Override /* AdapterView.OnItemClickListener */
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+        ProductModel model = (ProductModel) parent.getAdapter().getItem(position);
+        if (WBStringUtils.isNullOrEmpty(_priceEditText.getText().toString())) {
+            DecimalFormat formatter = new DecimalFormat("#.00");
+            _priceEditText.setText(formatter.format(model.getSalePrice()));
+        }
     }
 
     private Point _calculateARC() {
@@ -343,7 +347,7 @@ public class NewItemActivity extends BaseActivity implements
                                 //
                                 // Let the user know that we couldn't save the pic to disk
                                 //
-                                _showMessage(getString(R.string.error_photo_save_failure));
+                                showMessage(getString(R.string.error_photo_save_failure));
                                 return null;
                             }
                         }, Task.UI_THREAD_EXECUTOR);
@@ -365,7 +369,7 @@ public class NewItemActivity extends BaseActivity implements
                         //
                         // Something went wrong so let the user know
                         //
-                        _showMessage(getString(R.string.error_cartitem_save_failure));
+                        showMessage(getString(R.string.error_cartitem_save_failure));
                     } else {
                         //
                         // Reset our UI
@@ -378,7 +382,7 @@ public class NewItemActivity extends BaseActivity implements
                         //
                         // Notify the user item added
                         //
-                        _showMessage(getString(R.string.notification_cartitem_item_added));
+                        showMessage(getString(R.string.notification_cartitem_item_added));
                     }
                     return null;
                 }
@@ -398,7 +402,7 @@ public class NewItemActivity extends BaseActivity implements
                     _quantityEditText.setError(rule.getValue());
             }
 
-            _showMessage(getString(R.string.error_cartitem_validation_failure));
+            super.showMessage(getString(R.string.error_cartitem_validation_failure));
         }
     }
 
@@ -420,14 +424,11 @@ public class NewItemActivity extends BaseActivity implements
         _snapshotUri = null;
     }
 
-    private void _showMessage (String message){
-        Snackbar.make(findViewById(R.id.coordinatorLayout), message, Snackbar.LENGTH_LONG)
-                .show();
-    }
 
 
     private class ProductDataAdapter extends BaseAdapter implements Filterable {
-        private WBList<CartItemModel> _inventory;
+        private WBList<ProductModel> _inventory;
+        private String _constraint;
 
         @Override
         public int getCount() {
@@ -449,8 +450,9 @@ public class NewItemActivity extends BaseActivity implements
             if (convertView == null)
                 convertView = getLayoutInflater().inflate(R.layout.new_item_list_item, parent, false);
 
+            String name = _inventory.get(position).getName().replace(_constraint, "<b>"+_constraint+"</b>");
             TextView textView = (TextView) convertView.findViewById(R.id.new_item_list_text);
-            textView.setText(_inventory.get(position).getName());
+            textView.setText(Html.fromHtml(name), TextView.BufferType.NORMAL);
 
             return convertView;
         }
@@ -466,10 +468,10 @@ public class NewItemActivity extends BaseActivity implements
                 @Override
                 protected FilterResults performFiltering(CharSequence constraint) {
                     if (constraint != null) {
-                        _inventory = DbProvider.fetchCartItems(CartItemDb.NAME.like(constraint));
+                        WBList<ProductModel> items = DbProvider.fetchProducts(ProductDb.NAME.like("%" + _constraint + "%"));
                         FilterResults results = new FilterResults();
-                        results.values = _inventory;
-                        results.count = _inventory.size();
+                        results.values = items;
+                        results.count = items.size();
                         return results;
                     }
                     return null;
@@ -477,11 +479,13 @@ public class NewItemActivity extends BaseActivity implements
 
                 @Override
                 protected void publishResults(CharSequence constraint, FilterResults results) {
-                    /* NOOP */
+                    if (constraint != null) {
+                        _constraint = constraint.toString();
+                        _inventory = (WBList<ProductModel>) results.values;
+                    }
                 }
             };
         }
-
 
     }
 }

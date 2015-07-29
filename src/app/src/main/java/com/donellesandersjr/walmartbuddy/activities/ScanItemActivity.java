@@ -19,13 +19,13 @@ package com.donellesandersjr.walmartbuddy.activities;
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.donellesandersjr.walmartbuddy.AppUI;
 import com.donellesandersjr.walmartbuddy.R;
@@ -62,12 +62,12 @@ public class ScanItemActivity extends BaseActivity implements
     private EditText _productQuantityEditText;
 
     private ProductModel _product;
-    private boolean _bIsSearching;
+    private boolean _bIsSearching, _bIsShowingResults;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scanner);
+        setContentView(R.layout.activity_scan_item);
 
         if (savedInstanceState == null) {
             BarCodeScannerFragment fragment = new BarCodeScannerFragment();
@@ -86,7 +86,7 @@ public class ScanItemActivity extends BaseActivity implements
         _productQuantityEditText = (EditText) findViewById(R.id.scanner_scan_quantity);
 
         findViewById(R.id.scanner_add_to_cart_button).setOnClickListener(this);
-
+        findViewById(R.id.scan_item_close).setOnClickListener(this);
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
@@ -102,27 +102,26 @@ public class ScanItemActivity extends BaseActivity implements
 
         _bIsSearching = true;
         WalmartAPI.fetchProductByUPC(upc).continueWith(new Continuation<WBList<ProductModel>, Bitmap>() {
-                @Override
-                public Bitmap then(Task<WBList<ProductModel>> task) throws Exception {
-                    Bitmap thumbnail = null;
-                    if (task.isFaulted()) {
-                        Task.call(new Callable<Object>() {
-                            @Override
-                            public Object call() throws Exception {
-                                _productView.setVisibility(View.INVISIBLE);
-                                Toast.makeText(ScanItemActivity.this, R.string.error_processing_request, Toast.LENGTH_LONG)
-                                        .show();
-                                return null;
-                            }
-                        }, Task.UI_THREAD_EXECUTOR);
-                    } else {
-                        ProductModel productModel = task.getResult().first();
-                        thumbnail = WBImageUtils.bitmapFromURL(new URL(productModel.getThumbnailUrl()));
-                        _product = productModel;
-                    }
-                    return thumbnail;
+            @Override
+            public Bitmap then(Task<WBList<ProductModel>> task) throws Exception {
+                Bitmap thumbnail = null;
+                if (task.isFaulted()) {
+                    _product = null;
+                    Task.call(new Callable<Object>() {
+                        @Override
+                        public Object call() throws Exception {
+                            showMessage(getString(R.string.error_processing_request));
+                            return null;
+                        }
+                    }, Task.UI_THREAD_EXECUTOR);
+                } else {
+                    ProductModel productModel = task.getResult().first();
+                    thumbnail = WBImageUtils.bitmapFromURL(new URL(productModel.getThumbnailUrl()));
+                    _product = productModel;
                 }
-            })
+                return thumbnail;
+            }
+        })
             .continueWith(new Continuation<Bitmap, Object>() {
                 @Override
                 public Object then(Task<Bitmap> task) throws Exception {
@@ -137,9 +136,7 @@ public class ScanItemActivity extends BaseActivity implements
                         //
                         // Show view
                         //
-                        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)
-                                _productView.getLayoutParams();
-                        _productView.animate().translationYBy(-params.height);
+                        _toggleSearchResults();
                     }
 
                     progressDialog.dismiss();
@@ -164,33 +161,30 @@ public class ScanItemActivity extends BaseActivity implements
                     //
                     // Hide view
                     //
-                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)
-                            _productView.getLayoutParams();
-                    _productView.animate().translationYBy(params.height);
+                    _toggleSearchResults();
                     //
                     // Show message
                     //
                     String message = getString(R.string.notification_cartitem_item_added);
-                    Toast.makeText(this, String.format(message, 1), Toast.LENGTH_LONG)
-                            .show();
+                    showMessage(String.format(message, 1));
                 } catch (Exception ex) {
                     WBLogger.Error(TAG, ex);
                     // Not sure why this would ever happen but we are going to
                     // do the right thing here and just report that shit went wrong.
-                    AppUI.createErrorAlert(this, getString(R.string.error_cartitem_save_failure))
-                         .show();
+                    super.showMessage(getString(R.string.error_cartitem_save_failure));
                 }
             } else {
                 for (Map.Entry<Integer, String> entry : cartItem.getBrokenRules().entrySet()) {
                     int ruleKey = entry.getKey();
                     if (ruleKey == CartItem.RULE_PRICE ) {
-                        AppUI.createErrorAlert(this, getString(R.string.broken_rule_cartitem_price_invalid))
-                             .show();
+                        super.showMessage(getString(R.string.broken_rule_cartitem_price_invalid));
                     } else if (ruleKey == CartItem.RULE_QUANTITY) {
                         _productQuantityEditText.setError(entry.getValue());
                     }
                 }
             }
+        } else if (id == R.id.scan_item_close) {
+            finish();
         }
     }
 
@@ -213,4 +207,14 @@ public class ScanItemActivity extends BaseActivity implements
         return defaultVal;
     }
 
+    private void _toggleSearchResults () {
+        int height = _productView.getMeasuredHeight();
+        ViewCompat.animate(_productView)
+                .yBy(_bIsShowingResults ? height : -height)
+                .setDuration(500)
+                .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR)
+                .withLayer()
+                .start();
+        _bIsShowingResults = !_bIsShowingResults;
+    }
 }

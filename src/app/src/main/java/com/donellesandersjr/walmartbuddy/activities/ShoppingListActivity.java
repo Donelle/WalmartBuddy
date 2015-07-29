@@ -203,14 +203,14 @@ public class ShoppingListActivity extends BaseActivity implements
             public void bind (CartItem cartItem) {
                 _cartItem = cartItem;
                 _checkedOffChkbox.setChecked(_cartItem.getCheckedOff());
-                _priceTextView.setText(NumberFormat.getCurrencyInstance().format(_cartItem.getPrice()));
                 _nameTextView.setText(_cartItem.getName());
                 _nameTextView.setPaintFlags(_cartItem.getCheckedOff() ?
                         _nameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG :
                         _nameTextView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
 
-                int quantity = _cartItem.getQuantity();
-                _quantityTextView.setText(quantity > 0 ? String.valueOf(quantity) : "");
+                NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                _priceTextView.setText(formatter.format(_cartItem.getTotalAmount()));
+                _quantityTextView.setText(String.valueOf(_cartItem.getQuantity())+" x "+formatter.format(_cartItem.getPrice())+ " each");
             }
 
             @Override

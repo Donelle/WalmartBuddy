@@ -137,6 +137,10 @@ public final class CartItem extends DomainObject<CartItemModel> {
         return this;
     }
 
+    public double getTotalAmount () {
+        return this.getPrice() * this.getQuantity();
+    }
+
     public String getThumbnailUrl () {
         return super.getModel().getThumbnailUrl();
     }

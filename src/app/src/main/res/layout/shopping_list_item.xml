@@ -18,8 +18,11 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/padding_5dp"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/threeline_list_height"
+    android:paddingTop="@dimen/threeline_list_padding"
+    android:paddingEnd="@dimen/threeline_list_padding"
+    android:paddingStart="@dimen/threeline_list_padding"
     android:animateLayoutChanges="true">
 
     <CheckBox
@@ -30,34 +33,29 @@
 
     <TextView
         android:id="@+id/shopping_list_item_name"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/shopping_list_item_checkedoff"
-        android:layout_toStartOf="@+id/shopping_list_item_quantity"
-        android:layout_marginTop="@dimen/padding_5dp"
-        android:gravity="top" />
+        android:layout_marginStart="@dimen/threeline_list_text_padding_start"
+        android:textSize="@dimen/threeline_list_primary_font_size"/>
 
     <TextView
         android:id="@+id/shopping_list_item_quantity"
         android:layout_width="wrap_content"
-        android:layout_height="35dp"
-        android:layout_toStartOf="@+id/shopping_list_item_price"
-        android:layout_marginEnd="@dimen/padding_15dp"
-        android:gravity="center_vertical" />
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/shopping_list_item_name"
+        android:layout_marginStart="@dimen/singleline_list_text_padding_start"
+        android:paddingTop="@dimen/padding_5dp"
+        android:textSize="@dimen/threeline_list_secondary_font_size"
+        android:textColor="@color/md_grey_500"/>
 
     <TextView
         android:id="@+id/shopping_list_item_price"
         android:layout_width="wrap_content"
-        android:layout_height="35dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/shopping_list_item_name"
         android:layout_alignParentEnd="true"
-        android:gravity="center_vertical"
-        android:textStyle="bold"/>
+        android:paddingTop="@dimen/padding_5dp"
+        android:textSize="@dimen/threeline_list_secondary_font_size"
+        android:textColor="@color/md_grey_500"/>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-
-
-    </RelativeLayout>
 </RelativeLayout>

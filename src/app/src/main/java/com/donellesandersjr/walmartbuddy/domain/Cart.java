@@ -114,7 +114,7 @@ public final class Cart extends  DomainObject<CartModel> {
     private void _calculateTotal () {
         double total = 0d;
         for (CartItem cartItem : this.getCartItems())
-            total += cartItem.getPrice();
+            total += cartItem.getTotalAmount();
 
         double taxRate = this.getTaxRate();
         if (taxRate > 0d)

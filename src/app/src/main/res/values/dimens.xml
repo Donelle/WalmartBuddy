@@ -81,10 +81,20 @@
 
     <!-- http://www.google.com/design/spec/components/lists.html#lists-specs -->
     <dimen name="singleline_list_padding">16dp</dimen>
-    <dimen name="singleline_list_icon_text_height">48dp</dimen>
-    <dimen name="singleline_list_padding_top">16dp</dimen>
-    <dimen name="singleline_list_padding_bottom">20dp</dimen>
+    <dimen name="singleline_list_height">48dp</dimen>
     <dimen name="singleline_list_font_size">16sp</dimen>
     <dimen name="singleline_list_text_padding_start">72dp</dimen>
+    <dimen name="singleline_list_text_padding_top">16dp</dimen>
+    <dimen name="singleline_list_text_padding_bottom">20dp</dimen>
     <dimen name="singleline_list_icon_padding_start">16dp</dimen>
+
+    <dimen name="threeline_list_height">88dp</dimen>
+    <dimen name="threeline_list_padding">16dp</dimen>
+    <dimen name="threeline_list_icon_padding_start">16dp</dimen>
+    <dimen name="threeline_list_text_padding_start">72dp</dimen>
+    <dimen name="threeline_list_text_padding_top">16dp</dimen>
+    <dimen name="threeline_list_text_padding_bottom">20dp</dimen>
+    <dimen name="threeline_list_primary_font_size">16sp</dimen>
+    <dimen name="threeline_list_secondary_font_size">14sp</dimen>
+
 </resources>
