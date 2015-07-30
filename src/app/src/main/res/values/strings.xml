@@ -18,6 +18,7 @@
  -->
 <resources>
     <string name="app_name">Shopping Buddy</string>
+
     <!-- TITLES -->
     <string name="title_dialog_taxrate">Sales Tax Information</string>
     <string name="title_activity_scan">ScanActivity</string>
@@ -27,9 +28,14 @@
 
     <!-- LABELS -->
     <string name="label_zipcode_explanation">Please enter your zip code so we can retrieve the sales tax used at Walmart for your area.</string>
-    <string name="label_taxrate_skip">Skip</string>
     <string name="label_categories">Choose a category</string>
     <string name="label_barcode_scan_instructions">Center the code between the square and hold steady.</string>
+
+    <!-- BUTTON TAGS -->
+    <string name="button_add_to_cart">add to cart</string>
+    <string name="button_skip">Skip</string>
+    <string name="button_remove">Remove</string>
+    <string name="button_hide">Hide</string>
 
     <!-- PROGRESS TAGS -->
     <string name="progress_message_searching">Searching...</string>

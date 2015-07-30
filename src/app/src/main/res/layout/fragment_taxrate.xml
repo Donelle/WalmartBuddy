@@ -77,7 +77,7 @@
             android:layout_height="@dimen/dialog_button_height"
             android:layout_marginEnd="@dimen/dialog_button_padding"
             android:layout_toStartOf="@+id/taxrate_ok"
-            android:text="@string/label_taxrate_skip"
+            android:text="@string/button_skip"
             android:textColor="?attr/colorPrimary"
             style="@style/ButtonStyle.Flat" />
 

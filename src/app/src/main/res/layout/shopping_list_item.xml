@@ -19,33 +19,33 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="@dimen/threeline_list_height"
-    android:paddingTop="@dimen/threeline_list_padding"
-    android:paddingEnd="@dimen/threeline_list_padding"
-    android:paddingStart="@dimen/threeline_list_padding"
+    android:minHeight="@dimen/twoline_list_height"
+    android:paddingBottom="@dimen/twoline_list_padding"
     android:animateLayoutChanges="true">
 
     <CheckBox
         android:id="@+id/shopping_list_item_checkedoff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/twoline_list_icon_padding_start"/>
 
     <TextView
         android:id="@+id/shopping_list_item_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/threeline_list_text_padding_start"
-        android:textSize="@dimen/threeline_list_primary_font_size"/>
+        android:layout_marginStart="@dimen/twoline_list_text_padding_start"
+        android:layout_toStartOf="@+id/shopping_list_item_price"
+        android:textSize="@dimen/twoline_list_primary_font_size"/>
 
     <TextView
         android:id="@+id/shopping_list_item_quantity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/shopping_list_item_name"
-        android:layout_marginStart="@dimen/singleline_list_text_padding_start"
+        android:layout_marginStart="@dimen/twoline_list_text_padding_start"
         android:paddingTop="@dimen/padding_5dp"
-        android:textSize="@dimen/threeline_list_secondary_font_size"
+        android:textSize="@dimen/twoline_list_secondary_font_size"
         android:textColor="@color/md_grey_500"/>
 
     <TextView
@@ -54,8 +54,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/shopping_list_item_name"
         android:layout_alignParentEnd="true"
+        android:layout_marginEnd="@dimen/twoline_list_padding"
         android:paddingTop="@dimen/padding_5dp"
-        android:textSize="@dimen/threeline_list_secondary_font_size"
+        android:textSize="@dimen/twoline_list_secondary_font_size"
         android:textColor="@color/md_grey_500"/>
 
 </RelativeLayout>

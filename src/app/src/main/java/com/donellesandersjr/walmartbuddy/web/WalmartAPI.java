@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 
@@ -37,7 +38,7 @@ import bolts.Task;
 public final class WalmartAPI extends WebAPI {
     private static final String TAG = "com.donellesandersjr.walmartbuddy.WalmartAPI";
 
-    private static final String WALMART_APIKEY = "s48yttbvsd5kdw7j5fe5qghh";
+    private static final String WALMART_APIKEY = "[YOUR KEY GOES HERE]";
     private static final String PRODUCT_SEARCH_QUERY = "http://api.walmartlabs.com/v1/items?apiKey=" + WALMART_APIKEY + "&format=json";
     private static final String SEARCH_QUERY =  "http://api.walmartlabs.com/v1/search?apiKey=" + WALMART_APIKEY + "&format=json";
     private static final String CATEGORIES_QUERY = "http://api.walmartlabs.com/v1/taxonomy?apiKey="+ WALMART_APIKEY + "&format=json";;
@@ -93,9 +94,11 @@ public final class WalmartAPI extends WebAPI {
                         }
                     }
                 } catch (Exception ex) {
-                    WBLogger.Error(TAG, ex);
-                    if (connection != null)
-                        readErrorsFrom(connection.getErrorStream());
+                    if (connection != null) {
+                        ArrayList<WalmartAPIException> exceptions = readErrorsFrom(connection.getErrorStream());
+                        if (exceptions.size() > 0)
+                            throw exceptions.get(0);
+                    }
                     throw ex;
                 } finally {
                     if (connection != null)
@@ -138,9 +141,11 @@ public final class WalmartAPI extends WebAPI {
                 }
             }
         } catch (Exception ex) {
-            WBLogger.Error(TAG, ex);
-            if (connection != null)
-                readErrorsFrom(connection.getErrorStream());
+            if (connection != null) {
+                ArrayList<WalmartAPIException> exceptions = readErrorsFrom(connection.getErrorStream());
+                if (exceptions.size() > 0)
+                    throw exceptions.get(0);
+            }
             throw ex;
         } finally {
             if (connection != null)
@@ -170,17 +175,38 @@ public final class WalmartAPI extends WebAPI {
     }
 
 
-    static void readErrorsFrom (InputStream stream) {
+    static ArrayList<WalmartAPIException> readErrorsFrom (InputStream stream) {
+        ArrayList<WalmartAPIException> exceptions = new ArrayList<>();
         JSONObject response = readFrom(stream);
         if (response.has(Response.ERRORS)) {
             try {
                 JSONArray errors = response.getJSONArray(Response.ERRORS);
                 for (int i = 0; i < errors.length(); i++) {
                     JSONObject entry = errors.getJSONObject(i);
-                    WBLogger.Error(TAG, "Request Error [code] - " + entry.getString("code") + " [message] - " + entry.getString("message"));
+                    exceptions.add(new WalmartAPIException(WBJsonUtils.getInt(entry, "code", 0)));
                 }
             } catch (Exception ex) {
                 WBLogger.Error(TAG, ex);
+            }
+        }
+        return exceptions;
+    }
+
+    public static class WalmartAPIException extends Exception {
+        private int _errorCode;
+
+        WalmartAPIException (int code) {
+            super();
+            _errorCode = code;
+        }
+
+        @Override
+        public String getMessage() {
+            switch (_errorCode) {
+                case ErrorCodes.UPC_NOTFOUND:
+                    return "Unable to find item by its barcode";
+                default:
+                    return "Unexpected error occured";
             }
         }
     }
@@ -193,6 +219,22 @@ public final class WalmartAPI extends WebAPI {
         static final String ERRORS = "errors";
         static final String CATEGORIES = "categories";
 
+    }
+
+    /**
+     * API Response Codes
+     */
+    static class ErrorCodes {
+        static final int UPC_NOTFOUND = 4023;
+        static final int INVALID_REQUEST = 4001;
+        static final int INVALID_ITEM = 4002;
+        static final int INVALID_CATEGORY = 4003;
+        static final int INVALID_START_PARAM = 4005;
+        static final int INVALID_RESPONSE_FORMAT = 4007;
+        static final int MISSING_ITEM_ID = 4008;
+        static final int MISSING_SEARCH_QUERY = 4009;
+        static final int INVALID_START_PARAM_GREATERTHAN_99 = 4010;
+        static final int INTERNAL_SERVER_FAILURE = 5000;
     }
 
     /**

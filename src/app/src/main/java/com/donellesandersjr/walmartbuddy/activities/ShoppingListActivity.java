@@ -125,7 +125,10 @@ public class ShoppingListActivity extends BaseActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == NEW_ITEM_RESULT && resultCode == RESULT_OK) {
-            /* TODO */
+            CartModel model = data.getParcelableExtra(getString(R.string.bundle_key_cart));
+            _shoppingCart = new Cart(model);
+            _adapter.notifyDataSetChanged();
+            _setEstimatedTotal();
         }
     }
 

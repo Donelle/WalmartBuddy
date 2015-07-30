@@ -61,6 +61,7 @@
     <dimen name="list_subheader_marginLeft">72dp</dimen>
 
     <!-- http://www.google.com/design/spec/components/cards.html#cards-content-blocks -->
+    <dimen name="cardview_padding">8dp</dimen>
     <dimen name="cardview_media_area_top_padding">16dp</dimen>
     <dimen name="cardview_media_area_right_padding">16dp</dimen>
     <dimen name="cardview_media_size_small">80dp</dimen>
@@ -69,6 +70,8 @@
     <dimen name="cardview_title_top_padding">24dp</dimen>
     <dimen name="cardview_font_size">18sp</dimen>
     <dimen name="cardview_subtitle_font_size">14sp</dimen>
+    <dimen name="cardview_subtext_font_size">14sp</dimen>
+    <dimen name="cardview_subtext_bottom_padding">16dp</dimen>
     <dimen name="cardview_actions_padding">8dp</dimen>
 
     <!-- http://www.google.com/design/spec/components/buttons.html#buttons-flat-raised-buttons -->
@@ -88,13 +91,13 @@
     <dimen name="singleline_list_text_padding_bottom">20dp</dimen>
     <dimen name="singleline_list_icon_padding_start">16dp</dimen>
 
-    <dimen name="threeline_list_height">88dp</dimen>
-    <dimen name="threeline_list_padding">16dp</dimen>
-    <dimen name="threeline_list_icon_padding_start">16dp</dimen>
-    <dimen name="threeline_list_text_padding_start">72dp</dimen>
-    <dimen name="threeline_list_text_padding_top">16dp</dimen>
-    <dimen name="threeline_list_text_padding_bottom">20dp</dimen>
-    <dimen name="threeline_list_primary_font_size">16sp</dimen>
-    <dimen name="threeline_list_secondary_font_size">14sp</dimen>
+    <dimen name="twoline_list_height">72dp</dimen>
+    <dimen name="twoline_list_padding">16dp</dimen>
+    <dimen name="twoline_list_icon_padding_start">16dp</dimen>
+    <dimen name="twoline_list_text_padding_start">72dp</dimen>
+    <dimen name="twoline_list_text_padding_top">16dp</dimen>
+    <dimen name="twoline_list_text_padding_bottom">20dp</dimen>
+    <dimen name="twoline_list_primary_font_size">16sp</dimen>
+    <dimen name="twoline_list_secondary_font_size">14sp</dimen>
 
 </resources>

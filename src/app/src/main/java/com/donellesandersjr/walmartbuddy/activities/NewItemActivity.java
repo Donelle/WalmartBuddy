@@ -26,9 +26,7 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.PersistableBundle;
 import android.provider.MediaStore;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
@@ -41,6 +39,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -60,7 +59,6 @@ import com.donellesandersjr.walmartbuddy.db.ProductDb;
 import com.donellesandersjr.walmartbuddy.domain.Cart;
 import com.donellesandersjr.walmartbuddy.domain.CartItem;
 import com.donellesandersjr.walmartbuddy.domain.DomainRuleObserver;
-import com.donellesandersjr.walmartbuddy.models.CartItemModel;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
 import com.donellesandersjr.walmartbuddy.models.ProductModel;
 import com.joanzapata.android.iconify.IconDrawable;
@@ -78,7 +76,7 @@ import bolts.Continuation;
 import bolts.Task;
 
 
-public class NewItemActivity extends BaseActivity implements
+public class NewItemActivity extends BaseActivity<Cart> implements
         View.OnClickListener, AdapterView.OnItemClickListener {
 
     private final String TAG = "com.donellesandersjr.walmart.activities.NewItemActivity";
@@ -87,12 +85,13 @@ public class NewItemActivity extends BaseActivity implements
     private EditText _priceEditText;
     private EditText _quantityEditText;
     private ImageView _snapshotImageView;
+    private Button _removePhotoButton;
 
-    private final String STATE_CART = "NewItemActivity.STATE_CART";
-    private Cart _cart;
     private CartItem _newCartItem;
 
     private final int REQUEST_CODE_CAPTURE_IMAGE = 100;
+    private final int REQUEST_CODE_SCAN_ITEM = 101;
+    private final int REQUEST_CODE_SEARCH_ITEM = 102;
     private Uri _snapshotUri;
 
     private interface OnTextChangedListener {
@@ -152,11 +151,9 @@ public class NewItemActivity extends BaseActivity implements
         super.onCreate(savedInstanceState);
 
         _createCartItem();
-        if (savedInstanceState != null) {
-            _cart = savedInstanceState.getParcelable(STATE_CART);
-        } else {
+        if (savedInstanceState == null) {
             CartModel model = getIntent().getParcelableExtra(getString(R.string.bundle_key_cart));
-            _cart = new Cart(model);
+            super.setDomainObject(new Cart(model));
         }
 
         setContentView(R.layout.activity_new_item);
@@ -177,14 +174,11 @@ public class NewItemActivity extends BaseActivity implements
         _snapshotImageView = (ImageView)findViewById(R.id.new_item_photo);
         _snapshotImageView.setOnClickListener(this);
 
+        _removePhotoButton = (Button) findViewById(R.id.new_item_remove_photo);
+        _removePhotoButton.setOnClickListener(this);
+
         findViewById(R.id.new_item_add_to_cart).setOnClickListener(this);
         findViewById(R.id.new_item_close).setOnClickListener(this);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        outState.putParcelable(STATE_CART, _cart);
     }
 
     @Override
@@ -195,11 +189,11 @@ public class NewItemActivity extends BaseActivity implements
                         .color(Color.WHITE)
                         .actionBarSize();
         menu.findItem(R.id.action_scan_item).setIcon(iconDrawable);
-        iconDrawable =
+        /*iconDrawable =
                 new IconDrawable(this, Iconify.IconValue.fa_search)
                         .color(Color.WHITE)
                         .actionBarSize();
-        menu.findItem(R.id.action_search_item).setIcon(iconDrawable);
+        menu.findItem(R.id.action_search_item).setIcon(iconDrawable);*/
         return true;
     }
 
@@ -208,12 +202,12 @@ public class NewItemActivity extends BaseActivity implements
         int id = item.getItemId();
         if (id == R.id.action_scan_item) {
             Intent intent = new Intent(this, ScanItemActivity.class);
-            intent.putExtra(getString(R.string.bundle_key_cart), _cart.getModel());
-            startActivity(intent);
+            intent.putExtra(getString(R.string.bundle_key_cart), super.getDomainObject().getModel());
+            startActivityForResult(intent, REQUEST_CODE_SCAN_ITEM);
         } else if (id == R.id.action_search_item) {
-            Intent intent = new Intent(this, SearchItemActivity.class);
-            intent.putExtra(getString(R.string.bundle_key_cart), _cart.getModel());
-            startActivity(intent);
+            //Intent intent = new Intent(this, SearchItemActivity.class);
+            //intent.putExtra(getString(R.string.bundle_key_cart), super.getDomainObject().getModel());
+            //startActivityForResult(intent, REQUEST_CODE_SEARCH_ITEM);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -221,40 +215,55 @@ public class NewItemActivity extends BaseActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_CAPTURE_IMAGE && resultCode == Activity.RESULT_OK) {
-            final Point displayDims = _calculateARC();
-            Task.callInBackground(new Callable<Bitmap>() {
-                @Override
-                public Bitmap call() throws Exception {
-                    FileInputStream stream = new FileInputStream(_snapshotUri.getPath());
-                    Bitmap photo = null;
-                    try {
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inJustDecodeBounds = true;
-                        BitmapFactory.decodeStream(stream, null, options);
-                        stream.close();
-
-                        options.inSampleSize = WBImageUtils.calculateInSampleSize(
-                                options, displayDims.x, displayDims.y);
-                        options.inJustDecodeBounds = false;
-
-                        stream = new FileInputStream(_snapshotUri.getPath());
-                        photo = BitmapFactory.decodeStream(stream, null, options);
-                    } finally {
-                        if (stream != null)
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_CODE_CAPTURE_IMAGE:
+                {
+                    final Point displayDims = _calculateARC();
+                    Task.callInBackground(new Callable<Bitmap>() {
+                        @Override
+                        public Bitmap call() throws Exception {
+                            FileInputStream stream = new FileInputStream(_snapshotUri.getPath());
+                            Bitmap photo = null;
                             try {
+                                BitmapFactory.Options options = new BitmapFactory.Options();
+                                options.inJustDecodeBounds = true;
+                                BitmapFactory.decodeStream(stream, null, options);
                                 stream.close();
-                            } catch (Exception ex) {}
-                    }
-                    return photo;
+
+                                options.inSampleSize = WBImageUtils.calculateInSampleSize(
+                                        options, displayDims.x, displayDims.y);
+                                options.inJustDecodeBounds = false;
+
+                                stream = new FileInputStream(_snapshotUri.getPath());
+                                photo = BitmapFactory.decodeStream(stream, null, options);
+                            } finally {
+                                if (stream != null)
+                                    try {
+                                        stream.close();
+                                    } catch (Exception ex) {}
+                            }
+                            return photo;
+                        }
+                    }).onSuccess(new Continuation<Bitmap, Void>() {
+                        @Override
+                        public Void then(Task<Bitmap> task) throws Exception {
+                            _snapshotImageView.setImageBitmap(task.getResult());
+                            _removePhotoButton.setVisibility(View.VISIBLE);
+                            return null;
+                        }
+                    }, Task.UI_THREAD_EXECUTOR);
+                    break;
                 }
-            }).onSuccess(new Continuation<Bitmap, Void>() {
-                @Override
-                public Void then(Task<Bitmap> task) throws Exception {
-                    _snapshotImageView.setImageBitmap(task.getResult());
-                    return null;
+
+                case REQUEST_CODE_SEARCH_ITEM:
+                case REQUEST_CODE_SCAN_ITEM: {
+                    CartModel model = data.getParcelableExtra(getString(R.string.bundle_key_cart));
+                    super.setDomainObject(new Cart(model));
+                    break;
                 }
-            }, Task.UI_THREAD_EXECUTOR);
+            }
+
         }
     }
 
@@ -262,6 +271,9 @@ public class NewItemActivity extends BaseActivity implements
     public void onClick(View v) {
         int id = v.getId();
         if (id == R.id.new_item_close) {
+            Intent data = new Intent();
+            data.putExtra(getString(R.string.bundle_key_cart), super.getDomainObject().getModel());
+            setResult(RESULT_OK, data);
             finish();
         } else if (id == R.id.new_item_add_to_cart) {
             _addItemToCart();
@@ -271,6 +283,10 @@ public class NewItemActivity extends BaseActivity implements
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, _snapshotUri);
             startActivityForResult(intent, REQUEST_CODE_CAPTURE_IMAGE);
+        } else if (id == R.id.new_item_remove_photo) {
+            _snapshotImageView.setImageBitmap(null);
+            _snapshotUri = null;
+            _removePhotoButton.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -288,7 +304,7 @@ public class NewItemActivity extends BaseActivity implements
         Display display = super.getWindowManager().getDefaultDisplay();
         Point displayDims = new Point();
         display.getSize(displayDims);
-        int newWidth = super.getPixels(super.getDPUnits(100));
+        int newWidth = Double.valueOf(super.getDPUnits(100)).intValue();
 
         displayDims.y = displayDims.y / displayDims.x * newWidth;
         displayDims.x = newWidth;
@@ -322,6 +338,7 @@ public class NewItemActivity extends BaseActivity implements
             final ProgressDialog dialog = AppUI.createProgressDialog(this, R.string.progress_message_saving_new_cartitem);
             dialog.show();
 
+            final Point displayDims = _calculateARC();
             Task.callInBackground(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
@@ -329,10 +346,33 @@ public class NewItemActivity extends BaseActivity implements
                     // Did we take a photo?
                     //
                     if (_snapshotUri != null) {
-                        Bitmap bitmap = WBImageUtils.bitmapFromUri(URI.create(_snapshotUri.getPath()));
-                        Uri fileUri = Uri.fromFile(App.createSnapshotFile());
-                        WBImageUtils.compressToFile(bitmap, URI.create(fileUri.getPath()));
-                        _newCartItem.setThumbnailUrl(fileUri.getPath());
+                        FileInputStream stream = new FileInputStream(_snapshotUri.getPath());
+                        Bitmap photo = null;
+                        try {
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            options.inJustDecodeBounds = true;
+                            BitmapFactory.decodeStream(stream, null, options);
+                            stream.close();
+
+                            options.inSampleSize = WBImageUtils.calculateInSampleSize(
+                                    options, displayDims.x, displayDims.y);
+                            options.inJustDecodeBounds = false;
+
+                            stream = new FileInputStream(_snapshotUri.getPath());
+                            photo = BitmapFactory.decodeStream(stream, null, options);
+                        } finally {
+                            if (stream != null)
+                                try {
+                                    stream.close();
+                                } catch (Exception ex) {}
+                        }
+
+                        if (photo != null) {
+                            Uri fileUri = Uri.fromFile(App.createSnapshotFile());
+                            WBImageUtils.compressToFile(photo, URI.create(fileUri.getPath()));
+                            _newCartItem.setThumbnailUrl(fileUri.getPath());
+                            photo.recycle();
+                        }
                     }
                     return null;
                 }
@@ -355,9 +395,11 @@ public class NewItemActivity extends BaseActivity implements
                     //
                     // Save the item
                     //
-                    WBList<CartItem> cartItems = _cart.getCartItems();
+                    WBList<CartItem> cartItems = getDomainObject().getCartItems();
                     cartItems.add(_newCartItem);
-                    _cart.setCartItems(cartItems).save();
+                    getDomainObject()
+                            .setCartItems(cartItems)
+                            .save();
                     return null;
                 }
             }).continueWith(new Continuation<Object, Object>() {
@@ -422,8 +464,8 @@ public class NewItemActivity extends BaseActivity implements
 
         _snapshotImageView.setImageBitmap(null);
         _snapshotUri = null;
+        _removePhotoButton.setVisibility(View.INVISIBLE);
     }
-
 
 
     private class ProductDataAdapter extends BaseAdapter implements Filterable {

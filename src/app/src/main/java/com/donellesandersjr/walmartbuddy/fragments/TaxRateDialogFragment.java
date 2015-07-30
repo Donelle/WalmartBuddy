@@ -17,12 +17,14 @@ package com.donellesandersjr.walmartbuddy.fragments;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -108,6 +110,7 @@ public class TaxRateDialogFragment extends DialogFragment implements View.OnClic
                 _zipcodeLayout.setError(null);
                 _progressbar.setVisibility(View.VISIBLE);
                 button.setEnabled(false);
+                _hideKeyboard();
 
                 AvalaraAPI.fetchTaxRate(zipcode).continueWith(new Continuation<Double, Object>() {
                     @Override
@@ -135,6 +138,18 @@ public class TaxRateDialogFragment extends DialogFragment implements View.OnClic
     public TaxRateDialogFragment setDismissListener (TaxRateDialogListener listener) {
         _dialogListener = listener;
         return this;
+    }
+
+    /**
+     * Should be pretty obvious here :-)
+     */
+    private void _hideKeyboard() {
+        // Check if no view has focus:
+        View view = this.getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 }
 

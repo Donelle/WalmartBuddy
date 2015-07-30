@@ -118,7 +118,7 @@ public final class Cart extends  DomainObject<CartModel> {
 
         double taxRate = this.getTaxRate();
         if (taxRate > 0d)
-            total *= taxRate;
+            total *= (.1d * taxRate);
 
         _estimatedTotal = total;
     }

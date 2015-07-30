@@ -206,7 +206,7 @@ public class SearchItemActivity extends BaseActivity implements
         //
         // Close the keyboard if its visible
         //
-        _hideKeyboard();
+        super.hideKeyboard();
         //
         // Hide current results if they are showing
         //
@@ -224,14 +224,14 @@ public class SearchItemActivity extends BaseActivity implements
                 _progressbar.setVisibility(View.GONE);
 
                 if (task.isFaulted()) {
-                    _showMessage(getString(R.string.error_walmart_search_failure));
+                    showMessage(getString(R.string.error_walmart_search_failure));
                 } else {
                     WBList<ProductModel> productModels = task.getResult();
                     if (productModels.size() > 0) {
                         _resultsPager.setAdapter(new SearchResultPagerAdapter(productModels, getSupportFragmentManager()));
                         _toggleSearchResults();
                     } else {
-                        _showMessage(getString(R.string.notification_no_items_found));
+                        showMessage(getString(R.string.notification_no_items_found));
                     }
                 }
                 return null;
@@ -329,27 +329,6 @@ public class SearchItemActivity extends BaseActivity implements
         _bIsCategoryFiltered = !_bIsCategoryFiltered;
     }
 
-
-    /**
-     * Should be pretty obvious here :-)
-     */
-    private void _hideKeyboard() {
-        // Check if no view has focus:
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        }
-    }
-
-    /**
-     * Displays messages via the snackbar control
-     * @param message
-     */
-    private void _showMessage (String message){
-        Snackbar.make(findViewById(R.id.coordinatorLayout), message, Snackbar.LENGTH_LONG)
-                .show();
-    }
 
 
     /**

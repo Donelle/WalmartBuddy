@@ -19,14 +19,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     tools:context="com.donellesandersjr.walmartbuddy.activities.ScanItemActivity">
 
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:id="@+id/coordinatorLayout">
 
         <FrameLayout
@@ -84,13 +83,15 @@
     </android.support.design.widget.CoordinatorLayout>
 
     <android.support.v7.widget.CardView
-        android:visibility="gone"
+        android:id="@+id/scan_item_scan_container"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:id="@+id/scanner_scan_container"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/cardview_padding"
+        android:layout_marginEnd="@dimen/cardview_padding"
+        android:layout_above="@+id/coordinatorLayout"
         android:background="#FFFFFF"
-        app:cardCornerRadius="2dp"
-        app:cardElevation="2dp">
+        app:cardElevation="4dp"
+        app:cardCornerRadius="@dimen/cardview_default_radius">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -99,68 +100,81 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/scanner_scan_title"
+                android:id="@+id/scan_item_scan_title"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/scanner_scan_pic"
-                android:paddingTop="@dimen/cardview_title_top_padding"
-                android:paddingStart="@dimen/cardview_media_area_right_padding"
-                android:paddingEnd="@dimen/padding_10dp"
-                android:textSize="18sp"
-                android:text="Testing Title"/>
+                android:layout_toStartOf="@+id/scan_item_scan_pic"
+                android:layout_marginTop="@dimen/cardview_title_top_padding"
+                android:layout_marginStart="@dimen/cardview_media_area_right_padding"
+                android:layout_marginEnd="@dimen/padding_10dp"
+                android:textSize="18sp" />
 
             <ImageView
-                android:id="@+id/scanner_scan_pic"
+                android:id="@+id/scan_item_scan_pic"
                 android:layout_width="@dimen/cardview_media_size_small"
                 android:layout_height="@dimen/cardview_media_size_small"
                 android:layout_alignParentEnd="true"
-                android:paddingTop="@dimen/cardview_media_area_top_padding"
-                android:paddingEnd="@dimen/cardview_media_area_right_padding"
-                android:paddingStart="0dp" />
+                android:layout_marginTop="@dimen/cardview_media_area_top_padding"
+                android:layout_marginEnd="@dimen/cardview_media_area_right_padding"
+                android:contentDescription="Product Image" />
 
             <TextView
-                android:id="@+id/scanner_scan_price"
+                android:id="@+id/scan_item_scan_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/scanner_scan_title"
-                android:paddingStart="@dimen/cardview_media_area_right_padding"
-                android:paddingEnd="0dp"
-                android:textSize="@dimen/cardview_subtitle_font_size"
-                android:text="$5.00"/>
+                android:layout_below="@+id/scan_item_scan_title"
+                android:layout_marginStart="@dimen/cardview_media_area_right_padding"
+                android:textSize="@dimen/cardview_subtitle_font_size" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toStartOf="@+id/scanner_scan_quantity"
-                android:layout_alignBottom="@+id/scanner_scan_quantity"
-                android:layout_marginBottom="@dimen/padding_10dp"
+                android:layout_toStartOf="@+id/scan_item_scan_quantity"
+                android:layout_alignBottom="@+id/scan_item_scan_quantity"
+                android:paddingBottom="@dimen/cardview_subtext_bottom_padding"
                 android:text="QTY:"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:gravity="center_vertical" />
 
             <EditText
                 android:layout_width="45dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/scanner_scan_quantity"
-                android:layout_below="@+id/scanner_scan_title"
+                android:id="@+id/scan_item_scan_quantity"
+                android:layout_below="@+id/scan_item_scan_pic"
                 android:layout_alignParentEnd="true"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="16dp"
                 android:textSize="20sp"
                 android:hint="1"
                 android:gravity="center_horizontal"
                 android:inputType="number" />
 
             <Button
-                android:id="@+id/scanner_add_to_cart_button"
+                android:id="@+id/scan_item_scan_add_to_cart"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/button_height"
+                android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentBottom="true"
-                android:text="Add to Cart"
+                android:layout_below="@+id/scan_item_scan_quantity"
+                android:layout_margin="@dimen/cardview_actions_padding"
+                android:text="@string/button_add_to_cart"
                 android:textSize="@dimen/button_font_size"
-                android:textColor="?attr/colorAccent"
+                android:textColor="@color/md_blue_500"
+                style="@style/ButtonStyle.Flat" />
+
+            <Button
+                android:id="@+id/scan_item_scan_hide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/scan_item_scan_quantity"
+                android:layout_toEndOf="@+id/scan_item_scan_add_to_cart"
+                android:layout_marginTop="@dimen/cardview_actions_padding"
+                android:layout_marginBottom="@dimen/cardview_actions_padding"
+                android:text="@string/button_hide"
+                android:textSize="@dimen/button_font_size"
+                android:textColor="@color/md_blue_400"
                 style="@style/ButtonStyle.Flat" />
 
         </RelativeLayout>
-
     </android.support.v7.widget.CardView>
 
 

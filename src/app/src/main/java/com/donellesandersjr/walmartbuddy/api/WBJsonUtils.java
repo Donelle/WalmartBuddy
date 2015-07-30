@@ -37,6 +37,13 @@ public final class WBJsonUtils {
         return defaultVal;
     }
 
+    public static int getInt (JSONObject element, String field, int defaultVal) {
+        try {
+            return element.getInt(field);
+        } catch (Exception e) {}
+        return defaultVal;
+    }
+
     public static boolean getBool (JSONObject element, String field, boolean defaultVal) {
         try {
             return element.getBoolean(field);

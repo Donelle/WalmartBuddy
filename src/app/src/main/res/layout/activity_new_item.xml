@@ -139,11 +139,22 @@
                 android:background="@drawable/imageview_snapshot_background"/>
 
             <Button
+                android:id="@+id/new_item_remove_photo"
+                android:layout_width="@dimen/cardview_media_size_normal"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/new_item_photo"
+                android:text="@string/button_remove"
+                android:textSize="16sp"
+                android:textColor="?attr/colorAccent"
+                android:visibility="invisible"
+                style="@style/ButtonStyle.Flat" />
+
+            <Button
                 android:id="@+id/new_item_add_to_cart"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_alignParentBottom="true"
-                android:text="Add To Cart"
+                android:text="@string/button_add_to_cart"
                 android:textColor="#FFFFFF" />
 
         </RelativeLayout>

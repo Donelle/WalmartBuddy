@@ -17,7 +17,9 @@ package com.donellesandersjr.walmartbuddy.activities;
 
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
@@ -27,9 +29,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.donellesandersjr.walmartbuddy.App;
 import com.donellesandersjr.walmartbuddy.AppUI;
 import com.donellesandersjr.walmartbuddy.R;
 import com.donellesandersjr.walmartbuddy.api.WBImageUtils;
+import com.donellesandersjr.walmartbuddy.domain.Cart;
+import com.donellesandersjr.walmartbuddy.models.CartModel;
 import com.donellesandersjr.walmartbuddy.web.WalmartAPI;
 import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
@@ -40,6 +45,7 @@ import com.google.zxing.Result;
 import com.welcu.android.zxingfragmentlib.BarCodeScannerFragment;
 
 
+import java.net.URI;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.Map;
@@ -49,12 +55,11 @@ import bolts.Continuation;
 import bolts.Task;
 
 
-public class ScanItemActivity extends BaseActivity implements
+public class ScanItemActivity extends BaseActivity<Cart> implements
         BarCodeScannerFragment.IResultCallback,
         View.OnClickListener
 {
-
-    private final String TAG = "com.donellesandersjr.walmartbuddy.activities.ScanActivity";
+    private final String TAG = "com.donellesandersjr.walmartbuddy.activities.ScanItemActivity";
 
     private ImageView _productImageView;
     private View _productView;
@@ -70,6 +75,9 @@ public class ScanItemActivity extends BaseActivity implements
         setContentView(R.layout.activity_scan_item);
 
         if (savedInstanceState == null) {
+            CartModel model = getIntent().getParcelableExtra(getString(R.string.bundle_key_cart));
+            super.setDomainObject(new Cart(model));
+
             BarCodeScannerFragment fragment = new BarCodeScannerFragment();
             fragment.setmCallBack(this);
 
@@ -78,17 +86,20 @@ public class ScanItemActivity extends BaseActivity implements
                     .commit();
         }
 
-        _productImageView = (ImageView) findViewById(R.id.scanner_scan_pic);
-        _productView = findViewById(R.id.scanner_scan_container);
+        _productImageView = (ImageView) findViewById(R.id.scan_item_scan_pic);
+        _productView = findViewById(R.id.scan_item_scan_container);
 
-        _productTitleTextView = (TextView) findViewById(R.id.scanner_scan_title);
-        _productPriceTextView = (TextView) findViewById(R.id.scanner_scan_price);
-        _productQuantityEditText = (EditText) findViewById(R.id.scanner_scan_quantity);
+        _productTitleTextView = (TextView) findViewById(R.id.scan_item_scan_title);
+        _productPriceTextView = (TextView) findViewById(R.id.scan_item_scan_price);
+        _productQuantityEditText = (EditText) findViewById(R.id.scan_item_scan_quantity);
 
-        findViewById(R.id.scanner_add_to_cart_button).setOnClickListener(this);
+        findViewById(R.id.scan_item_scan_hide).setOnClickListener(this);
+        findViewById(R.id.scan_item_scan_add_to_cart).setOnClickListener(this);
         findViewById(R.id.scan_item_close).setOnClickListener(this);
-
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        //
+        // Close the keyboard if its visible
+        //
+        super.hideKeyboard();
     }
 
     @Override /* BarCodeScannerFragment.IResultCallback */
@@ -107,10 +118,14 @@ public class ScanItemActivity extends BaseActivity implements
                 Bitmap thumbnail = null;
                 if (task.isFaulted()) {
                     _product = null;
+                    final Exception ex = task.getError();
                     Task.call(new Callable<Object>() {
                         @Override
                         public Object call() throws Exception {
-                            showMessage(getString(R.string.error_processing_request));
+                            String message = ex instanceof WalmartAPI.WalmartAPIException ?
+                                    ex.getMessage() :
+                                    getString(R.string.error_processing_request);
+                            showMessage(message);
                             return null;
                         }
                     }, Task.UI_THREAD_EXECUTOR);
@@ -121,58 +136,112 @@ public class ScanItemActivity extends BaseActivity implements
                 }
                 return thumbnail;
             }
-        })
-            .continueWith(new Continuation<Bitmap, Object>() {
-                @Override
-                public Object then(Task<Bitmap> task) throws Exception {
-                    Bitmap thumbnail = task.getResult();
-                    if (thumbnail != null) {
-                        double price = _product.getSalePrice();
-                        _productTitleTextView.setText(_product.getName());
-                        _productPriceTextView.setText(price > 0 ?
-                                "Price: " + NumberFormat.getCurrencyInstance().format(price) :
-                                "Price not available");
-                        _productImageView.setImageBitmap(thumbnail);
-                        //
-                        // Show view
-                        //
-                        _toggleSearchResults();
-                    }
-
-                    progressDialog.dismiss();
-                    _bIsSearching = false;
-                    return null;
+        }).continueWith(new Continuation<Bitmap, Object>() {
+            @Override
+            public Object then(Task<Bitmap> task) throws Exception {
+                Bitmap thumbnail = task.getResult();
+                if (thumbnail != null) {
+                    double price = _product.getSalePrice();
+                    _productTitleTextView.setText(_product.getName());
+                    _productPriceTextView.setText(price > 0 ?
+                            "Price: " + NumberFormat.getCurrencyInstance().format(price) :
+                            "Price not available");
+                    _productImageView.setImageBitmap(thumbnail);
+                    _productQuantityEditText.setText("");
+                    //
+                    // Show view
+                    //
+                    _toggleSearchResults();
                 }
-            }, Task.UI_THREAD_EXECUTOR);
+
+                progressDialog.dismiss();
+                _bIsSearching = false;
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
     }
 
     @Override /* View.OnClickListener */
     public void onClick(View v) {
         int id = v.getId();
-        if (id == R.id.scanner_add_to_cart_button) {
-            CartItem cartItem = new CartItem()
+        if (id == R.id.scan_item_scan_add_to_cart) {
+            final CartItem cartItem = new CartItem()
                     .setName(_product.getName())
                     .setPrice(_product.getSalePrice())
                     .setQuantity(_getIntValue(_productQuantityEditText.getText().toString(), 1))
                     .setProductModel(_product);
             if (cartItem.isValid()) {
-                try {
-                    cartItem.save();
-                    //
-                    // Hide view
-                    //
-                    _toggleSearchResults();
-                    //
-                    // Show message
-                    //
-                    String message = getString(R.string.notification_cartitem_item_added);
-                    showMessage(String.format(message, 1));
-                } catch (Exception ex) {
-                    WBLogger.Error(TAG, ex);
-                    // Not sure why this would ever happen but we are going to
-                    // do the right thing here and just report that shit went wrong.
-                    super.showMessage(getString(R.string.error_cartitem_save_failure));
-                }
+                //
+                // Close the keyboard if its visible
+                //
+                super.hideKeyboard();
+
+                final ProgressDialog dialog = AppUI.createProgressDialog(this, R.string.progress_message_saving_new_cartitem);
+                dialog.show();
+
+                Task.callInBackground(new Callable<Object>() {
+                    @Override
+                    public Object call() throws Exception {
+                        //
+                        // Download the image AGAIN and then try to save it to the filesystem
+                        //
+                        Bitmap thumbnail = WBImageUtils.bitmapFromURL(new URL(_product.getThumbnailUrl()));
+                        Uri fileUri = Uri.fromFile(App.createSnapshotFile());
+                        WBImageUtils.compressToFile(thumbnail, URI.create(fileUri.getPath()));
+                        cartItem.setThumbnailUrl(fileUri.getPath());
+                        thumbnail.recycle();
+                        return null;
+                    }
+                }).continueWith(new Continuation<Object, Object>() {
+                    @Override
+                    public Object then(Task<Object> task) throws Exception {
+                        if (task.isFaulted()) {
+                            WBLogger.Error(TAG, task.getError());
+                            Task.call(new Callable<Object>() {
+                                @Override
+                                public Object call() throws Exception {
+                                    //
+                                    // Let the user know that we couldn't save the pic to disk
+                                    //
+                                    showMessage(getString(R.string.error_photo_save_failure));
+                                    return null;
+                                }
+                            }, Task.UI_THREAD_EXECUTOR);
+                        }
+                        //
+                        // Save the item to the shopping list
+                        //
+                        WBList<CartItem> cartItems = getDomainObject().getCartItems();
+                        cartItems.add(cartItem);
+                        getDomainObject()
+                                .setCartItems(cartItems)
+                                .save();
+                        return null;
+                    }
+                }).continueWith(new Continuation<Object, Object>() {
+                    @Override
+                    public Object then(Task<Object> task) throws Exception {
+                        dialog.dismiss();
+                        if (task.isFaulted()) {
+                            WBLogger.Error(TAG, task.getError());
+                            // Not sure why this would ever happen but we are going to
+                            // do the right thing here and just report that shit went wrong.
+                            showMessage(getString(R.string.error_cartitem_save_failure));
+                        } else {
+                            _product = null;
+                            //
+                            // Hide view
+                            //
+                            _toggleSearchResults();
+                            //
+                            // Show message
+                            //
+                            String message = getString(R.string.notification_cartitem_item_added);
+                            showMessage(String.format(message, 1));
+                        }
+                        return null;
+                    }
+                }, Task.UI_THREAD_EXECUTOR);
             } else {
                 for (Map.Entry<Integer, String> entry : cartItem.getBrokenRules().entrySet()) {
                     int ruleKey = entry.getKey();
@@ -184,7 +253,23 @@ public class ScanItemActivity extends BaseActivity implements
                 }
             }
         } else if (id == R.id.scan_item_close) {
+            Intent data = new Intent();
+            data.putExtra(getString(R.string.bundle_key_cart), super.getDomainObject().getModel());
+            setResult(RESULT_OK, data);
             finish();
+        } else if (id == R.id.scan_item_scan_hide) {
+            //
+            // Clear our search result
+            //
+            _product = null;
+            //
+            // Hide our item
+            //
+            _toggleSearchResults ();
+            //
+            // Close the keyboard if its visible
+            //
+            super.hideKeyboard();
         }
     }
 
@@ -195,6 +280,7 @@ public class ScanItemActivity extends BaseActivity implements
         //  b.) The new UPC match the UPC of the product we just performed a search on
         //
         return !_bIsSearching &&
+               !_bIsShowingResults &&
                !(_product != null && WBStringUtils.areEqual(_product.getUPC(), upc));
     }
 
@@ -208,9 +294,14 @@ public class ScanItemActivity extends BaseActivity implements
     }
 
     private void _toggleSearchResults () {
-        int height = _productView.getMeasuredHeight();
+        int distance = _productView.getMeasuredHeight() + 50;
+
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) _productView.getLayoutParams();
+        params.removeRule(RelativeLayout.ABOVE);
+        _productView.setLayoutParams(params);
+
         ViewCompat.animate(_productView)
-                .yBy(_bIsShowingResults ? height : -height)
+                .yBy(_bIsShowingResults ? -distance : distance)
                 .setDuration(500)
                 .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR)
                 .withLayer()
