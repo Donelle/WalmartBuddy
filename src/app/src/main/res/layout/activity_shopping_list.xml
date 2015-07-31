@@ -20,6 +20,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ShoppingListActivity">
@@ -45,27 +46,42 @@
                 android:minHeight="?attr/actionBarSize"
                 android:background="?attr/colorPrimary" />
 
-            <TextView
-                android:id="@+id/shopping_list_total"
-                android:layout_width="match_parent"
+            <RelativeLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginStart="60dp"
-                android:padding="@dimen/padding_10dp"
-                android:gravity="start"
-                android:textSize="35sp"
-                android:textColor="@android:color/white"
-                android:minHeight="15sp"/>
+                android:layout_marginTop="40dp"
+                android:layout_marginStart="@dimen/list_subheader_marginLeft">
 
-            <TextView
-                android:id="@+id/shopping_list_cartitem_total"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/list_subheader_height"
-                android:layout_marginStart="60dp"
-                android:layout_marginTop="60dp"
-                android:padding="@dimen/list_subheader_padding"
-                android:textSize="@dimen/list_subheader_font_size"
-                android:textColor="@android:color/white" />
+                <TextView
+                    android:id="@+id/shopping_list_total"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/list_subheader_height"
+                    android:textSize="35sp"
+                    android:textColor="@android:color/white"
+                    android:minHeight="15sp"
+                    android:gravity="bottom"/>
+
+                <TextView
+                    android:id="@+id/shopping_list_tax_included"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/list_subheader_height"
+                    android:layout_toEndOf="@+id/shopping_list_total"
+                    android:layout_marginStart="@dimen/padding_5dp"
+                    android:layout_alignBottom="@+id/shopping_list_total"
+                    android:paddingBottom="10dp"
+                    android:text="@string/label_tax_included"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/white"
+                    android:gravity="bottom" />
+
+                <TextView
+                    android:id="@+id/shopping_list_cartitem_total"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/shopping_list_total"
+                    android:textSize="@dimen/list_subheader_font_size"
+                    android:textColor="@android:color/white" />
+            </RelativeLayout>
 
         </android.support.design.widget.CollapsingToolbarLayout>
 

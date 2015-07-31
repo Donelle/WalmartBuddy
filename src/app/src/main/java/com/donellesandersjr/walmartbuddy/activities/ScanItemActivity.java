@@ -236,7 +236,7 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
                             //
                             // Show message
                             //
-                            String message = getString(R.string.notification_cartitem_item_added);
+                            String message = getString(R.string.notification_cart_item_added);
                             showMessage(String.format(message, 1));
                         }
                         return null;

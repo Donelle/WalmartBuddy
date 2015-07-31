@@ -107,10 +107,10 @@ public class TaxRateDialogFragment extends DialogFragment implements View.OnClic
         } else {
             final String zipcode = _zipcodeEditText.getText().toString();
             if (!WBStringUtils.isNullOrEmpty(zipcode)) {
+                _hideKeyboard();
                 _zipcodeLayout.setError(null);
                 _progressbar.setVisibility(View.VISIBLE);
                 button.setEnabled(false);
-                _hideKeyboard();
 
                 AvalaraAPI.fetchTaxRate(zipcode).continueWith(new Continuation<Double, Object>() {
                     @Override
@@ -145,7 +145,7 @@ public class TaxRateDialogFragment extends DialogFragment implements View.OnClic
      */
     private void _hideKeyboard() {
         // Check if no view has focus:
-        View view = this.getActivity().getCurrentFocus();
+        View view = this.getDialog().getCurrentFocus();
         if (view != null) {
             InputMethodManager inputManager = (InputMethodManager) this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);

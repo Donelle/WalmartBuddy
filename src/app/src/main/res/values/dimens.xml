@@ -29,7 +29,7 @@
 
     <!-- http://www.google.com/design/spec/components/dialogs.html#dialogs-specs -->
     <dimen name="dialog_content_area">24dp</dimen>
-    <dimen name="dialog_button_container_height">48dp</dimen>
+    <dimen name="dialog_button_container_height">52dp</dimen>
     <dimen name="dialog_button_container_marginTop">16dp</dimen>
     <dimen name="dialog_button_container_marginBottom">8dp</dimen>
     <dimen name="dialog_button_height">36dp</dimen>

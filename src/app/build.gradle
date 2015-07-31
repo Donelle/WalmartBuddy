@@ -47,7 +47,4 @@ dependencies {
     compile 'com.yahoo.squidb:squidb-annotations:1.0.1'
     apt 'com.yahoo.squidb:squidb-processor:1.0.1'
     compile 'com.parse.bolts:bolts-android:1.2.0'
-    compile('it.sephiroth.android.library.targettooltip:target-tooltip-library:1.2.2@aar') {
-        transitive = true
-    }
 }

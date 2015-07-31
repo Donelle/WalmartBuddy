@@ -25,6 +25,8 @@
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
 
+        <item name="android:colorBackground">@color/md_grey_100</item>
+
         <item name="colorAccent">@color/md_orange_a200</item>
         <item name="colorPrimary">@color/md_blue_500</item>
         <item name="colorPrimaryDark">@color/md_blue_700</item>
@@ -41,6 +43,23 @@
 
         <item name="android:editTextStyle">@style/EditTextStyle</item>
         <item name="android:buttonStyle">@style/ButtonStyle</item>
+
+        <item name="android:dialogTheme">@style/BaseDialogTheme</item>
+    </style>
+
+    <style name="BaseDialogTheme" parent="@style/Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/md_orange_a200</item>
+        <item name="colorPrimary">@color/md_blue_500</item>
+        <item name="colorPrimaryDark">@color/md_blue_700</item>
+
+        <item name="colorControlNormal">@color/md_blue_500</item>
+        <item name="colorControlActivated">@color/md_orange_a200</item>
+        <item name="colorButtonNormal">@color/md_blue_500</item>
+        <item name="colorControlHighlight">@color/md_orange_a200</item>
+
+        <item name="android:editTextStyle">@style/EditTextStyle</item>
+        <item name="android:buttonStyle">@style/ButtonStyle</item>
+
     </style>
 
     <style name="EditTextStyle" parent="@style/Widget.AppCompat.EditText">

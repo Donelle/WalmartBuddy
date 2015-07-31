@@ -21,14 +21,14 @@
     android:layout_height="wrap_content"
     android:minHeight="@dimen/twoline_list_height"
     android:paddingBottom="@dimen/twoline_list_padding"
-    android:animateLayoutChanges="true">
+    android:background="@color/md_grey_100">
 
     <CheckBox
         android:id="@+id/shopping_list_item_checkedoff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="@dimen/twoline_list_icon_padding_start"/>
+        android:layout_marginStart="20dp" />
 
     <TextView
         android:id="@+id/shopping_list_item_name"

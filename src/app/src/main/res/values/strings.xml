@@ -30,6 +30,7 @@
     <string name="label_zipcode_explanation">Please enter your zip code so we can retrieve the sales tax used at Walmart for your area.</string>
     <string name="label_categories">Choose a category</string>
     <string name="label_barcode_scan_instructions">Center the code between the square and hold steady.</string>
+    <string name="label_tax_included">(Tax Included)</string>
 
     <!-- BUTTON TAGS -->
     <string name="button_add_to_cart">add to cart</string>
@@ -69,7 +70,8 @@
     <string name="broken_rule_cart_taxrate_invalid">Tax rate must be valid percentage greater than zero</string>
 
     <!-- NOTIFICATION TAGS -->
-    <string name="notification_cartitem_item_added">1 item added to your shopping list</string>
+    <string name="notification_cart_item_added">1 item added to your shopping list</string>
+    <string name="notification_cart_item_removed">1 item removed from your shopping list</string>
     <string name="notification_no_items_found">No items found.</string>
 
     <!-- MENUITEM TAGS -->

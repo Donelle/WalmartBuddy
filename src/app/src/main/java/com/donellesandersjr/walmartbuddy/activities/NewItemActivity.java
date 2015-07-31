@@ -424,7 +424,7 @@ public class NewItemActivity extends BaseActivity<Cart> implements
                         //
                         // Notify the user item added
                         //
-                        showMessage(getString(R.string.notification_cartitem_item_added));
+                        showMessage(getString(R.string.notification_cart_item_added));
                     }
                     return null;
                 }

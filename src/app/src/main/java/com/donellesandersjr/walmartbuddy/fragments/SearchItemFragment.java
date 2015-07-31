@@ -34,7 +34,7 @@ import com.donellesandersjr.walmartbuddy.models.CartItemModel;
 
 import java.text.NumberFormat;
 
-public class NewItemFragment extends BaseFragment<CartItem> implements View.OnClickListener {
+public class SearchItemFragment extends BaseFragment<CartItem> implements View.OnClickListener {
     private final String TAG = "com.donellesandersjr.walmartbuddy.fragments.NewItemFragment";
 
     @Override

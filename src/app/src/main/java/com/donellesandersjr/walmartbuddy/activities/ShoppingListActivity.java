@@ -16,14 +16,22 @@
 
 package com.donellesandersjr.walmartbuddy.activities;
 
+
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,12 +45,12 @@ import com.donellesandersjr.walmartbuddy.AppPreferences;
 import com.donellesandersjr.walmartbuddy.R;
 import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
-import com.donellesandersjr.walmartbuddy.db.CartDb;
 import com.donellesandersjr.walmartbuddy.db.DbProvider;
 import com.donellesandersjr.walmartbuddy.domain.Cart;
 import com.donellesandersjr.walmartbuddy.domain.CartItem;
 import com.donellesandersjr.walmartbuddy.fragments.TaxRateDialogFragment;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
+import com.joanzapata.android.iconify.Iconify;
 
 import java.text.NumberFormat;
 
@@ -56,9 +64,10 @@ public class ShoppingListActivity extends BaseActivity implements
     private Cart _shoppingCart;
 
     private ShoppingListAdapter _adapter;
-    private TextView _totalTextView, _cartItemTotalTextView;
+    private TextView _totalTextView, _cartItemTotalTextView, _taxIncludedTextView;
 
     private final int NEW_ITEM_RESULT = 100;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,12 +107,17 @@ public class ShoppingListActivity extends BaseActivity implements
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.shopping_list_cart);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(_adapter = new ShoppingListAdapter());
+        recyclerView.addItemDecoration(new ShoppingListItemDecorator());
+
+        ItemTouchHelper helper = new ItemTouchHelper(new ShoppingListItemCallback());
+        helper.attachToRecyclerView(recyclerView);
 
         FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.shopping_list_add_button);
         addButton.setOnClickListener(this);
 
         _cartItemTotalTextView = (TextView) findViewById(R.id.shopping_list_cartitem_total);
         _totalTextView = (TextView) findViewById(R.id.shopping_list_total);
+        _taxIncludedTextView = (TextView) findViewById(R.id.shopping_list_tax_included);
         _setEstimatedTotal();
     }
 
@@ -157,11 +171,92 @@ public class ShoppingListActivity extends BaseActivity implements
     }
 
     private void _setEstimatedTotal () {
+        //
+        // Set the Total
+        //
         double estimatedTotal = _shoppingCart.getEstimatedTotal();
-        _totalTextView.setText(estimatedTotal > 0 ? NumberFormat.getCurrencyInstance().format(estimatedTotal) : "$0");
-
+        boolean isValid = estimatedTotal > 0;
+        _totalTextView.setText(isValid ? NumberFormat.getCurrencyInstance().format(estimatedTotal) : "$0");
+        //
+        // Set the number of Items
+        //
         int items = _shoppingCart.getCartItems().size();
-        _cartItemTotalTextView.setText(items > 0 ? String.format("%d Items", items) : "");
+        isValid = items > 0;
+        _cartItemTotalTextView.setText(isValid ? String.format("%d Items", items) : "");
+        //
+        // Set whether or not tax is included in the total
+        //
+        isValid = estimatedTotal > 0 && _shoppingCart.getTaxRate() > 0d ;
+        _taxIncludedTextView.setVisibility(isValid ? View.VISIBLE : View.INVISIBLE);
+    }
+
+
+    private void _removeCartItem (int position) {
+        _adapter.removeItem(position);
+        final CartItem item = _shoppingCart.getCartItems().get(position);
+        Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.notification_cart_item_removed, Snackbar.LENGTH_LONG)
+                .setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                       _adapter.addItem(item);
+                    }
+                })
+                .setActionTextColor(getResources().getColor(R.color.md_red_500))
+                .show();
+    }
+
+
+    private class ShoppingListItemCallback extends ItemTouchHelper.Callback {
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            return makeMovementFlags(0, ItemTouchHelper.START);
+        }
+
+        @Override
+        public boolean isLongPressDragEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean isItemViewSwipeEnabled() {
+            return true;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            _removeCartItem(viewHolder.getAdapterPosition());
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+    }
+
+    private class ShoppingListItemDecorator extends RecyclerView.ItemDecoration {
+        private Drawable _drawable;
+
+        public ShoppingListItemDecorator() {
+            _drawable = getDrawable(R.drawable.shopping_list_item_delete);
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+        }
+
+        @Override
+        public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+            super.onDraw(c, parent, state);
+
+            int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = parent.getChildAt(i);
+                _drawable.setBounds(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+                _drawable.draw(c);
+            }
+        }
     }
 
 
@@ -188,11 +283,26 @@ public class ShoppingListActivity extends BaseActivity implements
             return _shoppingCart.getCartItems().size();
         }
 
+        public void removeItem (int position) {
+            WBList<CartItem> items = _shoppingCart.getCartItems();
+            items.remove(position);
+            _shoppingCart.setCartItems(items);
+            notifyItemRemoved(position);
+        }
+
+        public void addItem (CartItem item) {
+            WBList<CartItem> items = _shoppingCart.getCartItems();
+            items.add(item);
+            _shoppingCart.setCartItems(items);
+            notifyDataSetChanged();
+        }
 
         public class ShoppingListItemView extends RecyclerView.ViewHolder implements View.OnClickListener {
-            CheckBox _checkedOffChkbox;
-            TextView _nameTextView, _quantityTextView, _priceTextView;
-            CartItem _cartItem;
+
+            private CheckBox _checkedOffChkbox;
+            private TextView _nameTextView, _quantityTextView, _priceTextView;
+            private CartItem _cartItem;
+
 
             public ShoppingListItemView (View itemView) {
                 super(itemView);
@@ -203,20 +313,7 @@ public class ShoppingListActivity extends BaseActivity implements
                 _priceTextView = (TextView) itemView.findViewById(R.id.shopping_list_item_price);
             }
 
-            public void bind (CartItem cartItem) {
-                _cartItem = cartItem;
-                _checkedOffChkbox.setChecked(_cartItem.getCheckedOff());
-                _nameTextView.setText(_cartItem.getName());
-                _nameTextView.setPaintFlags(_cartItem.getCheckedOff() ?
-                        _nameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG :
-                        _nameTextView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-
-                NumberFormat formatter = NumberFormat.getCurrencyInstance();
-                _priceTextView.setText(formatter.format(_cartItem.getTotalAmount()));
-                _quantityTextView.setText(String.valueOf(_cartItem.getQuantity())+" x "+formatter.format(_cartItem.getPrice())+ " each");
-            }
-
-            @Override
+            @Override /* View.OnClickListener */
             public void onClick(View v) {
                 _cartItem.setCheckedOff(!_cartItem.getCheckedOff());
                 try {
@@ -228,6 +325,21 @@ public class ShoppingListActivity extends BaseActivity implements
                             .show();
                 }
             }
+
+
+            public void bind (CartItem cartItem) {
+                _cartItem = cartItem;
+                _checkedOffChkbox.setChecked(_cartItem.getCheckedOff());
+                _nameTextView.setText(_cartItem.getName());
+                _nameTextView.setPaintFlags(_cartItem.getCheckedOff() ?
+                        _nameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG :
+                        _nameTextView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+
+                NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                _priceTextView.setText(formatter.format(_cartItem.getTotalAmount()));
+                _quantityTextView.setText(String.valueOf(_cartItem.getQuantity()) + " x " + formatter.format(_cartItem.getPrice()) + " each");
+            }
+
         }
     }
 }

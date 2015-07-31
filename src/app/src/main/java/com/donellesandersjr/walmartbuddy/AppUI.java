@@ -26,9 +26,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
+import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -36,6 +38,8 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import com.donellesandersjr.walmartbuddy.api.WBImageUtils;
+import com.donellesandersjr.walmartbuddy.api.WBList;
+import com.donellesandersjr.walmartbuddy.api.WBLogger;
 
 import java.net.URI;
 import java.net.URL;
@@ -132,7 +136,42 @@ public final class AppUI {
      * @ref https://guides.codepath.com/android/Floating-Action-Buttons
      */
     public static class FloatingActionButtonBehavior extends FloatingActionButton.Behavior {
-        private boolean mIsAnimatingOut = false;
+
+        private boolean _isAnimating, _didFling;
+        private final ViewPropertyAnimatorListener animateOut = new ViewPropertyAnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(View view) {
+                _isAnimating = true;
+            }
+
+            @Override
+            public void onAnimationEnd(View view) {
+                view.setVisibility(View.GONE);
+                _isAnimating = false;
+            }
+
+            @Override
+            public void onAnimationCancel(View view) {
+                _isAnimating = false;
+            }
+        };
+
+        private final ViewPropertyAnimatorListener animateIn = new ViewPropertyAnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(View view) {
+                _isAnimating = true;
+            }
+
+            @Override
+            public void onAnimationEnd(View view) {
+                _isAnimating = false;
+            }
+
+            @Override
+            public void onAnimationCancel(View view) {
+                _isAnimating = false;
+            }
+        };
 
         public FloatingActionButtonBehavior (Context context, AttributeSet attrs) {
             super();
@@ -141,53 +180,44 @@ public final class AppUI {
         @Override
         public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout,
                                            FloatingActionButton child, View directTargetChild, View target, int nestedScrollAxes) {
-            return nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL ||
-                    super.onStartNestedScroll(coordinatorLayout, child, directTargetChild, target,
-                            nestedScrollAxes);
+            return  nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL;
         }
 
         @Override
-        public void onNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child,
-                                   View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-            super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed,
-                    dyUnconsumed);
-
-            if (dyConsumed > 0 && !this.mIsAnimatingOut && child.getVisibility() == View.VISIBLE) {
-                animateOut(child);
-            } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE) {
-                animateIn(child);
+        public void onNestedScroll(CoordinatorLayout coordinatorLayout,
+                                   FloatingActionButton child, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+            if (!_isAnimating && child.getVisibility() == View.VISIBLE) {
+                ViewCompat.animate(child).scaleX(0.0F).scaleY(0.0F).alpha(0.0F)
+                        .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR)
+                        .withLayer()
+                        .setListener(animateOut)
+                        .start();
             }
         }
 
-        // Same animation that FloatingActionButton.Behavior uses to
-        // hide the FAB when the AppBarLayout exits
-        private void animateOut(final FloatingActionButton button) {
-            ViewCompat.animate(button).scaleX(0.0F).scaleY(0.0F).alpha(0.0F)
-                    .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR).withLayer()
-                    .setListener(new ViewPropertyAnimatorListener() {
-                        public void onAnimationStart(View view) {
-                            FloatingActionButtonBehavior.this.mIsAnimatingOut = true;
-                        }
+        @Override
+        public void onStopNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child, View target) {
+            if (child.getVisibility() == View.GONE || _didFling) {
+                _didFling = false;
+                if(_isAnimating)
+                    ViewCompat.animate(child).cancel();
 
-                        public void onAnimationCancel(View view) {
-                            FloatingActionButtonBehavior.this.mIsAnimatingOut = false;
-                        }
-
-                        public void onAnimationEnd(View view) {
-                            FloatingActionButtonBehavior.this.mIsAnimatingOut = false;
-                            view.setVisibility(View.GONE);
-                        }
-                    }).start();
+                child.setVisibility(View.VISIBLE);
+                ViewCompat.animate(child).scaleX(1.0F).scaleY(1.0F).alpha(1.0F)
+                        .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR)
+                        .withLayer()
+                        .setListener(animateIn)
+                        .start();
+            }
         }
 
-        // Same animation that FloatingActionButton.Behavior
-        // uses to show the FAB when the AppBarLayout enters
-        private void animateIn(FloatingActionButton button) {
-            button.setVisibility(View.VISIBLE);
-            ViewCompat.animate(button).scaleX(1.0F).scaleY(1.0F).alpha(1.0F)
-                    .setInterpolator(AppUI.FAST_OUT_SLOW_IN_INTERPOLATOR).withLayer().setListener(null)
-                    .start();
+        @Override
+        public boolean onNestedFling(CoordinatorLayout coordinatorLayout,
+                                     FloatingActionButton child, View target, float velocityX, float velocityY, boolean consumed) {
+            _didFling = true;
+            return super.onNestedFling(coordinatorLayout, child, target, velocityX, velocityY, consumed);
         }
+
     }
 
     /**

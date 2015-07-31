@@ -16,7 +16,6 @@
 package com.donellesandersjr.walmartbuddy.activities;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -30,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -41,7 +39,7 @@ import com.donellesandersjr.walmartbuddy.R;
 import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBStringUtils;
 import com.donellesandersjr.walmartbuddy.db.DbProvider;
-import com.donellesandersjr.walmartbuddy.fragments.NewItemFragment;
+import com.donellesandersjr.walmartbuddy.fragments.SearchItemFragment;
 import com.donellesandersjr.walmartbuddy.models.CartItemModel;
 import com.donellesandersjr.walmartbuddy.models.CategoryModel;
 import com.donellesandersjr.walmartbuddy.models.ProductModel;
@@ -354,7 +352,7 @@ public class SearchItemActivity extends BaseActivity implements
 
             Bundle args = new Bundle();
             args.putParcelable(getString(R.string.bundle_key_cartitem), model);
-            NewItemFragment fragment = new NewItemFragment();
+            SearchItemFragment fragment = new SearchItemFragment();
             fragment.setArguments(args);
 
             return fragment;
