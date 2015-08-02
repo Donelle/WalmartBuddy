@@ -49,7 +49,6 @@ public class DataModel extends WBObject implements Comparable<DataModel> {
 
     public DataModel() {
         super();
-        this.setUniversalId(UUID.randomUUID().toString().replace("-", "").trim());
     }
 
     public DataModel(ContentValues values) {
@@ -211,14 +210,6 @@ public class DataModel extends WBObject implements Comparable<DataModel> {
     public DataModel setEqualityComparer (WBEqualityComparer<DataModel> comparer) {
         _eqComparer = comparer;
         return this;
-    }
-
-    public String getUniversalId () {
-        return super.getStringValue(KEY_UNIVERSAL_ID);
-    }
-
-    private void setUniversalId (String universalId) {
-        this.setStringValue(KEY_UNIVERSAL_ID, universalId);
     }
 
     public DataModel lockValues () {

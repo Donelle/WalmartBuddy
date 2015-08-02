@@ -92,6 +92,8 @@ public class NewItemActivity extends BaseActivity<Cart> implements
     private final int REQUEST_CODE_CAPTURE_IMAGE = 100;
     private final int REQUEST_CODE_SCAN_ITEM = 101;
     private final int REQUEST_CODE_SEARCH_ITEM = 102;
+    private final int IMAGE_SIZE = 100;
+
     private Uri _snapshotUri;
 
     private interface OnTextChangedListener {
@@ -228,12 +230,15 @@ public class NewItemActivity extends BaseActivity<Cart> implements
                             try {
                                 BitmapFactory.Options options = new BitmapFactory.Options();
                                 options.inJustDecodeBounds = true;
+
                                 BitmapFactory.decodeStream(stream, null, options);
                                 stream.close();
 
-                                options.inSampleSize = WBImageUtils.calculateInSampleSize(
-                                        options, displayDims.x, displayDims.y);
                                 options.inJustDecodeBounds = false;
+                                options.inScaled = true;
+                                options.inSampleSize = 4;
+                                options.inDensity = options.outWidth;
+                                options.inTargetDensity = Double.valueOf(getDPUnits(IMAGE_SIZE)).intValue() * options.inSampleSize;
 
                                 stream = new FileInputStream(_snapshotUri.getPath());
                                 photo = BitmapFactory.decodeStream(stream, null, options);
@@ -351,12 +356,15 @@ public class NewItemActivity extends BaseActivity<Cart> implements
                         try {
                             BitmapFactory.Options options = new BitmapFactory.Options();
                             options.inJustDecodeBounds = true;
+
                             BitmapFactory.decodeStream(stream, null, options);
                             stream.close();
 
-                            options.inSampleSize = WBImageUtils.calculateInSampleSize(
-                                    options, displayDims.x, displayDims.y);
                             options.inJustDecodeBounds = false;
+                            options.inScaled = true;
+                            options.inSampleSize = 4;
+                            options.inDensity = options.outWidth;
+                            options.inTargetDensity = Double.valueOf(getDPUnits(IMAGE_SIZE)).intValue() * options.inSampleSize;
 
                             stream = new FileInputStream(_snapshotUri.getPath());
                             photo = BitmapFactory.decodeStream(stream, null, options);

@@ -19,6 +19,8 @@ package com.donellesandersjr.walmartbuddy.models;
 import android.content.ContentValues;
 import android.os.Bundle;
 
+import java.util.UUID;
+
 public final class CartItemModel extends DataModel {
 
     private static String KEY_NAME = "name";
@@ -98,7 +100,7 @@ public final class CartItemModel extends DataModel {
         boolean areEqual = product == null && _product == null;
         if (!areEqual) {
             _product = product;
-            super.setStringValue(KEY_PRODUCT, _product.getUniversalId());
+            super.setIntValue(KEY_PRODUCT, _product.hashCode());
         }
         return this;
     }
@@ -115,7 +117,7 @@ public final class CartItemModel extends DataModel {
         boolean areEqual = category == null && _category == null;
         if (!areEqual) {
             _category = category;
-            super.setStringValue(KEY_CATEGORY, _category.getUniversalId());
+            super.setIntValue(KEY_CATEGORY, _category.hashCode());
         }
         return this;
     }

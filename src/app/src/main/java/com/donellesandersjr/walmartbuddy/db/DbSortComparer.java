@@ -24,7 +24,7 @@ public final class DbSortComparer implements WBSortComparer<DataModel> {
     @Override
     public int compare(DataModel x, DataModel y) {
         long id1 = x.getLongValue(TableModel.DEFAULT_ID_COLUMN, 0L);
-        long id2 = x.getLongValue(TableModel.DEFAULT_ID_COLUMN, 0L);
+        long id2 = y.getLongValue(TableModel.DEFAULT_ID_COLUMN, 0L);
 
         if (id1 < id2)
             return -1;

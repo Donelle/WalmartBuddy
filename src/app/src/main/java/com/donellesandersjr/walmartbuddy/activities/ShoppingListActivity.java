@@ -16,22 +16,23 @@
 
 package com.donellesandersjr.walmartbuddy.activities;
 
-
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,7 +51,6 @@ import com.donellesandersjr.walmartbuddy.domain.Cart;
 import com.donellesandersjr.walmartbuddy.domain.CartItem;
 import com.donellesandersjr.walmartbuddy.fragments.TaxRateDialogFragment;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
-import com.joanzapata.android.iconify.Iconify;
 
 import java.text.NumberFormat;
 
@@ -191,18 +191,40 @@ public class ShoppingListActivity extends BaseActivity implements
     }
 
 
-    private void _removeCartItem (int position) {
-        _adapter.removeItem(position);
-        final CartItem item = _shoppingCart.getCartItems().get(position);
-        Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.notification_cart_item_removed, Snackbar.LENGTH_LONG)
-                .setAction("UNDO", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                       _adapter.addItem(item);
-                    }
-                })
-                .setActionTextColor(getResources().getColor(R.color.md_red_500))
-                .show();
+    private void _removeCartItem (final CartItem item) {
+        try {
+            //
+            // Remove and save
+            //
+            final int prevIndex = _adapter.removeItem(item);
+            _shoppingCart.save();
+            _setEstimatedTotal();
+            //
+            // Display the undo button
+            //
+            Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.notification_cart_item_removed, Snackbar.LENGTH_LONG)
+                    .setAction("UNDO", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            try {
+                                //
+                                // Reverse the changes and save
+                                //
+                                _adapter.insertItem(prevIndex, item);
+                                _shoppingCart.save();
+                                _setEstimatedTotal();
+                            } catch (Exception ex) {
+                                WBLogger.Error(TAG, ex);
+                                showMessage(getString(R.string.error_cart_save_failure));
+                            }
+                        }
+                    })
+                    .setActionTextColor(getResources().getColor(R.color.md_red_500))
+                    .show();
+        } catch (Exception ex) {
+            WBLogger.Error(TAG, ex);
+            super.showMessage(getString(R.string.error_cart_save_failure));
+        }
     }
 
 
@@ -224,21 +246,24 @@ public class ShoppingListActivity extends BaseActivity implements
 
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            _removeCartItem(viewHolder.getAdapterPosition());
+            ShoppingListAdapter.ShoppingListItemView dataItem =
+                    (ShoppingListAdapter.ShoppingListItemView) viewHolder;
+            _removeCartItem(dataItem.getCartItem());
         }
 
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
             return false;
         }
-
     }
 
     private class ShoppingListItemDecorator extends RecyclerView.ItemDecoration {
-        private Drawable _drawable;
+        private Drawable _backgroundDrawable, _bitmapDrawable;
 
         public ShoppingListItemDecorator() {
-            _drawable = getDrawable(R.drawable.shopping_list_item_delete);
+            _backgroundDrawable = new ColorDrawable(getResources().getColor(R.color.md_red_a700));
+            _bitmapDrawable = getDrawable(R.mipmap.ic_delete);
+            _bitmapDrawable.setLevel(10000);
         }
 
         @Override
@@ -250,22 +275,31 @@ public class ShoppingListActivity extends BaseActivity implements
         public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
             super.onDraw(c, parent, state);
 
+            final int IMAGE_SIZE = 100;
             int childCount = parent.getChildCount();
             for (int i = 0; i < childCount; i++) {
                 View child = parent.getChildAt(i);
-                _drawable.setBounds(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
-                _drawable.draw(c);
+                Rect bounds = new Rect(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+                //
+                // Draw the red background
+                //
+                _backgroundDrawable.setBounds(bounds);
+                _backgroundDrawable.draw(c);
+                //
+                // We resize and center the icon vertically
+                //
+                bounds.right -= 20;
+                bounds.left = bounds.right - IMAGE_SIZE;
+                bounds.top += ((bounds.height() - IMAGE_SIZE) / 2);
+                bounds.bottom = bounds.top + IMAGE_SIZE;
+
+                _bitmapDrawable.setBounds(bounds);
+                _bitmapDrawable.draw(c);
             }
         }
     }
 
-
     private class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapter.ShoppingListItemView> {
-
-        public ShoppingListAdapter () {
-            super();
-        }
-
         @Override
         public ShoppingListItemView onCreateViewHolder(ViewGroup parent, int viewType) {
             View itemView = LayoutInflater.from(ShoppingListActivity.this).inflate(
@@ -283,18 +317,20 @@ public class ShoppingListActivity extends BaseActivity implements
             return _shoppingCart.getCartItems().size();
         }
 
-        public void removeItem (int position) {
+        public int removeItem (CartItem item) {
             WBList<CartItem> items = _shoppingCart.getCartItems();
-            items.remove(position);
+            int ndx = items.indexOf(item);
+            items.remove(item);
             _shoppingCart.setCartItems(items);
-            notifyItemRemoved(position);
+            notifyItemRemoved(ndx);
+            return ndx;
         }
 
-        public void addItem (CartItem item) {
+        public void insertItem (int index, CartItem item) {
             WBList<CartItem> items = _shoppingCart.getCartItems();
-            items.add(item);
+            items.add(index, item);
             _shoppingCart.setCartItems(items);
-            notifyDataSetChanged();
+            notifyItemInserted(index);
         }
 
         public class ShoppingListItemView extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -302,7 +338,6 @@ public class ShoppingListActivity extends BaseActivity implements
             private CheckBox _checkedOffChkbox;
             private TextView _nameTextView, _quantityTextView, _priceTextView;
             private CartItem _cartItem;
-
 
             public ShoppingListItemView (View itemView) {
                 super(itemView);
@@ -326,7 +361,6 @@ public class ShoppingListActivity extends BaseActivity implements
                 }
             }
 
-
             public void bind (CartItem cartItem) {
                 _cartItem = cartItem;
                 _checkedOffChkbox.setChecked(_cartItem.getCheckedOff());
@@ -340,6 +374,9 @@ public class ShoppingListActivity extends BaseActivity implements
                 _quantityTextView.setText(String.valueOf(_cartItem.getQuantity()) + " x " + formatter.format(_cartItem.getPrice()) + " each");
             }
 
+            public CartItem getCartItem () {
+                return _cartItem;
+            }
         }
     }
 }
