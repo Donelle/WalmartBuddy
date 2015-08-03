@@ -19,17 +19,14 @@ package com.donellesandersjr.walmartbuddy.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.donellesandersjr.walmartbuddy.App;
 import com.donellesandersjr.walmartbuddy.AppUI;
 import com.donellesandersjr.walmartbuddy.R;
 import com.donellesandersjr.walmartbuddy.api.WBImageUtils;
@@ -44,8 +41,6 @@ import com.donellesandersjr.walmartbuddy.models.ProductModel;
 import com.google.zxing.Result;
 import com.welcu.android.zxingfragmentlib.BarCodeScannerFragment;
 
-
-import java.net.URI;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.Map;
@@ -100,6 +95,12 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
         // Close the keyboard if its visible
         //
         super.hideKeyboard();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        _packupAndExit();
     }
 
     @Override /* BarCodeScannerFragment.IResultCallback */
@@ -183,35 +184,17 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
                     @Override
                     public Object call() throws Exception {
                         //
-                        // Download the image AGAIN and then try to save it to the filesystem
+                        // Check to make sure the item doesn't already exist in the list
+                        // and if so we just skip the whole addition operation.
                         //
-                        Bitmap thumbnail = WBImageUtils.bitmapFromURL(new URL(_product.getThumbnailUrl()));
-                        Uri fileUri = Uri.fromFile(App.createSnapshotFile());
-                        WBImageUtils.compressToFile(thumbnail, URI.create(fileUri.getPath()));
-                        cartItem.setThumbnailUrl(fileUri.getPath());
-                        thumbnail.recycle();
-                        return null;
-                    }
-                }).continueWith(new Continuation<Object, Object>() {
-                    @Override
-                    public Object then(Task<Object> task) throws Exception {
-                        if (task.isFaulted()) {
-                            WBLogger.Error(TAG, task.getError());
-                            Task.call(new Callable<Object>() {
-                                @Override
-                                public Object call() throws Exception {
-                                    //
-                                    // Let the user know that we couldn't save the pic to disk
-                                    //
-                                    showMessage(getString(R.string.error_photo_save_failure));
-                                    return null;
-                                }
-                            }, Task.UI_THREAD_EXECUTOR);
+                        WBList<CartItem> cartItems = getDomainObject().getCartItems();
+                        for (CartItem item : cartItems) {
+                            if (item.getProductModel().getProductId() == cartItem.getProductModel().getProductId())
+                                return null;
                         }
                         //
                         // Save the item to the shopping list
                         //
-                        WBList<CartItem> cartItems = getDomainObject().getCartItems();
                         cartItems.add(cartItem);
                         getDomainObject()
                                 .setCartItems(cartItems)
@@ -253,10 +236,7 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
                 }
             }
         } else if (id == R.id.scan_item_close) {
-            Intent data = new Intent();
-            data.putExtra(getString(R.string.bundle_key_cart), super.getDomainObject().getModel());
-            setResult(RESULT_OK, data);
-            finish();
+            _packupAndExit ();
         } else if (id == R.id.scan_item_scan_hide) {
             //
             // Clear our search result
@@ -271,6 +251,13 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
             //
             super.hideKeyboard();
         }
+    }
+
+    private void _packupAndExit () {
+        Intent data = new Intent();
+        data.putExtra(getString(R.string.bundle_key_cart), super.getDomainObject().getModel());
+        setResult(RESULT_OK, data);
+        finish();
     }
 
     private boolean _canSearch (String upc) {

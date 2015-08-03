@@ -20,25 +20,24 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ScaleDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 
@@ -55,19 +54,14 @@ import com.donellesandersjr.walmartbuddy.models.CartModel;
 import java.text.NumberFormat;
 
 
-public class ShoppingListActivity extends BaseActivity implements
+public class ShoppingListActivity extends BaseActivity<Cart> implements
         View.OnClickListener, TaxRateDialogFragment.TaxRateDialogListener {
 
     private final String TAG = "com.donellesandersjr.walmart.activities.ShoppingListActivity";
-
-    private final String STATE_SHOPPING_CART = "ShoppingListActivity.STATE_SHOPPING_CART";
-    private Cart _shoppingCart;
-
-    private ShoppingListAdapter _adapter;
-    private TextView _totalTextView, _cartItemTotalTextView, _taxIncludedTextView;
-
     private final int NEW_ITEM_RESULT = 100;
 
+    private ShoppingCartAdapter _adapter;
+    private TextView _totalTextView, _cartItemTotalTextView, _taxIncludedTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,25 +69,26 @@ public class ShoppingListActivity extends BaseActivity implements
         setContentView(R.layout.activity_shopping_list);
         setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
 
-        if (savedInstanceState != null)
-            _shoppingCart = savedInstanceState.getParcelable(STATE_SHOPPING_CART);
-        else {
+        if (savedInstanceState == null) {
             WBList<CartModel> models = DbProvider.fetchCarts(null);
+            Cart shoppingCart = null;
             if (models.size() == 0) {
                 try {
                     // This means its the first time the app been run so lets create the default
                     // shopping list and save it to the db.
-                    _shoppingCart = new Cart()
+                    shoppingCart = new Cart()
                             .setName("Default")
                             .setZipCode("")
                             .setTaxRate(0d);
-                    _shoppingCart.save();
+                    shoppingCart.save();
                 } catch (Exception ex) {
                     WBLogger.Error(TAG, ex);
                 }
             } else {
-                _shoppingCart = new Cart(models.first());
+                shoppingCart = new Cart(models.first());
             }
+
+            super.setDomainObject(shoppingCart);
         }
         //
         // Figure out if we've already shown this dialog before because
@@ -106,14 +101,23 @@ public class ShoppingListActivity extends BaseActivity implements
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.shopping_list_cart);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(_adapter = new ShoppingListAdapter());
-        recyclerView.addItemDecoration(new ShoppingListItemDecorator());
+        recyclerView.setAdapter(_adapter = new ShoppingCartAdapter());
+        recyclerView.addItemDecoration(new ShoppingCartItemDecorator());
 
         ItemTouchHelper helper = new ItemTouchHelper(new ShoppingListItemCallback());
         helper.attachToRecyclerView(recyclerView);
 
         FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.shopping_list_add_button);
         addButton.setOnClickListener(this);
+        //
+        // If we are running on kitkat devices we need to remove the margin so the icon
+        // will lineup correctly with the recyclerview
+        //
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) addButton.getLayoutParams();
+            params.setMarginStart(0);
+            addButton.setLayoutParams(params);
+        }
 
         _cartItemTotalTextView = (TextView) findViewById(R.id.shopping_list_cartitem_total);
         _totalTextView = (TextView) findViewById(R.id.shopping_list_total);
@@ -129,8 +133,44 @@ public class ShoppingListActivity extends BaseActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_taxrate) {
+        int id = item.getItemId();
+        if (id == R.id.action_taxrate) {
             _displayTaxRateDialog();
+        } else if (id == R.id.action_clearall_item) {
+            try {
+                //
+                // Remove and save
+                //
+                final WBList<CartItem> cartItems = _adapter.removeAll();
+                super.getDomainObject().save();
+                _setEstimatedTotal();
+                //
+                // Display the undo button
+                //
+                String notification = getString(R.string.notification_cart_items_removed, cartItems.size());
+                Snackbar.make(findViewById(R.id.coordinatorLayout), notification, Snackbar.LENGTH_LONG)
+                        .setAction("UNDO", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                try {
+                                    //
+                                    // Reverse the changes and save
+                                    //
+                                    _adapter.insertAll(cartItems);
+                                    getDomainObject().save();
+                                    _setEstimatedTotal();
+                                } catch (Exception ex) {
+                                    WBLogger.Error(TAG, ex);
+                                    showMessage(getString(R.string.error_cart_save_failure));
+                                }
+                            }
+                        })
+                        .setActionTextColor(getResources().getColor(R.color.md_red_500))
+                        .show();
+            } catch (Exception ex) {
+                WBLogger.Error(TAG, ex);
+                super.showMessage(getString(R.string.error_cart_save_failure));
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -140,7 +180,7 @@ public class ShoppingListActivity extends BaseActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == NEW_ITEM_RESULT && resultCode == RESULT_OK) {
             CartModel model = data.getParcelableExtra(getString(R.string.bundle_key_cart));
-            _shoppingCart = new Cart(model);
+            super.setDomainObject(new Cart(model));
             _adapter.notifyDataSetChanged();
             _setEstimatedTotal();
         }
@@ -148,14 +188,14 @@ public class ShoppingListActivity extends BaseActivity implements
 
     @Override /* View.OnClickListener */
     public void onClick(View v) {
-        Intent intent = new Intent(this, NewItemActivity.class);
-        intent.putExtra(getString(R.string.bundle_key_cart), _shoppingCart.getModel());
+        Intent intent = new Intent(this, ScanItemActivity.class);
+        intent.putExtra(getString(R.string.bundle_key_cart), super.getDomainObject().getModel());
         startActivityForResult(intent, NEW_ITEM_RESULT);
     }
 
     @Override /* TaxDialog.TaxDialogListener */
     public void onDismissed(CartModel model) {
-        _shoppingCart = new Cart(model);
+        super.setDomainObject(new Cart(model));
         _setEstimatedTotal();
         //
         // Save that we've shown the tax rate setup atleast once
@@ -163,72 +203,54 @@ public class ShoppingListActivity extends BaseActivity implements
         AppPreferences.savePreference(AppPreferences.PREFERENCE_DISPLAY_TAXRATE_SETUP, true);
     }
 
-
+    /**
+     * This method displays the tax rate dialog allowing the user to update the tax info
+     * associated with this shopping list.
+     */
     private void _displayTaxRateDialog () {
-        TaxRateDialogFragment dialog = TaxRateDialogFragment.newInstance(_shoppingCart.getModel());
+        TaxRateDialogFragment dialog = TaxRateDialogFragment.newInstance(super.getDomainObject().getModel());
         dialog.setDismissListener(this)
                 .show(getFragmentManager(), "TaxRateDialogFragment");
     }
 
+    /**
+     * This method updates the area at the top that displays the total amount of money
+     * and items associated with the shopping list.
+     */
     private void _setEstimatedTotal () {
         //
         // Set the Total
         //
-        double estimatedTotal = _shoppingCart.getEstimatedTotal();
+        double estimatedTotal = super.getDomainObject().getEstimatedTotal();
         boolean isValid = estimatedTotal > 0;
         _totalTextView.setText(isValid ? NumberFormat.getCurrencyInstance().format(estimatedTotal) : "$0");
         //
         // Set the number of Items
         //
-        int items = _shoppingCart.getCartItems().size();
+        int items = super.getDomainObject().getCartItems().size();
         isValid = items > 0;
         _cartItemTotalTextView.setText(isValid ? String.format("%d Items", items) : "");
         //
         // Set whether or not tax is included in the total
         //
-        isValid = estimatedTotal > 0 && _shoppingCart.getTaxRate() > 0d ;
+        isValid = estimatedTotal > 0 && super.getDomainObject().getTaxRate() > 0d ;
         _taxIncludedTextView.setVisibility(isValid ? View.VISIBLE : View.INVISIBLE);
     }
 
-
-    private void _removeCartItem (final CartItem item) {
-        try {
-            //
-            // Remove and save
-            //
-            final int prevIndex = _adapter.removeItem(item);
-            _shoppingCart.save();
-            _setEstimatedTotal();
-            //
-            // Display the undo button
-            //
-            Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.notification_cart_item_removed, Snackbar.LENGTH_LONG)
-                    .setAction("UNDO", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            try {
-                                //
-                                // Reverse the changes and save
-                                //
-                                _adapter.insertItem(prevIndex, item);
-                                _shoppingCart.save();
-                                _setEstimatedTotal();
-                            } catch (Exception ex) {
-                                WBLogger.Error(TAG, ex);
-                                showMessage(getString(R.string.error_cart_save_failure));
-                            }
-                        }
-                    })
-                    .setActionTextColor(getResources().getColor(R.color.md_red_500))
-                    .show();
-        } catch (Exception ex) {
-            WBLogger.Error(TAG, ex);
-            super.showMessage(getString(R.string.error_cart_save_failure));
-        }
-    }
-
-
+    /**
+     * This class is responsible for managing the swipe events happening in the recyclerview
+     */
     private class ShoppingListItemCallback extends ItemTouchHelper.Callback {
+        private Drawable _backgroundDrawable, _bitmapDrawable, _defaultBackgroundDrawable;
+        private final int IMAGE_SIZE_DP = 32, PADDING_DP = 16;
+
+        public ShoppingListItemCallback () {
+            super();
+            _backgroundDrawable = new ColorDrawable(getResources().getColor(R.color.md_red_a700));
+            _defaultBackgroundDrawable =  new ColorDrawable(getResources().getColor(R.color.md_grey_100));
+            _bitmapDrawable = getResources().getDrawable(R.mipmap.ic_delete);
+        }
+
         @Override
         public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             return makeMovementFlags(0, ItemTouchHelper.START);
@@ -246,40 +268,61 @@ public class ShoppingListActivity extends BaseActivity implements
 
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            ShoppingListAdapter.ShoppingListItemView dataItem =
-                    (ShoppingListAdapter.ShoppingListItemView) viewHolder;
-            _removeCartItem(dataItem.getCartItem());
+            try {
+                ShoppingCartAdapter.ShoppingCartItemView dataItem =
+                        (ShoppingCartAdapter.ShoppingCartItemView) viewHolder;
+                final CartItem item = dataItem.getCartItem();
+                //
+                // Remove and save
+                //
+                final int prevIndex = _adapter.removeItem(item);
+                getDomainObject().save();
+                _setEstimatedTotal();
+                //
+                // Display the undo button
+                //
+                Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.notification_cart_item_removed, Snackbar.LENGTH_LONG)
+                        .setAction("UNDO", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                try {
+                                    //
+                                    // Reverse the changes and save
+                                    //
+                                    _adapter.insertItem(prevIndex, item);
+                                    getDomainObject().save();
+                                    _setEstimatedTotal();
+                                } catch (Exception ex) {
+                                    WBLogger.Error(TAG, ex);
+                                    showMessage(getString(R.string.error_cart_save_failure));
+                                }
+                            }
+                        })
+                        .setActionTextColor(getResources().getColor(R.color.md_red_500))
+                        .show();
+            } catch (Exception ex) {
+                WBLogger.Error(TAG, ex);
+                showMessage(getString(R.string.error_cart_save_failure));
+            }
         }
 
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
             return false;
         }
-    }
-
-    private class ShoppingListItemDecorator extends RecyclerView.ItemDecoration {
-        private Drawable _backgroundDrawable, _bitmapDrawable;
-
-        public ShoppingListItemDecorator() {
-            _backgroundDrawable = new ColorDrawable(getResources().getColor(R.color.md_red_a700));
-            _bitmapDrawable = getDrawable(R.mipmap.ic_delete);
-            _bitmapDrawable.setLevel(10000);
-        }
 
         @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            super.getItemOffsets(outRect, view, parent, state);
-        }
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 
-        @Override
-        public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-            super.onDraw(c, parent, state);
-
-            final int IMAGE_SIZE = 100;
-            int childCount = parent.getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                View child = parent.getChildAt(i);
+            View child = viewHolder.itemView;
+            if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
                 Rect bounds = new Rect(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+                _defaultBackgroundDrawable.setBounds(bounds);
+                _defaultBackgroundDrawable.draw(c);
+            } else if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                Rect bounds = new Rect(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+                int dpImageSize = Double.valueOf(getDPUnits(IMAGE_SIZE_DP)).intValue();
                 //
                 // Draw the red background
                 //
@@ -288,10 +331,10 @@ public class ShoppingListActivity extends BaseActivity implements
                 //
                 // We resize and center the icon vertically
                 //
-                bounds.right -= 20;
-                bounds.left = bounds.right - IMAGE_SIZE;
-                bounds.top += ((bounds.height() - IMAGE_SIZE) / 2);
-                bounds.bottom = bounds.top + IMAGE_SIZE;
+                bounds.right -= Double.valueOf(getDPUnits(PADDING_DP)).intValue();
+                bounds.left = bounds.right - dpImageSize;
+                bounds.top += ((bounds.height() - dpImageSize) / 2);
+                bounds.bottom = bounds.top + dpImageSize;
 
                 _bitmapDrawable.setBounds(bounds);
                 _bitmapDrawable.draw(c);
@@ -299,47 +342,95 @@ public class ShoppingListActivity extends BaseActivity implements
         }
     }
 
-    private class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapter.ShoppingListItemView> {
-        @Override
-        public ShoppingListItemView onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(ShoppingListActivity.this).inflate(
-                    R.layout.shopping_list_item, parent, false);
-            return new ShoppingListItemView (itemView);
+    /**
+     * This class is responsible for drawing the divider below the item
+     */
+    private class ShoppingCartItemDecorator extends RecyclerView.ItemDecoration {
+        private Drawable _backgroundDrawable;
+
+        public ShoppingCartItemDecorator() {
+            _backgroundDrawable = new ColorDrawable(getResources().getColor(R.color.md_grey_300));
         }
 
         @Override
-        public void onBindViewHolder(ShoppingListItemView holder, int position) {
-            holder.bind(_shoppingCart.getCartItems().get(position));
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+        }
+
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+            super.onDrawOver(c, parent, state);
+
+            int childCount = parent.getChildCount() - 1; // We skip drawing on the last item in the list
+            for (int i = 0; i < childCount; i++) {
+                View child = parent.getChildAt(i);
+                Rect bounds = new Rect(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+                bounds.top += bounds.height() - 2; // It was easier to read doing it this way
+                //
+                // Draw the divider
+                //
+                _backgroundDrawable.setBounds(bounds);
+                _backgroundDrawable.draw(c);
+            }
+        }
+    }
+
+    /**
+     * This class is responsible for managing the data associated with the recyclerview
+     */
+    private class ShoppingCartAdapter extends RecyclerView.Adapter<ShoppingCartAdapter.ShoppingCartItemView> {
+        @Override
+        public ShoppingCartItemView onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(ShoppingListActivity.this).inflate(
+                    R.layout.shopping_list_item, parent, false);
+            return new ShoppingCartItemView (itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(ShoppingCartItemView holder, int position) {
+            holder.bind(getDomainObject().getCartItems().get(position));
         }
 
         @Override
         public int getItemCount() {
-            return _shoppingCart.getCartItems().size();
+            return getDomainObject().getCartItems().size();
         }
 
         public int removeItem (CartItem item) {
-            WBList<CartItem> items = _shoppingCart.getCartItems();
+            WBList<CartItem> items = getDomainObject().getCartItems();
             int ndx = items.indexOf(item);
             items.remove(item);
-            _shoppingCart.setCartItems(items);
+            getDomainObject().setCartItems(items);
             notifyItemRemoved(ndx);
             return ndx;
         }
 
         public void insertItem (int index, CartItem item) {
-            WBList<CartItem> items = _shoppingCart.getCartItems();
+            WBList<CartItem> items = getDomainObject().getCartItems();
             items.add(index, item);
-            _shoppingCart.setCartItems(items);
+            getDomainObject().setCartItems(items);
             notifyItemInserted(index);
         }
 
-        public class ShoppingListItemView extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public void insertAll (WBList<CartItem> items) {
+            getDomainObject().setCartItems(items);
+            notifyItemRangeInserted(0, items.size());
+        }
+
+        public WBList<CartItem> removeAll () {
+            WBList<CartItem> items = getDomainObject().getCartItems();
+            getDomainObject().setCartItems(new WBList<CartItem>());
+            notifyItemRangeRemoved(0, items.size());
+            return items;
+        }
+
+        public class ShoppingCartItemView extends RecyclerView.ViewHolder implements View.OnClickListener {
 
             private CheckBox _checkedOffChkbox;
             private TextView _nameTextView, _quantityTextView, _priceTextView;
             private CartItem _cartItem;
 
-            public ShoppingListItemView (View itemView) {
+            public ShoppingCartItemView (View itemView) {
                 super(itemView);
                 _checkedOffChkbox = (CheckBox) itemView.findViewById(R.id.shopping_list_item_checkedoff);
                 _checkedOffChkbox.setOnClickListener(this);

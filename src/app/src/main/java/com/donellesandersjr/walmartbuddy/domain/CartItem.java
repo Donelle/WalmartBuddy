@@ -28,9 +28,6 @@ public final class CartItem extends DomainObject<CartItemModel> {
     public static final Integer RULE_PRICE = 101;
     public static final Integer RULE_QUANTITY = 102;
 
-    private static String STATE_PRODUCT_MODEL = "CartItem.STATE_PRODUCT_MODEL";
-    private ProductModel _productModel;
-
     public CartItem () {
         super();
         setPrice(0);
@@ -64,23 +61,18 @@ public final class CartItem extends DomainObject<CartItemModel> {
         super.getRuleManager().addRuleSet(RULE_PRICE, ruleSet);
     }
 
-    @Override
-    protected void onSaveState(Bundle state) {
-        super.onSaveState(state);
-        state.putParcelable(STATE_PRODUCT_MODEL, _productModel);
-    }
 
     @Override
     protected void onRestoreState(Bundle state) {
         super.onRestoreState(state);
-        _productModel = state.getParcelable(STATE_PRODUCT_MODEL);
         _validateModel();
     }
 
     @Override
     protected void onSave() throws Exception {
-        if (_productModel != null)
-            DbProvider.save(_productModel);
+        ProductModel productModel = getModel().getProduct();
+        if (productModel != null)
+            DbProvider.save(productModel);
     }
 
     private void _validateModel () {
@@ -151,11 +143,11 @@ public final class CartItem extends DomainObject<CartItemModel> {
     }
 
     public ProductModel getProductModel () {
-        return _productModel;
+        return getModel().getProduct();
     }
 
     public CartItem setProductModel (ProductModel productModel) {
-        _productModel = productModel;
+        getModel().setProduct(productModel);
         return this;
     }
 

@@ -158,8 +158,7 @@ public final class Cart extends  DomainObject<CartModel> {
 
     public Cart setCartItems (WBList<CartItem> cartItems) {
         if (cartItems != null) {
-            this.getCartItems().addAll(cartItems);
-            this.getCartItems().removeAll(cartItems.getDeletedList());
+            _cartItems = cartItems;
 
             WBList<CartItemModel> models = this.getCartItems().castTo(CARTITEM_MODEL_CASTABLE);
             super.getModel().setCartItems(models);

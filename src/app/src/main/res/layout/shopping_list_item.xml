@@ -20,6 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="@dimen/twoline_list_height"
+    android:paddingTop="@dimen/twoline_list_padding"
     android:paddingBottom="@dimen/twoline_list_padding"
     android:background="@color/md_grey_100">
 

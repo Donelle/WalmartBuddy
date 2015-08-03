@@ -19,6 +19,11 @@
 <resources>
     <string name="app_name">Shopping Buddy</string>
 
+    <!-- BUNDLE ARGS -->
+    <string name="bundle_key_cartitem">bundle.key.cartitem</string>
+    <string name="bundle_key_category">bundle.key.category</string>
+    <string name="bundle_key_cart">bundle.key.cart</string>
+
     <!-- TITLES -->
     <string name="title_dialog_taxrate">Sales Tax Information</string>
     <string name="title_activity_scan">ScanActivity</string>
@@ -56,11 +61,6 @@
     <string name="error_walmart_categories_download_failure">An occurred downloading categories from Walmart online please try again.</string>
     <string name="error_photo_save_failure">An error occurred saving your photo to your device but it will not interfere with saving this item to your shopping list.</string>
 
-    <!-- BUNDLE ARGS -->
-    <string name="bundle_key_cartitem">bundle.key.cartitem</string>
-    <string name="bundle_key_category">bundle.key.category</string>
-    <string name="bundle_key_cart">bundle.key.cart</string>
-
     <!-- BROKEN RULE TAGS -->
     <string name="broken_rule_cartitem_name_invalid">Name for this item is required</string>
     <string name="broken_rule_cartitem_quantity_invalid">Quantity for this item is required and must be 1 or more</string>
@@ -73,10 +73,12 @@
     <!-- NOTIFICATION TAGS -->
     <string name="notification_cart_item_added">1 item added to your shopping list</string>
     <string name="notification_cart_item_removed">1 item removed from your shopping list</string>
+    <string name="notification_cart_items_removed">%d items removed from your shopping list</string>
     <string name="notification_no_items_found">No items found.</string>
 
     <!-- MENUITEM TAGS -->
     <string name="menuitem_action_taxrate">Edit Tax Rate</string>
+    <string name="menuitem_action_delete_shopping_list">Delete Shopping List</string>
 
     <!-- BEHAVIORS -->
     <string name="floating_action_button_behavior" translatable="false">com.donellesandersjr.walmartbuddy.AppUI$FloatingActionButtonBehavior</string>
