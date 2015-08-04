@@ -37,7 +37,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 
@@ -61,7 +60,10 @@ public class ShoppingListActivity extends BaseActivity<Cart> implements
     private final int NEW_ITEM_RESULT = 100;
 
     private ShoppingCartAdapter _adapter;
-    private TextView _totalTextView, _cartItemTotalTextView, _taxIncludedTextView;
+    private TextView _totalTextView;
+    private TextView _cartItemTotalTextView;
+    private TextView _taxIncludedTextView;
+    private TextView _subtotalTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +124,7 @@ public class ShoppingListActivity extends BaseActivity<Cart> implements
         _cartItemTotalTextView = (TextView) findViewById(R.id.shopping_list_cartitem_total);
         _totalTextView = (TextView) findViewById(R.id.shopping_list_total);
         _taxIncludedTextView = (TextView) findViewById(R.id.shopping_list_tax_included);
+        _subtotalTextView = (TextView) findViewById(R.id.shopping_list_subtotal);
         _setEstimatedTotal();
     }
 
@@ -137,39 +140,41 @@ public class ShoppingListActivity extends BaseActivity<Cart> implements
         if (id == R.id.action_taxrate) {
             _displayTaxRateDialog();
         } else if (id == R.id.action_clearall_item) {
-            try {
-                //
-                // Remove and save
-                //
-                final WBList<CartItem> cartItems = _adapter.removeAll();
-                super.getDomainObject().save();
-                _setEstimatedTotal();
-                //
-                // Display the undo button
-                //
-                String notification = getString(R.string.notification_cart_items_removed, cartItems.size());
-                Snackbar.make(findViewById(R.id.coordinatorLayout), notification, Snackbar.LENGTH_LONG)
-                        .setAction("UNDO", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                try {
-                                    //
-                                    // Reverse the changes and save
-                                    //
-                                    _adapter.insertAll(cartItems);
-                                    getDomainObject().save();
-                                    _setEstimatedTotal();
-                                } catch (Exception ex) {
-                                    WBLogger.Error(TAG, ex);
-                                    showMessage(getString(R.string.error_cart_save_failure));
+            if (getDomainObject().getCartItems().size() > 0) {
+                try {
+                    //
+                    // Remove and save
+                    //
+                    final WBList<CartItem> cartItems = _adapter.removeAll();
+                    super.getDomainObject().save();
+                    _setEstimatedTotal();
+                    //
+                    // Display the undo button
+                    //
+                    String notification = getString(R.string.notification_cart_items_removed, cartItems.size());
+                    Snackbar.make(findViewById(R.id.coordinatorLayout), notification, Snackbar.LENGTH_LONG)
+                            .setAction("UNDO", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    try {
+                                        //
+                                        // Reverse the changes and save
+                                        //
+                                        _adapter.insertAll(cartItems);
+                                        getDomainObject().save();
+                                        _setEstimatedTotal();
+                                    } catch (Exception ex) {
+                                        WBLogger.Error(TAG, ex);
+                                        showMessage(getString(R.string.error_cart_save_failure));
+                                    }
                                 }
-                            }
-                        })
-                        .setActionTextColor(getResources().getColor(R.color.md_red_500))
-                        .show();
-            } catch (Exception ex) {
-                WBLogger.Error(TAG, ex);
-                super.showMessage(getString(R.string.error_cart_save_failure));
+                            })
+                            .setActionTextColor(getResources().getColor(R.color.md_red_500))
+                            .show();
+                } catch (Exception ex) {
+                    WBLogger.Error(TAG, ex);
+                    super.showMessage(getString(R.string.error_cart_save_failure));
+                }
             }
         }
         return super.onOptionsItemSelected(item);
@@ -221,9 +226,14 @@ public class ShoppingListActivity extends BaseActivity<Cart> implements
         //
         // Set the Total
         //
-        double estimatedTotal = super.getDomainObject().getEstimatedTotal();
-        boolean isValid = estimatedTotal > 0;
-        _totalTextView.setText(isValid ? NumberFormat.getCurrencyInstance().format(estimatedTotal) : "$0");
+        double taxTotal = super.getDomainObject().getTaxTotal();
+        boolean isValid = taxTotal > 0;
+        _totalTextView.setText(isValid ? NumberFormat.getCurrencyInstance().format(taxTotal) : "$0");
+        //
+        // Set the subtotal
+        //
+        double subtotal = super.getDomainObject().getSubTotal();
+        _subtotalTextView.setText(isValid ?  NumberFormat.getCurrencyInstance().format(subtotal) +  " subtotal" : "");
         //
         // Set the number of Items
         //
@@ -233,7 +243,7 @@ public class ShoppingListActivity extends BaseActivity<Cart> implements
         //
         // Set whether or not tax is included in the total
         //
-        isValid = estimatedTotal > 0 && super.getDomainObject().getTaxRate() > 0d ;
+        isValid = taxTotal > 0 && super.getDomainObject().getTaxRate() > 0d ;
         _taxIncludedTextView.setVisibility(isValid ? View.VISIBLE : View.INVISIBLE);
     }
 

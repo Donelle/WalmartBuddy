@@ -21,6 +21,7 @@ import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
 import com.donellesandersjr.walmartbuddy.models.CategoryModel;
 import com.donellesandersjr.walmartbuddy.models.ProductModel;
+import com.donellesandersjr.walmartbuddy.models.StoreModel;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,10 +39,9 @@ import bolts.Task;
 public final class WalmartAPI extends WebAPI {
     private static final String TAG = "com.donellesandersjr.walmartbuddy.WalmartAPI";
 
-    private static final String WALMART_APIKEY = "[YOUR KEY GOES HERE]";
+    private static final String WALMART_APIKEY = "[INSERT YOUR KEY HERE]";
     private static final String PRODUCT_SEARCH_QUERY = "http://api.walmartlabs.com/v1/items?apiKey=" + WALMART_APIKEY + "&format=json";
-    private static final String SEARCH_QUERY =  "http://api.walmartlabs.com/v1/search?apiKey=" + WALMART_APIKEY + "&format=json";
-    private static final String CATEGORIES_QUERY = "http://api.walmartlabs.com/v1/taxonomy?apiKey="+ WALMART_APIKEY + "&format=json";;
+    private static final String STORE_QUERY =  "http://api.walmartlabs.com/v1/stores?apiKey=" + WALMART_APIKEY + "&format=json";
 
     public static Task<WBList<ProductModel>> fetchProductByUPC (String upc) {
         final HashMap<String, String> params = new HashMap<>();
@@ -50,46 +50,30 @@ public final class WalmartAPI extends WebAPI {
         return Task.callInBackground(new Callable<WBList<ProductModel>>() {
             @Override
             public WBList<ProductModel> call() throws Exception {
-                URL url = buildUrl(PRODUCT_SEARCH_QUERY, params);
-                return fetchResults(url, params);
-            }
-        });
-    }
-
-    public static Task<WBList<ProductModel>> search (String query, String categoryId) {
-        final HashMap<String, String> params = new HashMap<>();
-        params.put(QueryParams.QUERY, query);
-        params.put(QueryParams.CATEGORYID, categoryId);
-        params.put(QueryParams.NUM_OF_ITEMS, "25");
-
-        return Task.callInBackground(new Callable<WBList<ProductModel>>() {
-            @Override
-            public WBList<ProductModel> call() throws Exception {
-                URL url = buildUrl(SEARCH_QUERY, params);
-                return fetchResults(url, params);
-            }
-        });
-    }
-
-    public static Task<WBList<CategoryModel>> fetchCategories () {
-        return Task.callInBackground(new Callable<WBList<CategoryModel>>() {
-            @Override
-            public WBList<CategoryModel> call() throws Exception {
                 HttpURLConnection connection = null;
-                WBList<CategoryModel> categories = new WBList<>();
+                WBList<ProductModel> products = new WBList<>();
                 try {
-                    URL url = new URL(CATEGORIES_QUERY);
+                    URL url = buildUrl(PRODUCT_SEARCH_QUERY, params);
                     connection = (HttpURLConnection) url.openConnection();
-                    JSONObject response = readFrom(connection.getInputStream());
-                    if (response.has(Response.CATEGORIES)) {
-                        JSONArray items = response.getJSONArray(Response.CATEGORIES);
+                    JSONObject response = readFrom(connection.getInputStream(), JSONObject.class);
+                    if (response != null && response.has(Response.ITEMS)) {
+                        JSONArray items = response.getJSONArray(Response.ITEMS);
                         int len = items.length();
                         for (int i =0; i < len; i++) {
                             JSONObject item = WBJsonUtils.getObject(items, i, null);
                             if (item != null) {
-                                CategoryModel model = categoryFrom(item);
-                                categories.add(model);
-                                populateSubcategories(model, item);
+                                ProductModel model =
+                                    new ProductModel()
+                                            .setName(WBJsonUtils.getString(item, FullItemResponse.NAME, null))
+                                            .setDescription(WBJsonUtils.getString(item, FullItemResponse.SHORT_DESC, null))
+                                            .setBrand(WBJsonUtils.getString(item, FullItemResponse.BRAND_NAME, null))
+                                            .setThumbnailUrl(WBJsonUtils.getString(item, FullItemResponse.THUMBNAILURL, null))
+                                            .setUPC(WBJsonUtils.getString(item, FullItemResponse.UPC, null))
+                                            .setSalePrice(WBJsonUtils.getDouble(item, FullItemResponse.SALE_PRICE, 0))
+                                            .setMSRP(WBJsonUtils.getDouble(item, FullItemResponse.MSRP, 0))
+                                            .setProductId(WBJsonUtils.getLong(item, FullItemResponse.ITEMID, 0))
+                                            .setProductCategoryId(WBJsonUtils.getString(item, FullItemResponse.CATEGORYID, null));
+                                products.add(model);
                             }
                         }
                     }
@@ -104,81 +88,57 @@ public final class WalmartAPI extends WebAPI {
                     if (connection != null)
                         connection.disconnect();
                 }
-                return categories;
+                return products;
             }
         });
     }
 
-    static void populateSubcategories (CategoryModel parent, JSONObject element) {
-        if (element.has(TaxonomyResponse.CHILDREN)) {
-            WBList<CategoryModel> categories = new WBList<>();
-            JSONArray items = WBJsonUtils.getArray(element, TaxonomyResponse.CHILDREN);
-            int len = items.length();
-            for (int i =0; i < len; i++) {
-                JSONObject item = WBJsonUtils.getObject(items, i, null);
-                if (item != null) {
-                    CategoryModel model = categoryFrom(item);
-                    categories.add(model);
-                    populateSubcategories(model, item);
+    public static Task<StoreModel> fetchStoreByZipCode (String zipCode) {
+        final HashMap<String, String> params = new HashMap<>();
+        params.put(QueryParams.ZIP_CODE, zipCode);
+        return Task.callInBackground(new Callable<StoreModel>() {
+            @Override
+            public StoreModel call() throws Exception {
+                HttpURLConnection connection = null;
+                StoreModel storeModel = new StoreModel();
+                try {
+                    URL url = buildUrl(STORE_QUERY, params);
+                    connection = (HttpURLConnection) url.openConnection();
+                    JSONArray response = readFrom(connection.getInputStream(), JSONArray.class);
+                    if (response != null) {
+                        int len = response.length();
+                        for (int i =0; i < len; i++) {
+                            JSONObject item = WBJsonUtils.getObject(response, i, null);
+                            if (item != null) {
+                                storeModel = new StoreModel()
+                                        .setAddress(WBJsonUtils.getString(item, StoreResponse.ADDRESS, null))
+                                        .setCity(WBJsonUtils.getString(item, StoreResponse.CITY, null))
+                                        .setState(WBJsonUtils.getString(item, StoreResponse.STATE, null))
+                                        .setZipCode(WBJsonUtils.getString(item, StoreResponse.ZIP, null));
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    if (connection != null) {
+                        ArrayList<WalmartAPIException> exceptions = readErrorsFrom(connection.getErrorStream());
+                        if (exceptions.size() > 0)
+                            throw exceptions.get(0);
+                    }
+                    throw ex;
+                } finally {
+                    if (connection != null)
+                        connection.disconnect();
                 }
+                return storeModel;
             }
-            parent.setSubcategories(categories);
-        }
+        });
     }
-
-    static WBList<ProductModel> fetchResults (URL url, HashMap<String, String> params) throws Exception {
-        HttpURLConnection connection = null;
-        WBList<ProductModel> products = new WBList<>();
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-            JSONObject response = readFrom(connection.getInputStream());
-            if (response.has(Response.ITEMS)) {
-                JSONArray items = response.getJSONArray(Response.ITEMS);
-                int len = items.length();
-                for (int i =0; i < len; i++) {
-                    JSONObject item = WBJsonUtils.getObject(items, i, null);
-                    if (item != null) products.add(productFrom(item));
-                }
-            }
-        } catch (Exception ex) {
-            if (connection != null) {
-                ArrayList<WalmartAPIException> exceptions = readErrorsFrom(connection.getErrorStream());
-                if (exceptions.size() > 0)
-                    throw exceptions.get(0);
-            }
-            throw ex;
-        } finally {
-            if (connection != null)
-                connection.disconnect();
-        }
-        return products;
-    }
-
-    static ProductModel productFrom (JSONObject jsonObject) {
-        //WBLogger.Debug(TAG, "JSON - " + jsonObject.toString());
-        return new ProductModel()
-                .setName(WBJsonUtils.getString(jsonObject, FullItemResponse.NAME, null))
-                .setDescription(WBJsonUtils.getString(jsonObject, FullItemResponse.SHORT_DESC, null))
-                .setBrand(WBJsonUtils.getString(jsonObject, FullItemResponse.BRAND_NAME, null))
-                .setThumbnailUrl(WBJsonUtils.getString(jsonObject, FullItemResponse.THUMBNAILURL, null))
-                .setUPC(WBJsonUtils.getString(jsonObject, FullItemResponse.UPC, null))
-                .setSalePrice(WBJsonUtils.getDouble(jsonObject, FullItemResponse.SALE_PRICE, 0))
-                .setMSRP(WBJsonUtils.getDouble(jsonObject, FullItemResponse.MSRP, 0))
-                .setProductId(WBJsonUtils.getLong(jsonObject, FullItemResponse.ITEMID, 0))
-                .setProductCategoryId(WBJsonUtils.getString(jsonObject, FullItemResponse.CATEGORYID, null));
-    }
-
-    static CategoryModel categoryFrom (JSONObject jsonObject) {
-        return new CategoryModel()
-                .setCategoryId(WBJsonUtils.getString(jsonObject, TaxonomyResponse.ID, null))
-                .setName(WBJsonUtils.getString(jsonObject, TaxonomyResponse.NAME, null));
-    }
-
 
     static ArrayList<WalmartAPIException> readErrorsFrom (InputStream stream) {
         ArrayList<WalmartAPIException> exceptions = new ArrayList<>();
-        JSONObject response = readFrom(stream);
-        if (response.has(Response.ERRORS)) {
+        JSONObject response = readFrom(stream, JSONObject.class);
+        if (response != null && response.has(Response.ERRORS)) {
             try {
                 JSONArray errors = response.getJSONArray(Response.ERRORS);
                 for (int i = 0; i < errors.length(); i++) {
@@ -217,8 +177,6 @@ public final class WalmartAPI extends WebAPI {
     static class Response {
         static final String ITEMS = "items";
         static final String ERRORS = "errors";
-        static final String CATEGORIES = "categories";
-
     }
 
     /**
@@ -246,48 +204,22 @@ public final class WalmartAPI extends WebAPI {
          */
         static final String UPC = "upc";
         /**
-         * Search text - whitespace separated sequence of keywords to search for
+         * zip
          */
-        static final String QUERY = "query";
-        /**
-         * Number of matching items to be returned, max value 25. Default is 10.
-         */
-        static final String NUM_OF_ITEMS = "numItems";
-        /**
-         * Category id of the category for search within a category. This should
-         * match the id field from Taxonomy API
-         */
-        static final String CATEGORYID = "categoryId";
-        /**
-         *
-         */
-        static final String TOTALRESULTS = "totalResults";
-        /**
-         * Starting point of the results within the matching set of items -
-         * upto 10 items will be returned starting from this item
-         */
-        static final String START = "start";
+        static final String ZIP_CODE = "zip";
     }
 
     /**
-     * Taxonomy API exposes the category taxonomy used by walmart.com to categorize items.
-     * It describes three levels - Departments, Categories and Sub-categories as available on Walmart.com.
+     * Store Locator API helps locate nearest Walmart Stores via API.
+     * It lets users search for stores by latitude and longitude, by zip code and by city.
      *
-     * @reference https://developer.walmartlabs.com/docs/read/Taxonomy_API
+     *  @reference https://developer.walmartlabs.com/docs/read/Store_Locator_API
      */
-    static class TaxonomyResponse {
-        /**
-         * Category id for this category. These values are used as an input parameter to other APIs.
-         */
-        static final String ID = "id";
-        /**
-         * Name for this category as specified on Walmart.com
-         */
-        static final String NAME = "name";
-        /**
-         * List of categories that have the current category as a parent in the taxonomy.
-         */
-        static final String CHILDREN = "children";
+    static class StoreResponse {
+        static final String ADDRESS = "streetAddress";
+        static final String CITY = "city";
+        static final String STATE = "stateProvCode";
+        static final String ZIP = "zip";
     }
 
     /**

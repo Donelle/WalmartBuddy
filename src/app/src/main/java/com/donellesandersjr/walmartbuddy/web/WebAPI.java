@@ -40,8 +40,8 @@ abstract class WebAPI {
         return new URL(uriBuilder.toString());
     }
 
-    static JSONObject readFrom (InputStream stream) {
-        JSONObject response = new JSONObject();
+    static <T> T readFrom (InputStream stream, Class<T> tClass) {
+        T response = null;
         try {
             BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
             BufferedReader streamReader = new BufferedReader(new InputStreamReader(bufferedInputStream, "UTF-8"));
@@ -51,7 +51,7 @@ abstract class WebAPI {
             while ((inputStr = streamReader.readLine()) != null)
                 responseStrBuilder.append(inputStr);
 
-            response = new JSONObject(responseStrBuilder.toString());
+            response = tClass.getConstructor(String.class).newInstance(responseStrBuilder.toString());
         } catch (Exception ex) {
             WBLogger.Error(TAG, ex);
         }

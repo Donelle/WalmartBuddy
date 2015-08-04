@@ -183,19 +183,25 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
                 Task.callInBackground(new Callable<Object>() {
                     @Override
                     public Object call() throws Exception {
+                        boolean bfound = false;
                         //
                         // Check to make sure the item doesn't already exist in the list
                         // and if so we just skip the whole addition operation.
                         //
                         WBList<CartItem> cartItems = getDomainObject().getCartItems();
                         for (CartItem item : cartItems) {
-                            if (item.getProductModel().getProductId() == cartItem.getProductModel().getProductId())
-                                return null;
+                            if (item.getProductModel().getProductId() == _product.getProductId()) {
+                                item.setQuantity(item.getQuantity() + cartItem.getQuantity());
+                                item.setPrice(cartItem.getPrice());
+                                bfound = true;
+                                break;
+                            }
                         }
+                        if (!bfound)
+                            cartItems.add(cartItem);
                         //
                         // Save the item to the shopping list
                         //
-                        cartItems.add(cartItem);
                         getDomainObject()
                                 .setCartItems(cartItems)
                                 .save();

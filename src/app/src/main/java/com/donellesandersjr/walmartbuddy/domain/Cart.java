@@ -35,7 +35,8 @@ public final class Cart extends  DomainObject<CartModel> {
 
     private static final String STATE_CART_ITEMS = "Cart.STATE_CART_ITEMS";
     private WBList<CartItem> _cartItems;
-    private double _estimatedTotal = 0d;
+    private double _totalWithTax = 0d;
+    private double _subtotal = 0d;
 
     private static final WBCastable<CartItem> CARTITEM_MODEL_CASTABLE = new WBCastable<CartItem>() {
         @Override
@@ -116,11 +117,13 @@ public final class Cart extends  DomainObject<CartModel> {
         for (CartItem cartItem : this.getCartItems())
             total += cartItem.getTotalAmount();
 
+        _subtotal = total;
+
         double taxRate = this.getTaxRate();
         if (taxRate > 0d)
-            total *= (.1d * taxRate);
+            total += total / taxRate ;
 
-        _estimatedTotal = total;
+        _totalWithTax = total;
     }
 
     public String getName () {
@@ -194,7 +197,11 @@ public final class Cart extends  DomainObject<CartModel> {
         return this;
     }
 
-    public double getEstimatedTotal () {
-        return _estimatedTotal;
+    public double getTaxTotal () {
+        return _totalWithTax;
+    }
+
+    public double getSubTotal () {
+        return _subtotal;
     }
 }

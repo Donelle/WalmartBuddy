@@ -29,12 +29,18 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.donellesandersjr.walmartbuddy.R;
+import com.donellesandersjr.walmartbuddy.api.WBLogger;
 import com.donellesandersjr.walmartbuddy.api.WBStringUtils;
 import com.donellesandersjr.walmartbuddy.db.DbProvider;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
+import com.donellesandersjr.walmartbuddy.models.StoreModel;
 import com.donellesandersjr.walmartbuddy.web.AvalaraAPI;
+import com.donellesandersjr.walmartbuddy.web.WalmartAPI;
 
 import org.rocko.bpb.BounceProgressBar;
+
+import java.util.HashMap;
+import java.util.Objects;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -48,6 +54,7 @@ public class TaxRateDialogFragment extends DialogFragment implements View.OnClic
         void onDismissed (CartModel model);
     }
 
+    private final String TAG = "com.donellesandersjr.walmart.fragments.TaxRateDialogFragment";
     private static final String BUNDLE_ARG = "model";
 
     private EditText _zipcodeEditText;
@@ -111,11 +118,26 @@ public class TaxRateDialogFragment extends DialogFragment implements View.OnClic
                 _zipcodeLayout.setError(null);
                 _progressbar.setVisibility(View.VISIBLE);
                 button.setEnabled(false);
-
-                AvalaraAPI.fetchTaxRate(zipcode).continueWith(new Continuation<Double, Object>() {
+                //
+                // Fetch all the walmarts located within the zip code
+                //
+                WalmartAPI.fetchStoreByZipCode(zipcode)
+                  .continueWithTask(new Continuation<StoreModel, Task<Double>>() {
+                      @Override
+                      public Task<Double> then(Task<StoreModel> task) throws Exception {
+                          if (task.isFaulted())
+                              throw task.getError();
+                          //
+                          // Now use the walmart store address to get the tax rate for
+                          // that area.
+                          //
+                          return AvalaraAPI.fetchTaxRate(task.getResult());
+                      }
+                  }).continueWith(new Continuation<Double, Object>() {
                     @Override
                     public Object then(Task<Double> task) throws Exception {
                         if (task.isFaulted()) {
+                            WBLogger.Error(TAG, task.getError());
                             _zipcodeEditText.setError(getString(R.string.error_taxrate_search_failure));
                             _progressbar.setVisibility(View.INVISIBLE);
                             button.setEnabled(true);
