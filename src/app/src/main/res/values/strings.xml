@@ -32,7 +32,7 @@
     <string name="title_activity_filter_category">Filter Category</string>
 
     <!-- LABELS -->
-    <string name="label_zipcode_explanation">Please enter your zip code so we can retrieve the sales tax used at Walmart for your area.</string>
+    <string name="label_zipcode_explanation">Please enter your zip code in order to locate the Walmart nearest you. The Walmart location will determine how to calculate the sales tax for the items in your shopping list.</string>
     <string name="label_categories">Choose a category</string>
     <string name="label_barcode_scan_instructions">Center the code between the square and hold steady.</string>
     <string name="label_tax_included">(Tax Included)</string>
@@ -50,7 +50,7 @@
     <string name="progress_message_saving_new_cartitem">Saving item to your shopping list please wait..</string>
 
     <!-- ERROR TAGS -->
-    <string name="error_camera_unavailable">Walmart Buddy is unable to access your camera please make sure its not being used in another application</string>
+    <string name="error_camera_unavailable">Unable to access your camera please make sure its not being used in another application</string>
     <string name="error_create_photos_directory">Unable to create the pictures directory</string>
     <string name="error_processing_request">An error occurred processing this request</string>
     <string name="error_cart_save_failure">An error occurred saving changes to your shopping list</string>
@@ -60,6 +60,7 @@
     <string name="error_walmart_search_failure">An occurred processing your search request please try again.</string>
     <string name="error_walmart_categories_download_failure">An occurred downloading categories from Walmart online please try again.</string>
     <string name="error_photo_save_failure">An error occurred saving your photo to your device but it will not interfere with saving this item to your shopping list.</string>
+    <string name="error_no_network_connectivity">Unable to search for this item because the internet seems to be unavailable</string>
 
     <!-- BROKEN RULE TAGS -->
     <string name="broken_rule_cartitem_name_invalid">Name for this item is required</string>
@@ -77,7 +78,7 @@
     <string name="notification_no_items_found">No items found.</string>
 
     <!-- MENUITEM TAGS -->
-    <string name="menuitem_action_taxrate">Edit Tax Rate</string>
+    <string name="menuitem_action_taxrate">Change Walmart Location</string>
     <string name="menuitem_action_delete_shopping_list">Delete Shopping List</string>
 
     <!-- BEHAVIORS -->

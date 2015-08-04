@@ -243,7 +243,9 @@ public class ShoppingListActivity extends BaseActivity<Cart> implements
         //
         // Set whether or not tax is included in the total
         //
-        isValid = taxTotal > 0 && super.getDomainObject().getTaxRate() > 0d ;
+        float taxRate = Double.valueOf(super.getDomainObject().getTaxRate()).floatValue();
+        isValid = taxTotal > 0 && taxRate > 0f ;
+        _taxIncludedTextView.setText(String.format("(%.3f%% Tax)", taxRate));
         _taxIncludedTextView.setVisibility(isValid ? View.VISIBLE : View.INVISIBLE);
     }
 

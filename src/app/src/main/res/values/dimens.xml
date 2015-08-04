@@ -22,8 +22,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <!-- Padding -->
-    <dimen name="padding_20dp">20dp</dimen>
-    <dimen name="padding_15dp">15dp</dimen>
+    <dimen name="padding_16dp">16dp</dimen>
     <dimen name="padding_10dp">10dp</dimen>
     <dimen name="padding_5dp">5dp</dimen>
 

@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -39,7 +40,7 @@ import bolts.Task;
 public final class WalmartAPI extends WebAPI {
     private static final String TAG = "com.donellesandersjr.walmartbuddy.WalmartAPI";
 
-    private static final String WALMART_APIKEY = "[INSERT YOUR KEY HERE]";
+    private static final String WALMART_APIKEY = "[YOUR KEY GOES HERE]";
     private static final String PRODUCT_SEARCH_QUERY = "http://api.walmartlabs.com/v1/items?apiKey=" + WALMART_APIKEY + "&format=json";
     private static final String STORE_QUERY =  "http://api.walmartlabs.com/v1/stores?apiKey=" + WALMART_APIKEY + "&format=json";
 
@@ -77,6 +78,10 @@ public final class WalmartAPI extends WebAPI {
                             }
                         }
                     }
+
+                    if (products.size() == 0)
+                        throw new WalmartAPIException(ErrorCodes.UPC_SEARCH_FAILED);
+
                 } catch (Exception ex) {
                     if (connection != null) {
                         ArrayList<WalmartAPIException> exceptions = readErrorsFrom(connection.getErrorStream());
@@ -165,6 +170,8 @@ public final class WalmartAPI extends WebAPI {
             switch (_errorCode) {
                 case ErrorCodes.UPC_NOTFOUND:
                     return "Unable to find item by its barcode";
+                case ErrorCodes.UPC_SEARCH_FAILED:
+                    return "We lost connection searching for this item please rescan the item again";
                 default:
                     return "Unexpected error occured";
             }
@@ -184,15 +191,7 @@ public final class WalmartAPI extends WebAPI {
      */
     static class ErrorCodes {
         static final int UPC_NOTFOUND = 4023;
-        static final int INVALID_REQUEST = 4001;
-        static final int INVALID_ITEM = 4002;
-        static final int INVALID_CATEGORY = 4003;
-        static final int INVALID_START_PARAM = 4005;
-        static final int INVALID_RESPONSE_FORMAT = 4007;
-        static final int MISSING_ITEM_ID = 4008;
-        static final int MISSING_SEARCH_QUERY = 4009;
-        static final int INVALID_START_PARAM_GREATERTHAN_99 = 4010;
-        static final int INTERNAL_SERVER_FAILURE = 5000;
+        static final int UPC_SEARCH_FAILED = 4024;
     }
 
     /**

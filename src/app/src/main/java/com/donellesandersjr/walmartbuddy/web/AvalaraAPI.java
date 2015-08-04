@@ -34,7 +34,7 @@ import bolts.Task;
 public final class AvalaraAPI extends WebAPI {
     private static final String TAG = "com.donellesandersjr.walmartbuddy.AvalaraAPI";
 
-    private static final String AVALARAPI_APIKEY = "[INSERT YOUR KEY HERE]";
+    private static final String AVALARAPI_APIKEY = "[YOUR KEY GOES HERE]";
     private static final String AVALARAPI_SEARCHQUERY = "https://taxrates.api.avalara.com:443/postal";
 
     public static Task<Double> fetchTaxRate (StoreModel storeModel) {
