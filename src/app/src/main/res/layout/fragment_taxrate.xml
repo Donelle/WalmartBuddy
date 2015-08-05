@@ -22,6 +22,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ProgressBar
+        android:visibility="invisible"
+        android:id="@+id/taxrate_progressbar"
+        android:layout_width="match_parent"
+        android:layout_height="18dp"
+        android:layout_marginTop="-7dp"
+        android:indeterminate="true"
+        android:indeterminateBehavior="cycle"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -45,30 +55,43 @@
             <EditText
                 android:id="@+id/taxrate_zipcode"
                 android:layout_height="wrap_content"
-                android:layout_width="100dp"
+                android:layout_width="75dp"
                 android:inputType="number"
                 android:hint="Zip Code"
                 style="@style/EditTextStyle.FloatingText"/>
 
         </android.support.design.widget.TextInputLayout>
 
-        <org.rocko.bpb.BounceProgressBar
-            android:id="@+id/taxrate_progressbar"
+        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/taxrate_text1"
             android:layout_toEndOf="@+id/taxrate_inputLayout"
-            android:layout_marginTop="50dp"
-            android:visibility="invisible"
-            app:shape="circle"
-            app:singleSrcSize="6dp"
-            app:speed="250"
-            app:src="?attr/colorPrimary" />
+            android:layout_alignBottom="@+id/taxrate_inputLayout"
+            android:paddingStart="20dp"
+            android:paddingEnd="0dp"
+            android:text="or"
+            android:textSize="16sp"
+            android:gravity="center_vertical"/>
+
+        <Button
+            android:id="@+id/taxrate_usecurrentlocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/taxrate_text1"
+            android:layout_toEndOf="@+id/taxrate_inputLayout"
+            android:layout_alignBottom="@+id/taxrate_inputLayout"
+            android:layout_marginStart="32dp"
+            android:text="@string/button_use_current_location"
+            android:textColor="?attr/colorPrimary"
+            android:textAllCaps="false"
+            style="@style/ButtonStyle.Flat"/>
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dialog_button_container_height">
+        android:layout_height="@dimen/dialog_button_container_height"
+        android:background="?attr/colorPrimary">
 
         <Button
             android:id="@+id/taxrate_skip"
@@ -79,7 +102,7 @@
             android:layout_marginBottom="@dimen/dialog_button_padding"
             android:layout_toStartOf="@+id/taxrate_ok"
             android:text="@string/button_skip"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@color/md_grey_100"
             style="@style/ButtonStyle.Flat" />
 
         <Button
@@ -91,7 +114,7 @@
             android:layout_marginTop="@dimen/dialog_button_padding"
             android:layout_marginBottom="@dimen/dialog_button_padding"
             android:text="@android:string/ok"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@color/md_grey_100"
             style="@style/ButtonStyle.Flat" />
 
     </RelativeLayout>

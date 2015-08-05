@@ -19,18 +19,15 @@ package com.donellesandersjr.walmartbuddy.web;
 import com.donellesandersjr.walmartbuddy.api.WBJsonUtils;
 import com.donellesandersjr.walmartbuddy.api.WBList;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
-import com.donellesandersjr.walmartbuddy.models.CategoryModel;
 import com.donellesandersjr.walmartbuddy.models.ProductModel;
 import com.donellesandersjr.walmartbuddy.models.StoreModel;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -98,46 +95,62 @@ public final class WalmartAPI extends WebAPI {
         });
     }
 
-    public static Task<StoreModel> fetchStoreByZipCode (String zipCode) {
+    public static Task<StoreModel> lookupStore (double longitude, double latitude) {
+        final HashMap<String, String> params = new HashMap<>();
+        params.put(QueryParams.LONGITUDE, String.valueOf(longitude));
+        params.put(QueryParams.LATITUDE, String.valueOf(latitude));
+        return Task.callInBackground(new Callable<StoreModel>() {
+            @Override
+            public StoreModel call() throws Exception {
+                return executeQuery(params);
+            }
+        });
+    }
+
+    public static Task<StoreModel> lookupStore (String zipCode) {
         final HashMap<String, String> params = new HashMap<>();
         params.put(QueryParams.ZIP_CODE, zipCode);
         return Task.callInBackground(new Callable<StoreModel>() {
             @Override
             public StoreModel call() throws Exception {
-                HttpURLConnection connection = null;
-                StoreModel storeModel = new StoreModel();
-                try {
-                    URL url = buildUrl(STORE_QUERY, params);
-                    connection = (HttpURLConnection) url.openConnection();
-                    JSONArray response = readFrom(connection.getInputStream(), JSONArray.class);
-                    if (response != null) {
-                        int len = response.length();
-                        for (int i =0; i < len; i++) {
-                            JSONObject item = WBJsonUtils.getObject(response, i, null);
-                            if (item != null) {
-                                storeModel = new StoreModel()
-                                        .setAddress(WBJsonUtils.getString(item, StoreResponse.ADDRESS, null))
-                                        .setCity(WBJsonUtils.getString(item, StoreResponse.CITY, null))
-                                        .setState(WBJsonUtils.getString(item, StoreResponse.STATE, null))
-                                        .setZipCode(WBJsonUtils.getString(item, StoreResponse.ZIP, null));
-                                break;
-                            }
-                        }
-                    }
-                } catch (Exception ex) {
-                    if (connection != null) {
-                        ArrayList<WalmartAPIException> exceptions = readErrorsFrom(connection.getErrorStream());
-                        if (exceptions.size() > 0)
-                            throw exceptions.get(0);
-                    }
-                    throw ex;
-                } finally {
-                    if (connection != null)
-                        connection.disconnect();
-                }
-                return storeModel;
+                return executeQuery(params);
             }
         });
+    }
+
+    static StoreModel executeQuery (HashMap<String, String> params) throws Exception {
+        HttpURLConnection connection = null;
+        StoreModel storeModel = new StoreModel();
+        try {
+            URL url = buildUrl(STORE_QUERY, params);
+            connection = (HttpURLConnection) url.openConnection();
+            JSONArray response = readFrom(connection.getInputStream(), JSONArray.class);
+            if (response != null) {
+                int len = response.length();
+                for (int i =0; i < len; i++) {
+                    JSONObject item = WBJsonUtils.getObject(response, i, null);
+                    if (item != null) {
+                        storeModel = new StoreModel()
+                                .setAddress(WBJsonUtils.getString(item, StoreResponse.ADDRESS, null))
+                                .setCity(WBJsonUtils.getString(item, StoreResponse.CITY, null))
+                                .setState(WBJsonUtils.getString(item, StoreResponse.STATE, null))
+                                .setZipCode(WBJsonUtils.getString(item, StoreResponse.ZIP, null));
+                        break;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            if (connection != null) {
+                ArrayList<WalmartAPIException> exceptions = readErrorsFrom(connection.getErrorStream());
+                if (exceptions.size() > 0)
+                    throw exceptions.get(0);
+            }
+            throw ex;
+        } finally {
+            if (connection != null)
+                connection.disconnect();
+        }
+        return storeModel;
     }
 
     static ArrayList<WalmartAPIException> readErrorsFrom (InputStream stream) {
@@ -206,6 +219,14 @@ public final class WalmartAPI extends WebAPI {
          * zip
          */
         static final String ZIP_CODE = "zip";
+        /**
+         * longitude
+         */
+        static final String LONGITUDE = "lon";
+        /**
+         * latitude
+         */
+        static final String LATITUDE = "lat";
     }
 
     /**

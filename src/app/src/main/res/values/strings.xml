@@ -32,7 +32,7 @@
     <string name="title_activity_filter_category">Filter Category</string>
 
     <!-- LABELS -->
-    <string name="label_zipcode_explanation">Please enter your zip code in order to locate the Walmart nearest you. The Walmart location will determine how to calculate the sales tax for the items in your shopping list.</string>
+    <string name="label_zipcode_explanation">Please enter your zip code or click <b>Current Location</b> to locate the Walmart nearest you. The Walmart location will determine how to calculate the sales tax for the items in your shopping list.</string>
     <string name="label_categories">Choose a category</string>
     <string name="label_barcode_scan_instructions">Center the code between the square and hold steady.</string>
     <string name="label_tax_included">(Tax Included)</string>
@@ -42,6 +42,7 @@
     <string name="button_skip">Skip</string>
     <string name="button_remove">Remove</string>
     <string name="button_hide">Hide</string>
+    <string name="button_use_current_location">Current Location</string>
 
     <!-- PROGRESS TAGS -->
     <string name="progress_message_searching">Searching...</string>
@@ -57,6 +58,7 @@
     <string name="error_cartitem_save_failure">A terrible error occurred saving this item to your shopping list</string>
     <string name="error_cartitem_validation_failure">Please fill in the required fields in order to add item to your shopping list</string>
     <string name="error_taxrate_search_failure">Unable to find tax rate for this zip code please try again.</string>
+    <string name="error_taxrate_location_services_failure">Location services seems unavailable please use zip code instead</string>
     <string name="error_walmart_search_failure">An occurred processing your search request please try again.</string>
     <string name="error_walmart_categories_download_failure">An occurred downloading categories from Walmart online please try again.</string>
     <string name="error_photo_save_failure">An error occurred saving your photo to your device but it will not interfere with saving this item to your shopping list.</string>

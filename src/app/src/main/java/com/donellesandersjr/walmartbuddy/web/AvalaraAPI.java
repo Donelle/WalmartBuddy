@@ -21,7 +21,6 @@ import com.donellesandersjr.walmartbuddy.api.WBJsonUtils;
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
 import com.donellesandersjr.walmartbuddy.models.StoreModel;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
