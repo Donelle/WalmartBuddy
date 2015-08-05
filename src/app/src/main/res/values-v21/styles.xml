@@ -18,7 +18,18 @@
  -->
 <resources>
     <style name="AppTheme" parent="BaseTheme">
+
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:colorAccent">@color/md_orange_a200</item>
+        <item name="android:colorPrimary">@color/md_blue_500</item>
+        <item name="android:colorPrimaryDark">@color/md_blue_700</item>
+
+        <item name="android:colorControlNormal">@color/md_blue_500</item>
+        <item name="android:colorControlActivated">@color/md_orange_a200</item>
+        <item name="android:colorButtonNormal">@color/md_blue_500</item>
+        <item name="android:colorControlHighlight">@color/md_orange_a200</item>
+
+        <item name="android:actionOverflowButtonStyle">@style/ActionButtonOverflowStyle</item>
     </style>
 
     <style name="ButtonStyle.Flat">
