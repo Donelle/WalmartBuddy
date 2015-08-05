@@ -1,6 +1,6 @@
 # Walmart Buddy
 
-A shopping list application which allows Walmart shoppers to scan items while they shop and provides a rough estimate of how much money expected to spend.  
+A shopping list application which allows Walmart shoppers to scan items while they shop and provides a rough estimate of how much money expected to spend. This app can be found in the [Google Play Store](https://play.google.com/store/apps/details?id=com.donellesandersjr.walmartbuddy)
 
 ![image](screenshot/Screenshot_1.png)
 ![image](screenshot/Screenshot_2.png)
