@@ -67,7 +67,7 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
     private ImageView _productImageView;
     private View _productView;
     private TextView _productTitleTextView;
-    private TextView _productPriceTextView;
+    private EditText _productPriceEditText;
     private TextView _shoppingListTotalTextView;
     private EditText _productQuantityEditText;
 
@@ -123,7 +123,7 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
         });
 
         _productTitleTextView = (TextView) findViewById(R.id.scan_item_scan_title);
-        _productPriceTextView = (TextView) findViewById(R.id.scan_item_scan_price);
+        _productPriceEditText = (EditText) findViewById(R.id.scan_item_scan_price);
         _shoppingListTotalTextView = (TextView) findViewById(R.id.scan_item_total);
         _productQuantityEditText = (EditText) findViewById(R.id.scan_item_scan_quantity);
 
@@ -212,9 +212,7 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
                 if (_product != null) {
                     double price = _product.getSalePrice();
                     _productTitleTextView.setText(_product.getName());
-                    _productPriceTextView.setText(price > 0 ?
-                            "Price: " + NumberFormat.getCurrencyInstance().format(price) :
-                            "Price not available");
+                    _productPriceEditText.setText(String.format("%.2f", Double.valueOf(_product.getSalePrice()).floatValue()));
                     _productImageView.setImageBitmap(task.getResult());
                     _productQuantityEditText.setText("");
                     //
@@ -239,7 +237,7 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
         if (id == R.id.scan_item_scan_add_to_cart) {
             final CartItem cartItem = new CartItem()
                     .setName(_product.getName())
-                    .setPrice(_product.getSalePrice())
+                    .setPrice(_getDoubleValue(_productPriceEditText.getText().toString(), 0))
                     .setQuantity(_getIntValue(_productQuantityEditText.getText().toString(), 1))
                     .setProductModel(_product);
             if (cartItem.isValid()) {
@@ -314,7 +312,7 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
                 for (Map.Entry<Integer, String> entry : cartItem.getBrokenRules().entrySet()) {
                     int ruleKey = entry.getKey();
                     if (ruleKey == CartItem.RULE_PRICE ) {
-                        super.showMessage(getString(R.string.broken_rule_cartitem_price_invalid));
+                        _productPriceEditText.setError(entry.getValue());
                     } else if (ruleKey == CartItem.RULE_QUANTITY) {
                         _productQuantityEditText.setError(entry.getValue());
                     }
@@ -386,6 +384,21 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
             return Integer.valueOf(stringVal);
         } catch (NumberFormatException e2) {
             WBLogger.Error(TAG, "Cannot parse Integer value for " + stringVal);
+        }
+        return defaultVal;
+    }
+
+    /**
+     * Utility method for getting an double value
+     * @param stringVal
+     * @param defaultVal
+     * @return
+     */
+    private double _getDoubleValue (String stringVal, double defaultVal) {
+        try {
+            return Double.valueOf(stringVal);
+        } catch (NumberFormatException e2) {
+            WBLogger.Error(TAG, "Cannot parse Double value for " + stringVal);
         }
         return defaultVal;
     }
