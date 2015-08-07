@@ -149,7 +149,7 @@
                 android:layout_marginStart="64dp"
                 android:layout_below="@+id/scan_item_scan_title"
                 android:textSize="20sp"
-                android:hint="1"
+                android:hint="0.00"
                 android:gravity="center_horizontal"
                 android:inputType="numberDecimal" />
 

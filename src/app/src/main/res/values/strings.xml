@@ -26,8 +26,9 @@
 
     <!-- TITLES -->
     <string name="title_dialog_taxrate">Sales Tax Information</string>
+    <string name="title_dialog_newitem">New Item</string>
     <string name="title_activity_scan">ScanActivity</string>
-    <string name="title_activity_new_item">New Item</string>
+    <string name="title_activity_new_item">Add New Item</string>
     <string name="title_activity_search_item">Search</string>
     <string name="title_activity_filter_category">Filter Category</string>
 
@@ -36,6 +37,7 @@
     <string name="label_categories">Choose a category</string>
     <string name="label_barcode_scan_instructions">Center the code between the square and hold steady.</string>
     <string name="label_tax_included">(Tax Included)</string>
+    <string name="label_newitem_desc">Please enter the following information to add a new item to your shopping list</string>
 
     <!-- BUTTON TAGS -->
     <string name="button_add_to_cart">add to cart</string>

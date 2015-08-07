@@ -23,6 +23,7 @@ import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewCompat;
 import android.view.GestureDetector;
@@ -33,11 +34,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.donellesandersjr.walmartbuddy.App;
 import com.donellesandersjr.walmartbuddy.AppUI;
 import com.donellesandersjr.walmartbuddy.R;
 import com.donellesandersjr.walmartbuddy.api.WBImageUtils;
 import com.donellesandersjr.walmartbuddy.domain.Cart;
+import com.donellesandersjr.walmartbuddy.fragments.NewItemDialogFragment;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
 import com.donellesandersjr.walmartbuddy.web.WalmartAPI;
 import com.donellesandersjr.walmartbuddy.api.WBList;
@@ -60,7 +61,8 @@ import bolts.Task;
 
 public class ScanItemActivity extends BaseActivity<Cart> implements
         BarCodeScannerFragment.IResultCallback,
-        View.OnClickListener
+        View.OnClickListener,
+        NewItemDialogFragment.NewItemDialogListener
 {
     private final String TAG = "com.donellesandersjr.walmartbuddy.activities.ScanItemActivity";
 
@@ -148,6 +150,27 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
         super.onBackPressed();
     }
 
+    @Override /* NewItemDialogFragment.NewItemDialogListener */
+    public void onDismissed(CartModel model) {
+        if (model != null) {
+            setDomainObject(new Cart(model));
+            //
+            // Show the new total
+            //
+            _setEstimatedTotal();
+            //
+            // Show message
+            //
+            String message = getString(R.string.notification_cart_item_added);
+            showMessage(message);
+        }
+        //
+        // Start scanning
+        //
+        _scannerFragment.startScan();
+    }
+
+
     @Override /* BarCodeScannerFragment.IResultCallback */
     public void result(Result lastResult) {
         //
@@ -186,10 +209,29 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
                     Task.call(new Callable<Object>() {
                         @Override
                         public Object call() throws Exception {
-                            String message = ex instanceof WalmartAPI.WalmartAPIException ?
-                                    ex.getMessage() :
-                                    getString(R.string.error_processing_request);
-                            showMessage(message);
+                            WalmartAPI.WalmartAPIException wex = (WalmartAPI.WalmartAPIException) ex;
+                            if (wex !=null) {
+                                if (wex.getErrorCode() == WalmartAPI.ErrorCodes.UPC_NOTFOUND) {
+                                    Snackbar.make(findViewById(R.id.coordinatorLayout), wex.getMessage(), Snackbar.LENGTH_LONG)
+                                            .setAction("ADD ITEM", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    //
+                                                    // Stop the scanning
+                                                    //
+                                                    _scannerFragment.stopScan();
+                                                    //
+                                                    // Show the
+                                                    NewItemDialogFragment fragment = NewItemDialogFragment.newInstance(getDomainObject().getModel(), ScanItemActivity.this);
+                                                    fragment.show(getFragmentManager(), "NewItemDialogFragment");
+                                                }
+                                            }).show();
+                                } else {
+                                    showMessage(wex.getMessage());
+                                }
+                            } else {
+                                showMessage(getString(R.string.error_processing_request));
+                            }
                             return null;
                         }
                     }, Task.UI_THREAD_EXECUTOR);
@@ -210,9 +252,9 @@ public class ScanItemActivity extends BaseActivity<Cart> implements
             @Override
             public Object then(Task<Bitmap> task) throws Exception {
                 if (_product != null) {
-                    double price = _product.getSalePrice();
+                    float price = Double.valueOf(_product.getSalePrice()).floatValue();
                     _productTitleTextView.setText(_product.getName());
-                    _productPriceEditText.setText(String.format("%.2f", Double.valueOf(_product.getSalePrice()).floatValue()));
+                    _productPriceEditText.setText(price > 0f ? String.format("%.2f", price) : "");
                     _productImageView.setImageBitmap(task.getResult());
                     _productQuantityEditText.setText("");
                     //
