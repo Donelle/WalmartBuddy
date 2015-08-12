@@ -21,6 +21,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -49,9 +50,9 @@ public class NewItemDialogFragment extends DialogFragment implements View.OnClic
     private final String TAG = "com.donellesandersjr.walmart.fragments.NewItemDialogFragment";
     private static final String BUNDLE_ARG = "model";
 
-    private EditText _nameEditText;
-    private EditText _priceEditText;
-    private EditText _quantityEditText;
+    private TextInputLayout _nameEditText;
+    private TextInputLayout _priceEditText;
+    private TextInputLayout _quantityEditText;
     private ProgressBar _progressbar;
 
     private CartItem _newCartItem;
@@ -114,14 +115,22 @@ public class NewItemDialogFragment extends DialogFragment implements View.OnClic
     private EditTextWatcher _itemPriceWatcher = EditTextWatcher.newInstance(new OnTextChangedListener() {
         @Override
         public void onTextChanged(String newText) {
-            _newCartItem.setPrice(Double.parseDouble(newText));
+            double val = 0d;
+            try {
+                val = Double.parseDouble(newText);
+            } catch (Exception ex) {}
+            _newCartItem.setPrice(val);
         }
     });
 
     private EditTextWatcher _itemQtyWatcher = EditTextWatcher.newInstance(new OnTextChangedListener() {
         @Override
         public void onTextChanged(String newText) {
-            _newCartItem.setQuantity(Integer.parseInt(newText));
+            int val = 0;
+            try {
+                val = Integer.parseInt(newText);
+            } catch (Exception ex) {}
+            _newCartItem.setQuantity(val);
         }
     });
 
@@ -140,14 +149,14 @@ public class NewItemDialogFragment extends DialogFragment implements View.OnClic
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_newitem, container, false);
 
-        _nameEditText = (EditText) rootView.findViewById(R.id.new_item_name);
-        _nameEditText.addTextChangedListener(_itemNameWatcher);
+        _nameEditText = (TextInputLayout) rootView.findViewById(R.id.new_item_name_container);
+        _nameEditText.getEditText().addTextChangedListener(_itemNameWatcher);
 
-        _priceEditText = (EditText) rootView.findViewById(R.id.new_item_price);
-        _priceEditText.addTextChangedListener(_itemPriceWatcher);
+        _priceEditText = (TextInputLayout) rootView.findViewById(R.id.new_item_price_container);
+        _priceEditText.getEditText().addTextChangedListener(_itemPriceWatcher);
 
-        _quantityEditText = (EditText) rootView.findViewById(R.id.new_item_qty);
-        _quantityEditText.addTextChangedListener(_itemQtyWatcher);
+        _quantityEditText = (TextInputLayout) rootView.findViewById(R.id.new_item_qty_container);
+        _quantityEditText.getEditText().addTextChangedListener(_itemQtyWatcher);
 
         _progressbar = (ProgressBar) rootView.findViewById(R.id.progressbar);
 

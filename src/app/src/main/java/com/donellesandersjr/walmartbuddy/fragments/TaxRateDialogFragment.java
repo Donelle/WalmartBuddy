@@ -63,8 +63,7 @@ public class TaxRateDialogFragment extends DialogFragment implements
     private final String TAG = "com.donellesandersjr.walmart.fragments.TaxRateDialogFragment";
     private static final String BUNDLE_ARG = "model";
 
-    private EditText _zipcodeEditText;
-    private TextInputLayout _zipcodeLayout;
+    private TextInputLayout _zipcodeEditText;
     private ProgressBar _progressbar;
     private Button _okButton;
 
@@ -86,15 +85,13 @@ public class TaxRateDialogFragment extends DialogFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         _model = getArguments().getParcelable(BUNDLE_ARG);
-
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_taxrate, container, false);
-        _zipcodeEditText = (EditText) rootView.findViewById(R.id.taxrate_zipcode);
-        _zipcodeLayout = (TextInputLayout) rootView.findViewById(R.id.taxrate_inputLayout);
+        _zipcodeEditText = (TextInputLayout) rootView.findViewById(R.id.taxrate_inputLayout);
         _progressbar = (ProgressBar) rootView.findViewById(R.id.taxrate_progressbar);
         _progressbar.getIndeterminateDrawable()
                 .setColorFilter(getResources().getColor(R.color.md_orange_800), PorterDuff.Mode.SRC_IN);
@@ -133,7 +130,7 @@ public class TaxRateDialogFragment extends DialogFragment implements
             // Reset UI controls
             //
             _hideKeyboard();
-            _zipcodeLayout.setError(null);
+            _zipcodeEditText.setError(null);
             _progressbar.setVisibility(View.VISIBLE);
             _okButton.setEnabled(false);
             //
@@ -141,13 +138,13 @@ public class TaxRateDialogFragment extends DialogFragment implements
             //
             _gacLocations.connect();
         } else {
-            final String zipcode = _zipcodeEditText.getText().toString();
+            final String zipcode = _zipcodeEditText.getEditText().getText().toString();
             if (!WBStringUtils.isNullOrEmpty(zipcode)) {
                 //
                 // Reset UI controls
                 //
                 _hideKeyboard();
-                _zipcodeLayout.setError(null);
+                _zipcodeEditText.setError(null);
                 _progressbar.setVisibility(View.VISIBLE);
                 _okButton.setEnabled(false);
                 //
@@ -157,7 +154,7 @@ public class TaxRateDialogFragment extends DialogFragment implements
                         .continueWithTask(_fetchTaxRate())
                         .continueWith(_updateUI(), Task.UI_THREAD_EXECUTOR);
             } else {
-                _zipcodeLayout.setError(getString(R.string.broken_rule_cart_zipcode_invalid));
+                _zipcodeEditText.setError(getString(R.string.broken_rule_cart_zipcode_invalid));
             }
         }
     }

@@ -189,6 +189,10 @@ public final class WalmartAPI extends WebAPI {
                     return "Unexpected error occured";
             }
         }
+
+        public int getErrorCode() {
+            return _errorCode;
+        }
     }
 
     /**
@@ -202,9 +206,9 @@ public final class WalmartAPI extends WebAPI {
     /**
      * API Response Codes
      */
-    static class ErrorCodes {
-        static final int UPC_NOTFOUND = 4023;
-        static final int UPC_SEARCH_FAILED = 4024;
+    public static class ErrorCodes {
+        public static final int UPC_NOTFOUND = 4023;
+        public static final int UPC_SEARCH_FAILED = 4024;
     }
 
     /**
