@@ -38,3 +38,7 @@ nosetests.xml
 .project
 .pydevproject
 
+# Android Studio
+*.iml
+.idea
+

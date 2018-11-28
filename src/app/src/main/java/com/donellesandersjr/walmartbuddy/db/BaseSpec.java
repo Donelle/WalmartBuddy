@@ -18,15 +18,15 @@ package com.donellesandersjr.walmartbuddy.db;
 
 import com.donellesandersjr.walmartbuddy.api.WBLogger;
 import com.donellesandersjr.walmartbuddy.models.DataModel;
-import com.yahoo.squidb.data.DatabaseDao;
+
 
 abstract class BaseSpec {
     private static final String TAG = "com.donellesandersjr.walmartbuddy.db.BaseSpec";
 
-    private static DatabaseDao _dao;
-    static DatabaseDao getDatabase () {
+    private static WalmartBuddyDatabase _dao;
+    static WalmartBuddyDatabase getDatabase () {
         if (_dao == null)
-            _dao = new DatabaseDao(new WalmartBuddyDatabase());
+            _dao = new WalmartBuddyDatabase();
         return _dao;
     }
 

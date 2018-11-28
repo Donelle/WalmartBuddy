@@ -21,7 +21,6 @@ import com.donellesandersjr.walmartbuddy.models.CartItemModel;
 import com.donellesandersjr.walmartbuddy.models.CartModel;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.data.DatabaseDao;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Criterion;
@@ -68,7 +67,7 @@ class CartSpec extends BaseSpec {
 
     @ModelMethod
     public static void save (CartDb cartDb, CartModel model) {
-        DatabaseDao db =  getDatabase();
+        WalmartBuddyDatabase db =  getDatabase();
 
         cartDb.setId(model.getLongValue(TableModel.DEFAULT_ID_COLUMN));
         cartDb.setName(model.getName());

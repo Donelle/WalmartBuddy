@@ -78,7 +78,7 @@ public final class CategoryModel extends DataModel {
         if (!(subcategories == null && _subcategories == null)) {
             _subcategories = subcategories != null ?
                     new WBList<>((List) subcategories) :
-                    new WBList<CartItemModel>();
+                    new WBList<>();
         }
         return this;
     }

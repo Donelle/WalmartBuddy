@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/src.iml" filepath="$PROJECT_DIR$/src.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libraries/zxing-android/zxing-android.iml" filepath="$PROJECT_DIR$/libraries/zxing-android/zxing-android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libraries/zxingfragmentlib/zxingfragmentlib.iml" filepath="$PROJECT_DIR$/libraries/zxingfragmentlib/zxingfragmentlib.iml" />
     </modules>
   </component>
 </project>

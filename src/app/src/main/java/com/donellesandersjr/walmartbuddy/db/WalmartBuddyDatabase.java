@@ -16,22 +16,19 @@
 
 package com.donellesandersjr.walmartbuddy.db;
 
-
-import android.database.sqlite.SQLiteDatabase;
-
 import com.donellesandersjr.walmartbuddy.App;
-import com.yahoo.squidb.data.AbstractDatabase;
+import com.yahoo.squidb.android.AndroidOpenHelper;
+import com.yahoo.squidb.data.ISQLiteDatabase;
+import com.yahoo.squidb.data.ISQLiteOpenHelper;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sql.Table;
 
-class WalmartBuddyDatabase extends AbstractDatabase {
+public class WalmartBuddyDatabase extends SquidDatabase {
     private static final int VERSION = 1;
 
-    public WalmartBuddyDatabase() {
-        super(App.getInstance());
-    }
 
     @Override
-    protected String getName() {
+    public String getName() {
         return "walmartbuddy.db";
     }
 
@@ -52,8 +49,12 @@ class WalmartBuddyDatabase extends AbstractDatabase {
     }
 
     @Override
-    protected boolean onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        return false;
+    protected boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
+        return true;
     }
 
+    @Override
+    protected ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate, int version) {
+        return new AndroidOpenHelper(App.getInstance(), databaseName, delegate, version);
+    }
 }
